@@ -1,0 +1,78 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Python third-party packages (install via pip)
+Lib/
+Lib/site-packages/
+Stock Forecast/Lib/
+Stock Forecast/Lib/site-packages/
+
+# Frontend third-party packages (install via npm)
+node_modules/
+Stock Forecast/frontend/node_modules/
+Stock Forecast/frontend/dist/
+
+# Virtual environments
+.venv/
+venv/
+Stock Forecast/venv/
+Stock Forecast/.venv/
+ENV/
+
+# Distribution / packaging
+dist/
+build/
+*.egg-info/
+*.egg
+
+# IDE (keep .idea folder but not generated files)
+.idea/workspace.xml
+.idea/tasks.xml
+.idea/shelf/
+.idea/dependencies.xml
+
+# Logs
+*.log
+npm-debug.log*
+
+# Data files (large)
+data/*.csv
+data/*.parquet
+data/*.feather
+*.pkl
+*.pickle
+*.h5
+*.onnx
+
+# Model checkpoints (too large for repo)
+checkpoints/
+*.pt
+*.pth
+*.ckpt
+*.safetensors
+
+# Scripts exe only (no source code)
+Scripts/*.exe
+Stock Forecast/Scripts/*.exe
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Confidential
+*.pem
+cacert.pem
+*.key
+*.cert
+
+# Python bytecode cache
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Jupyter
+.ipynb_checkpoints/

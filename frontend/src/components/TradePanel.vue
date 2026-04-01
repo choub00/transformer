@@ -1,0 +1,646 @@
+<template>
+  <div class="trade-panel glass-card">
+    <!-- ══════════════════════════════════════════════════════════════════════════
+         标题栏
+         ══════════════════════════════════════════════════════════════════════════ -->
+    <div class="panel-header">
+      <div class="ticker-info">
+        <span class="ticker-code">{{ ticker }}</span>
+        <span class="ticker-name">{{ tickerName }}</span>
+      </div>
+      <div class="ticker-price">
+        <span class="price-label">当前价</span>
+        <span class="price-value" :class="priceDirection">
+          ${{ formatNumber(currentPrice) }}
+          <span class="price-arrow">{{ priceDirection === 'up' ? '▲' : priceDirection === 'down' ? '▼' : '' }}</span>
+        </span>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════════════════════════
+         AI 信心评分区
+         ══════════════════════════════════════════════════════════════════════════ -->
+    <div class="ai-confidence-section">
+      <div class="confidence-header">
+        <span class="section-label">&#63720; AI 信心评分</span>
+        <span class="confidence-value" :class="confidenceClass">
+          {{ aiScore >= 0 ? '+' : '' }}{{ aiScore.toFixed(4) }}
+        </span>
+      </div>
+
+      <!-- 置信度进度条 -->
+      <div class="confidence-bar-wrap">
+        <div class="confidence-bar-bg">
+          <div
+            class="confidence-bar-fill"
+            :class="confidenceClass"
+            :style="{ width: confidencePct + '%' }"
+          ></div>
+        </div>
+        <div class="confidence-marks">
+          <span>0%</span>
+          <span>{{ confidencePct }}%</span>
+          <span>100%</span>
+        </div>
+      </div>
+
+      <!-- AI 信号标签 -->
+      <div class="ai-signals">
+        <span class="signal-tag direction-tag" :class="direction">
+          {{ direction === 'bullish' ? '&#128200; 看多' : direction === 'bearish' ? '&#128201; 看空' : '&#10140; 中性' }}
+        </span>
+        <span class="signal-tag confidence-tag" :class="confidenceClass">
+          置信度 {{ confidencePct }}%
+        </span>
+        <span class="signal-tag risk-tag" :class="riskLevel">
+          {{ riskLevel === 'low' ? '低风险' : riskLevel === 'medium' ? '中风险' : '高风险' }}
+        </span>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════════════════════════
+         交易表单
+         ══════════════════════════════════════════════════════════════════════════ -->
+    <div class="trade-form">
+      <!-- 持仓信息 -->
+      <div class="position-info" v-if="currentPosition">
+        <div class="position-row">
+          <span class="pos-label">持仓数量</span>
+          <span class="pos-value">{{ currentPosition.quantity }} 股</span>
+        </div>
+        <div class="position-row">
+          <span class="pos-label">持仓市值</span>
+          <span class="pos-value">${{ formatNumber(currentPosition.market_value) }}</span>
+        </div>
+        <div class="position-row">
+          <span class="pos-label">浮动盈亏</span>
+          <span class="pos-value" :class="currentPosition.unrealized_pnl >= 0 ? 'positive' : 'negative'">
+            {{ currentPosition.unrealized_pnl >= 0 ? '+' : '' }}${{ formatNumber(Math.abs(currentPosition.unrealized_pnl)) }}
+            ({{ currentPosition.unrealized_pnl_pct >= 0 ? '+' : '' }}{{ currentPosition.unrealized_pnl_pct.toFixed(2) }}%)
+          </span>
+        </div>
+      </div>
+
+      <!-- 方向选择 -->
+      <div class="side-selector">
+        <button
+          class="side-btn buy-btn"
+          :class="{ active: side === 'buy' }"
+          @click="side = 'buy'"
+        >
+          &#128640; 买入
+        </button>
+        <button
+          class="side-btn sell-btn"
+          :class="{ active: side === 'sell' }"
+          @click="side = 'sell'"
+        >
+          &#128465; 卖出
+        </button>
+      </div>
+
+      <!-- 数量输入 -->
+      <div class="quantity-group">
+        <label class="field-label">数量（股）</label>
+        <div class="quantity-input-wrap">
+          <button class="qty-btn" @click="adjustQty(-10)">-10</button>
+          <input
+            v-model.number="quantity"
+            type="number"
+            min="1"
+            step="1"
+            class="qty-input"
+            placeholder="输入数量"
+          />
+          <button class="qty-btn" @click="adjustQty(10)">+10</button>
+        </div>
+        <!-- 快捷数量 -->
+        <div class="qty-shortcuts">
+          <button class="shortcut-btn" @click="quantity = 100">100</button>
+          <button class="shortcut-btn" @click="quantity = 500">500</button>
+          <button class="shortcut-btn" @click="quantity = 1000">1000</button>
+          <button class="shortcut-btn" @click="quantity = 'max'" :disabled="side !== 'buy'">
+            {{ side === 'buy' ? '满仓' : '—' }}
+          </button>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════════════════════════════════════════════
+           成本预览（0.0015 手续费）
+           ══════════════════════════════════════════════════════════════════════════ -->
+      <div class="cost-preview" v-if="quantity > 0">
+        <div class="cost-row">
+          <span class="cost-label">{{ side === 'buy' ? '买入' : '卖出' }}金额</span>
+          <span class="cost-value">${{ formatNumber(tradeAmount) }}</span>
+        </div>
+        <div class="cost-row">
+          <span class="cost-label">手续费（0.15%）</span>
+          <span class="cost-value fee">-${{ formatNumber(tradeFee) }}</span>
+        </div>
+        <div class="cost-divider"></div>
+        <div class="cost-row total">
+          <span class="cost-label">{{ side === 'buy' ? '实际扣款' : '实际回款' }}</span>
+          <span class="cost-value">${{ formatNumber(totalCost) }}</span>
+        </div>
+        <div class="cost-row" v-if="side === 'buy'">
+          <span class="cost-label">预计持仓成本</span>
+          <span class="cost-value">${{ formatNumber(avgCost) }}/股</span>
+        </div>
+      </div>
+
+      <!-- 操作按钮 -->
+      <button
+        class="submit-btn"
+        :class="[side, { loading: submitting, disabled: !canSubmit }]"
+        :disabled="!canSubmit || submitting"
+        @click="handleSubmit"
+      >
+        <span class="loading-spinner" v-if="submitting"></span>
+        <span v-else>
+          {{ side === 'buy' ? '&#128640; 确认买入' : '&#128465; 确认卖出' }}
+          {{ quantity > 0 ? `${quantity} 股` : '' }}
+        </span>
+      </button>
+
+      <p class="submit-hint" v-if="errorMsg">{{ errorMsg }}</p>
+    </div>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { ref, computed, watch } from 'vue'
+import { ElNotification } from 'element-plus'
+import { apiTrade } from '../api'
+import type { Position } from '../types/api'
+
+// ─── Props & Emits ────────────────────────────────────────────────────
+const props = defineProps<{
+  ticker: string
+  tickerName?: string
+  currentPrice: number
+  aiScore: number
+  confidencePct: number
+  direction: 'bullish' | 'bearish' | 'neutral'
+  riskLevel?: 'low' | 'medium' | 'high'
+  currentPosition?: Position | null
+  availableCash: number
+}>()
+
+const emit = defineEmits<{
+  tradeSuccess: []
+}>()
+
+// ─── State ─────────────────────────────────────────────────────────────
+const side = ref<'buy' | 'sell'>('buy')
+const quantity = ref<number>(0)
+const submitting = ref(false)
+const errorMsg = ref('')
+
+// ─── 常量 ─────────────────────────────────────────────────────────────
+const FEE_RATE = 0.0015  // 东方财富杯规则：单边 0.15%
+
+// ─── 计算属性 ─────────────────────────────────────────────────────────
+const priceDirection = computed(() => {
+  if (props.aiScore > 0.02) return 'up'
+  if (props.aiScore < -0.02) return 'down'
+  return 'neutral'
+})
+
+const confidenceClass = computed(() => {
+  if (props.confidencePct >= 70) return 'high'
+  if (props.confidencePct >= 40) return 'medium'
+  return 'low'
+})
+
+const tradeAmount = computed(() => props.currentPrice * quantity.value)
+const tradeFee = computed(() => tradeAmount.value * FEE_RATE)
+const totalCost = computed(() =>
+  side.value === 'buy' ? tradeAmount.value + tradeFee.value : tradeAmount.value - tradeFee.value
+)
+const avgCost = computed(() =>
+  totalCost.value / Math.max(quantity.value, 1)
+)
+
+const canSubmit = computed(() => {
+  if (quantity.value <= 0) return false
+  if (side.value === 'buy' && totalCost.value > props.availableCash) return false
+  if (side.value === 'sell' && (!props.currentPosition || props.currentPosition.quantity < quantity.value)) return false
+  return true
+})
+
+// ─── 方法 ─────────────────────────────────────────────────────────────
+function adjustQty(delta: number) {
+  quantity.value = Math.max(0, quantity.value + delta)
+}
+
+function formatNumber(n: number): string {
+  return n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+}
+
+async function handleSubmit() {
+  if (!canSubmit.value) return
+  errorMsg.value = ''
+  submitting.value = true
+
+  try {
+    const data = await apiTrade.order({
+      ticker: props.ticker,
+      side: side.value,
+      quantity: quantity.value,
+      price: props.currentPrice,
+    })
+
+    ElNotification({
+      title: side.value === 'buy' ? '买入成功' : '卖出成功',
+      message: `${props.ticker} × ${quantity.value}股 @ $${formatNumber(data.data.price)}`,
+      type: 'success',
+      duration: 3000,
+    })
+
+    quantity.value = 0
+    emit('tradeSuccess')
+
+  } catch {
+    errorMsg.value = '下单失败，请重试'
+  } finally {
+    submitting.value = false
+  }
+}
+
+// ─── 监听：切换方向时重置数量 ───────────────────────────────────────
+watch(side, () => {
+  quantity.value = 0
+  errorMsg.value = ''
+})
+</script>
+
+<style lang="scss" scoped>
+.trade-panel {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+// ─── 标题栏 ──────────────────────────────────────────────────────────
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.ticker-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.ticker-code {
+  font-size: 20px;
+  font-weight: 700;
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--text-primary);
+}
+
+.ticker-name {
+  font-size: 12px;
+  color: var(--text-tertiary);
+}
+
+.ticker-price {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+}
+
+.price-label {
+  font-size: 11px;
+  color: var(--text-tertiary);
+}
+
+.price-value {
+  font-size: 20px;
+  font-weight: 700;
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--text-primary);
+
+  &.up { color: var(--accent-green); }
+  &.down { color: var(--accent-red); }
+}
+
+.price-arrow {
+  font-size: 14px;
+  margin-left: 4px;
+}
+
+// ─── AI 置信度 ────────────────────────────────────────────────────────
+.ai-confidence-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.confidence-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.section-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.confidence-value {
+  font-size: 16px;
+  font-weight: 700;
+  font-family: 'JetBrains Mono', monospace;
+
+  &.high { color: var(--accent-green); }
+  &.medium { color: var(--accent-gold); }
+  &.low { color: var(--accent-red); }
+}
+
+.confidence-bar-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.confidence-bar-bg {
+  height: 8px;
+  background: var(--bg-secondary);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.confidence-bar-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.6s ease;
+
+  &.high { background: linear-gradient(90deg, var(--accent-green), var(--accent-cyan)); }
+  &.medium { background: linear-gradient(90deg, var(--accent-gold), #FF9500); }
+  &.low { background: linear-gradient(90deg, var(--accent-red), #FF6B6B); }
+}
+
+.confidence-marks {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10px;
+  color: var(--text-tertiary);
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.ai-signals {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.signal-tag {
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.direction-tag {
+  &.bullish { background: var(--accent-green-dim); color: var(--accent-green); }
+  &.bearish { background: var(--accent-red-dim); color: var(--accent-red); }
+  &.neutral { background: var(--bg-secondary); color: var(--text-secondary); }
+}
+
+.confidence-tag {
+  &.high { background: var(--accent-cyan-dim); color: var(--accent-cyan); }
+  &.medium { background: var(--accent-gold-dim); color: var(--accent-gold); }
+  &.low { background: var(--accent-red-dim); color: var(--accent-red); }
+}
+
+.risk-tag {
+  &.low { background: var(--accent-green-dim); color: var(--accent-green); }
+  &.medium { background: var(--accent-gold-dim); color: var(--accent-gold); }
+  &.high { background: var(--accent-red-dim); color: var(--accent-red); }
+}
+
+// ─── 交易表单 ────────────────────────────────────────────────────────
+.trade-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.position-info {
+  background: var(--bg-secondary);
+  border-radius: 10px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.position-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+}
+
+.pos-label { color: var(--text-tertiary); }
+.pos-value { color: var(--text-primary); font-weight: 500; font-family: 'JetBrains Mono', monospace; }
+.pos-value.positive { color: var(--accent-green); }
+.pos-value.negative { color: var(--accent-red); }
+
+// ─── 方向选择 ────────────────────────────────────────────────────────
+.side-selector {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.side-btn {
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid var(--border-default);
+  background: transparent;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &.buy-btn {
+    color: var(--text-secondary);
+    &:hover { border-color: var(--accent-green); color: var(--accent-green); background: var(--accent-green-dim); }
+    &.active { border-color: var(--accent-green); color: var(--accent-green); background: var(--accent-green-dim); }
+  }
+
+  &.sell-btn {
+    color: var(--text-secondary);
+    &:hover { border-color: var(--accent-red); color: var(--accent-red); background: var(--accent-red-dim); }
+    &.active { border-color: var(--accent-red); color: var(--accent-red); background: var(--accent-red-dim); }
+  }
+}
+
+// ─── 数量输入 ────────────────────────────────────────────────────────
+.quantity-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.field-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.quantity-input-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.qty-btn {
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 1px solid var(--border-default);
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+
+  &:hover {
+    border-color: var(--accent-cyan);
+    color: var(--accent-cyan);
+  }
+}
+
+.qty-input {
+  flex: 1;
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 1px solid var(--border-default);
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  font-size: 16px;
+  font-weight: 600;
+  font-family: 'JetBrains Mono', monospace;
+  text-align: center;
+  outline: none;
+
+  &:focus {
+    border-color: var(--accent-cyan);
+    box-shadow: 0 0 0 3px var(--accent-cyan-glow);
+  }
+
+  &::placeholder { color: var(--text-tertiary); font-weight: 400; }
+  &::-webkit-outer-spin-button,
+  &::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+}
+
+.qty-shortcuts {
+  display: flex;
+  gap: 8px;
+}
+
+.shortcut-btn {
+  flex: 1;
+  padding: 8px;
+  border-radius: 8px;
+  border: 1px solid var(--border-default);
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.15s;
+
+  &:hover:not(:disabled) {
+    border-color: var(--accent-cyan);
+    color: var(--accent-cyan);
+    background: var(--accent-cyan-dim);
+  }
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+}
+
+// ─── 成本预览 ────────────────────────────────────────────────────────
+.cost-preview {
+  background: var(--bg-secondary);
+  border-radius: 12px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.cost-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+
+  &.total {
+    .cost-label { font-weight: 700; color: var(--text-primary); }
+    .cost-value { font-weight: 700; color: var(--accent-cyan); font-size: 15px; }
+  }
+}
+
+.cost-label { color: var(--text-secondary); }
+.cost-value { color: var(--text-primary); font-family: 'JetBrains Mono', monospace; }
+.cost-value.fee { color: var(--accent-red); }
+
+.cost-divider {
+  height: 1px;
+  background: var(--border-default);
+  margin: 4px 0;
+}
+
+// ─── 提交按钮 ────────────────────────────────────────────────────────
+.submit-btn {
+  padding: 14px;
+  border-radius: 12px;
+  border: none;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  &.buy {
+    background: var(--accent-green);
+    color: #0D1117;
+    &:hover:not(:disabled) { background: #00cc9f; box-shadow: 0 0 20px var(--accent-green-glow); }
+  }
+
+  &.sell {
+    background: var(--accent-red);
+    color: #fff;
+    &:hover:not(:disabled) { background: #e63529; box-shadow: 0 0 20px var(--accent-red-glow); }
+  }
+
+  &.disabled, &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  &.loading {
+    cursor: wait;
+    opacity: 0.8;
+  }
+}
+
+.submit-hint {
+  font-size: 12px;
+  color: var(--accent-red);
+  text-align: center;
+  margin: 0;
+}
+</style>

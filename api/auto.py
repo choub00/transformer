@@ -7,7 +7,7 @@ import time
 from fastapi import APIRouter, HTTPException
 from api.schemas import AutoTradeStatus, AISignal
 from api.account_manager import get_account_manager
-from api.dashboard import _generate_predictions, _TICKERS
+from api.dashboard import _generate_predictions
 
 router = APIRouter(prefix="/auto", tags=["AutoTrade"])
 

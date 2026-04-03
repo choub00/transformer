@@ -1,0 +1,301 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 600" width="1920" height="1200">
+  <defs>
+    <!-- ÌoQ< -->
+    <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
+      <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#E8EEF2" stroke-width="0.5"/>
+    </pattern>
+    <!-- Ø -->
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#f8fafc"/>
+    </linearGradient>
+    <linearGradient id="blueGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#4A90D9"/>
+      <stop offset="100%" stop-color="#2C6DAA"/>
+    </linearGradient>
+    <linearGradient id="blueGrad2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#5B9BD5"/>
+      <stop offset="100%" stop-color="#3A7DB8"/>
+    </linearGradient>
+    <linearGradient id="grayGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#5A6B7C"/>
+      <stop offset="100%" stop-color="#3D4F60"/>
+    </linearGradient>
+    <linearGradient id="attnGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#2E6B9E"/>
+      <stop offset="100%" stop-color="#1B4F7A"/>
+    </linearGradient>
+    <linearGradient id="lnGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#7BA3C4"/>
+      <stop offset="100%" stop-color="#5C87B0"/>
+    </linearGradient>
+    <linearGradient id="ffnGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#3A7DB8"/>
+      <stop offset="100%" stop-color="#1B4F7A"/>
+    </linearGradient>
+    <!-- 4q -->
+    <filter id="shadow" x="-5%" y="-5%" width="115%" height="130%">
+      <feDropShadow dx="1" dy="2" stdDeviation="3" flood-color="#1B4F7A" flood-opacity="0.15"/>
+    </filter>
+    <filter id="shadowSmall" x="-5%" y="-5%" width="115%" height="130%">
+      <feDropShadow dx="0" dy="1" stdDeviation="1.5" flood-color="#1B4F7A" flood-opacity="0.12"/>
+    </filter>
+    <!-- 4 -->
+    <marker id="arrowBlue" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
+      <path d="M0,0 L0,8 L8,4 Z" fill="#4A90D9"/>
+    </marker>
+    <marker id="arrowGray" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
+      <path d="M0,0 L0,8 L8,4 Z" fill="#7A8A9A"/>
+    </marker>
+    <marker id="arrowDark" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
+      <path d="M0,0 L0,8 L8,4 Z" fill="#2C6DAA"/>
+    </marker>
+    <marker id="dotRed" markerWidth="6" markerHeight="6" refX="3" refY="3">
+      <circle cx="3" cy="3" r="3" fill="#C05050"/>
+    </marker>
+    <marker id="dotBlue" markerWidth="6" markerHeight="6" refX="3" refY="3">
+      <circle cx="3" cy="3" r="3" fill="#4A90D9"/>
+    </marker>
+  </defs>
+
+  <!-- }rÌo -->
+  <rect width="960" height="600" fill="url(#bgGrad)"/>
+
+  <!-- :ß -->
+  <text x="480" y="42" text-anchor="middle" font-family="'Microsoft YaHei', 'SimHei', 'Noto Sans CJK SC', Arial, sans-serif"
+        font-size="22" font-weight="bold" fill="#1A3A5C" letter-spacing="2">Æ Transformer hÓ</text>
+  <line x1="120" y1="52" x2="840" y2="52" stroke="#4A90D9" stroke-width="1" opacity="0.4"/>
+
+  <!-- ===== ;Aæ§	====== -->
+  <!-- Xt: Îæ0ó 280px Ë -->
+
+  <!-- eÏ Input -->
+  <g filter="url(#shadow)">
+    <rect x="80" y="100" width="130" height="52" rx="6" fill="#EAF3FB" stroke="#4A90D9" stroke-width="1.5"/>
+    <text x="145" y="124" text-anchor="middle" font-family="'Microsoft YaHei', 'SimHei', 'Noto Sans CJK SC', sans-serif"
+          font-size="13" font-weight="bold" fill="#1A3A5C">eÏ</text>
+    <text x="145" y="140" text-anchor="middle" font-family="'Arial', sans-serif"
+          font-size="10" fill="#5A7A9A">Input  X</text>
+  </g>
+
+  <!-- 4: e  Le -->
+  <line x1="210" y1="126" x2="270" y2="126" stroke="#4A90D9" stroke-width="1.5" marker-end="url(#arrowBlue)"/>
+
+  <!-- eLe Input Embedding -->
+  <g filter="url(#shadow)">
+    <rect x="270" y="100" width="160" height="52" rx="6" fill="url(#blueGrad2)" stroke="#1B4F7A" stroke-width="1.2"/>
+    <text x="350" y="120" text-anchor="middle" font-family="'Microsoft YaHei', 'SimHei', 'Noto Sans CJK SC', sans-serif"
+          font-size="12" font-weight="bold" fill="white">eLe</text>
+    <text x="350" y="136" text-anchor="middle" font-family="'Arial', sans-serif"
+          font-size="9" fill="#D0E8F8">Input Embedding</text>
+  </g>
+
+  <!-- 4: Le  Mn -->
+  <line x1="430" y1="126" x2="490" y2="126" stroke="#4A90D9" stroke-width="1.5" marker-end="url(#arrowBlue)"/>
+
+  <!-- Mn Positional Encoding -->
+  <g filter="url(#shadow)">
+    <rect x="490" y="100" width="175" height="52" rx="6" fill="url(#grayGrad)" stroke="#1A2D3D" stroke-width="1.2"/>
+    <text x="577" y="120" text-anchor="middle" font-family="'Microsoft YaHei', 'SimHei', 'Noto Sans CJK SC', sans-serif"
+          font-size="12" font-weight="bold" fill="white">Mn</text>
+    <text x="577" y="136" text-anchor="middle" font-family="'Arial', sans-serif"
+          font-size="9" fill="#B0C8E0">Positional Encoding</text>
+  </g>
+
+  <!-- 4: Mn  e0 Encoder Block -->
+  <line x1="665" y1="126" x2="665" y2="186" stroke="#4A90D9" stroke-width="1.5" marker-end="url(#arrowBlue)"/>
+
+  <!-- ===== hBFt*'F	====== -->
+  <!-- Encoder Block è -->
+  <text x="665" y="206" text-anchor="middle" font-family="'Microsoft YaHei', 'SimHei', 'Noto Sans CJK SC', sans-serif"
+        font-size="11" font-weight="bold" fill="#2C6DAA">hB</text>
+  <text x="665" y="218" text-anchor="middle" font-family="'Arial', sans-serif"
+        font-size="9" fill="#7A9AB0">Encoder Layer</text>
+
+  <!-- Encoder Block ÌoF -->
+  <rect x="295" y="230" width="740" height="340" rx="10" fill="white" stroke="#4A90D9" stroke-width="1.5" stroke-dasharray="6,3" opacity="0.8"/>
+
+  <!-- ===== PB 1: 4êè ===== -->
+
+  <!-- e  Multi-Head Attention vè -->
+  <line x1="665" y1="188" x2="665" y2="248" stroke="#4A90D9" stroke-width="1.5" marker-end="url(#arrowBlue)"/>
+
+  <!-- Multi-Head Self-Attention ;S -->
+  <g filter="url(#shadow)">
+    <rect x="380" y="248" width="570" height="100" rx="8" fill="#EEF5FB" stroke="#2E6B9E" stroke-width="2"/>
+    <text x="665" y="268" text-anchor="middle" font-family="'Microsoft YaHei', 'SimHei', 'Noto Sans CJK SC', sans-serif"
+          font-size="13" font-weight="bold" fill="#1A3A5C">4êè</text>
+    <text x="665" y="283" text-anchor="middle" font-family="'Arial', sans-serif"
+          font-size="10" fill="#4A7AAA">Multi-Head Self-Attention</text>
+  </g>
+
+  <!-- Q K V èF3*W	 -->
+  <!-- Q -->
+  <g filter="url(#shadowSmall)">
+    <rect x="410" y="292" width="100" height="40" rx="5" fill="url(#attnGrad)" stroke="#1B4F7A" stroke-width="1"/>
+    <text x="460" y="310" text-anchor="middle" font-family="'Arial', sans-serif"
+          font-size="13" font-weight="bold" fill="white">Q</text>
+    <text x="460" y="324" text-anchor="middle" font-family="'Microsoft YaHei', 'SimHei', 'Noto Sans CJK SC', sans-serif"
+          font-size="8" fill="#C0D8F0">åâ</text>
+  </g>
+  <!-- K -->
+  <g filter="url(#shadowSmall)">
+    <rect x="530" y="292" width="100" height="40" rx="5" fill="url(#attnGrad)" stroke="#1B4F7A" stroke-width="1"/>
+    <text x="580" y="310" text-anchor="middle" font-family="'Arial', sans-serif"
+          font-size="13" font-weight="bold" fill="white">K</text>
+    <text x="580" y="324" text-anchor="middle" font-family="'Microsoft YaHei', 'SimHei', 'Noto Sans CJK SC', sans-serif"
+          font-size="8" fill="#C0D8F0">.</text>
+  </g>
+  <!-- V -->
+  <g filter="url(#shadowSmall)">
+    <rect x="650" y="292" width="100" height="40" rx="5" fill="url(#attnGrad)" stroke="#1B4F7A" stroke-width="1"/>
+    <text x="700" y="310" text-anchor="middle" font-family="'Arial', sans-serif"
+          font-size="13" font-weight="bold" fill="white">V</text>
+    <text x="700" y="324" text-anchor="middle" font-family="'Microsoft YaHei', 'SimHei', 'Noto Sans CJK SC', sans-serif"
+          font-size="8" fill="#C0D8F0"><</text>
+  </g>
+
+  <!-- Scaled Dot-Product Attention è -->
+  <text x="820" y="310" text-anchor="middle" font-family="'Microsoft YaHei', 'SimHei', 'Noto Sans CJK SC', sans-serif"
+        font-size="9" fill="#4A6A8A">)>¹ïè</text>
+  <text x="820" y="322" text-anchor="middle" font-family="'Arial', sans-serif"
+        font-size="8" fill="#8AA0B8">Scale Dot-Product</text>
+
+  <!-- l -->
+  <text x="820" y="340" text-anchor="middle" font-family="'Times New Roman', serif"
+        font-size="9" fill="#3A5A7A" font-style="italic">Attention(Q,K,V)</text>
+
+  <!-- Q,K,V 40èF -->
+  <line x1="510" y1="312" x2="560" y2="295" stroke="#5B9BD5" stroke-width="1" stroke-dasharray="2,2" opacity="0.6"/>
+  <line x1="580" y1="312" x2="580" y2="295" stroke="#5B9BD5" stroke-width="1" stroke-dasharray="2,2" opacity="0.6"/>
+  <line x1="750" y1="312" x2="800" y2="295" stroke="#5B9BD5" stroke-width="1" stroke-dasharray="2,2" opacity="0.6"/>
+
+  <!-- Multi-Head v4 -->
+  <line x1="700" y1="332" x2="820" y2="332" stroke="#2E6B9E" stroke-width="1.2" stroke-dasharray="3,2"/>
+  <text x="760" y="328" text-anchor="middle" font-family="'Arial', sans-serif" font-size="7" fill="#5B87B0">concat &amp; linear</text>
+
+  <!-- ===== Add &amp; Norm 1 ===== -->
+  <!-- îÞ¥¿ÕÇè	 -->
+  <path d="M 665,188 Q 665,218 295,248" fill="none" stroke="#7A9AB0" stroke-width="1.2" stroke-dasharray="4,3"/>
+  <circle cx="295" cy="248" r="3" fill="#7A9AB0"/>
+  <!-- Add è -->
+  <text x="310" y="246" font-family="'Arial', sans-serif" font-size="11" font-weight="bold" fill="#7A9AB0">Add</text>
+
+  <!-- 4: è  Add -->
+  <line x1="665" y1="348" x2="665" y2="378" stroke="#4A90D9" stroke-width="1.5" marker-end="url(#arrowBlue)"/>
+
+  <!-- Add & Norm 1 F -->
+  <g filter="url(#shadow)">
+    <rect x="500" y="378" width="330" height="52" rx="6" fill="url(#lnGrad)" stroke="#1B4F7A" stroke-width="1.5"/>
+    <text x="665" y="398" text-anchor="middle" font-family="'Microsoft YaHei', 'SimHei', 'Noto Sans CJK SC', sans-serif"
+          font-size="13" font-weight="bold" fill="white">Add &amp; Norm</text>
+    <text x="665" y="414" text-anchor="middle" font-family="'Arial', sans-serif"
+          font-size="9" fill="#D8EEF8">îÞ¥ + BR</text>
+  </g>
+
+  <!-- î  Add ÕÇ¿ -->
+  <path d="M 295,248 Q 295,380 500,404" fill="none" stroke="#7A9AB0" stroke-width="1.2" stroke-dasharray="4,3"/>
+  <line x1="488" y1="404" x2="500" y2="404" stroke="#7A9AB0" stroke-width="1.2"/>
+
+  <!-- ===== MQÜ ===== -->
+  <!-- 4: Add  FFN -->
+  <line x1="830" y1="404" x2="865" y2="404" stroke="#4A90D9" stroke-width="1.5" marker-end="url(#arrowBlue)"/>
+
+  <!-- FFN ;S -->
+  <g filter="url(#shadow)">
+    <rect x="295" y="368" width="210" height="72" rx="8" fill="#EEF5FB" stroke="#2E6B9E" stroke-width="2"/>
+    <text x="400" y="390" text-anchor="middle" font-family="'Microsoft YaHei', 'SimHei', 'Noto Sans CJK SC', sans-serif"
+          font-size="12" font-weight="bold" fill="#1A3A5C">MQÜ</text>
+    <text x="400" y="405" text-anchor="middle" font-family="'Arial', sans-serif"
+          font-size="9" fill="#4A7AAA">Feed Forward Network</text>
+    <!-- FFN $B -->
+    <rect x="310" y="415" width="80" height="18" rx="3" fill="white" stroke="#4A90D9" stroke-width="1"/>
+    <text x="350" y="428" text-anchor="middle" font-family="'Arial', sans-serif" font-size="8" fill="#3A6A9A">Linear</text>
+    <text x="350" y="407" text-anchor="middle" font-family="'Arial', sans-serif" font-size="8" fill="#5A7A9A">dd</text>
+    <rect x="410" y="415" width="80" height="18" rx="3" fill="white" stroke="#4A90D9" stroke-width="1"/>
+    <text x="450" y="428" text-anchor="middle" font-family="'Arial', sans-serif" font-size="8" fill="#3A6A9A">ReLU</text>
+    <line x1="390" y1="424" x2="410" y2="424" stroke="#4A90D9" stroke-width="1"/>
+  </g>
+
+  <!-- 4: FFN  ó¹Þ¥  Add2 -->
+  <line x1="505" y1="404" x2="530" y2="404" stroke="#4A90D9" stroke-width="1.5" marker-end="url(#arrowBlue)"/>
+
+  <!-- Add & Norm 2 -->
+  <g filter="url(#shadow)">
+    <rect x="530" y="378" width="270" height="52" rx="6" fill="url(#lnGrad)" stroke="#1B4F7A" stroke-width="1.5"/>
+    <text x="665" y="398" text-anchor="middle" font-family="'Microsoft YaHei', 'SimHei', 'Noto Sans CJK SC', sans-serif"
+          font-size="13" font-weight="bold" fill="white">Add &amp; Norm</text>
+    <text x="665" y="414" text-anchor="middle" font-family="'Arial', sans-serif"
+          font-size="9" fill="#D8EEF8">îÞ¥ + BR</text>
+  </g>
+
+  <!-- îÞ¥ FFN -->
+  <path d="M 295,248 Q 295,430 530,430 Q 530,430 530,430" fill="none" stroke="#7A9AB0" stroke-width="1.2" stroke-dasharray="4,3"/>
+  <line x1="518" y1="430" x2="530" y2="430" stroke="#7A9AB0" stroke-width="1.2"/>
+
+  <!-- ú4 -->
+  <line x1="800" y1="404" x2="860" y2="404" stroke="#4A90D9" stroke-width="1.5" marker-end="url(#arrowBlue)"/>
+
+  <!-- úh: -->
+  <g filter="url(#shadow)">
+    <rect x="860" y="378" width="170" height="52" rx="6" fill="#EAF3FB" stroke="#4A90D9" stroke-width="1.5"/>
+    <text x="945" y="398" text-anchor="middle" font-family="'Microsoft YaHei', 'SimHei', 'Noto Sans CJK SC', sans-serif"
+          font-size="12" font-weight="bold" fill="#1A3A5C">úh:</text>
+    <text x="945" y="414" text-anchor="middle" font-family="'Arial', sans-serif"
+          font-size="9" fill="#5A7A9A">Output Encoder</text>
+  </g>
+
+  <!-- ===== ó§àè ===== -->
+  <!-- N× èF -->
+  <rect x="105" y="268" width="130" height="260" rx="8" fill="#F0F6FB" stroke="#4A90D9" stroke-width="1.5" stroke-dasharray="5,3"/>
+
+  <!-- 4ó -->
+  <line x1="235" y1="398" x2="295" y2="398" stroke="#4A90D9" stroke-width="1.5" marker-end="url(#arrowBlue)"/>
+
+  <!-- N× è -->
+  <text x="170" y="318" text-anchor="middle" font-family="'Arial', sans-serif"
+        font-size="22" font-weight="bold" fill="#2C6DAA">N×</text>
+  <text x="170" y="336" text-anchor="middle" font-family="'Microsoft YaHei', 'SimHei', 'Noto Sans CJK SC', sans-serif"
+        font-size="11" fill="#3A5A7A">hB</text>
+  <text x="170" y="350" text-anchor="middle" font-family="'Arial', sans-serif"
+        font-size="9" fill="#7A9AB0">Encoder</text>
+  <text x="170" y="362" text-anchor="middle" font-family="'Arial', sans-serif"
+        font-size="9" fill="#7A9AB0">Block</text>
+
+  <!-- Ì4 -->
+  <line x1="140" y1="372" x2="200" y2="372" stroke="#4A90D9" stroke-width="1.2" marker-start="url(#arrowGray)" marker-end="url(#arrowGray)"/>
+  <text x="170" y="390" text-anchor="middle" font-family="'Microsoft YaHei', 'SimHei', 'Noto Sans CJK SC', sans-serif"
+        font-size="9" fill="#5A7A9A">à N B</text>
+  <text x="170" y="402" text-anchor="middle" font-family="'Arial', sans-serif"
+        font-size="8" fill="#8AA0B8">Ne1, 8 N=6</text>
+
+  <!-- ===== þ ===== -->
+  <rect x="60" y="560" width="580" height="30" rx="4" fill="#F5F9FC" stroke="#D0E0EE" stroke-width="0.8"/>
+  <text x="75" y="580" font-family="'Microsoft YaHei', 'SimHei', 'Noto Sans CJK SC', sans-serif" font-size="9" fill="#5A7A9A">
+    þ
+  </text>
+  <!-- ØWþ -->
+  <rect x="105" y="565" width="30" height="16" rx="3" fill="url(#blueGrad2)" stroke="#1B4F7A" stroke-width="0.8"/>
+  <text x="140" y="577" font-family="'Microsoft YaHei', 'SimHei', 'Noto Sans CJK SC', sans-serif" font-size="8" fill="#5A7A9A">LeB</text>
+
+  <rect x="190" y="565" width="30" height="16" rx="3" fill="url(#grayGrad)" stroke="#1A2D3D" stroke-width="0.8"/>
+  <text x="225" y="577" font-family="'Microsoft YaHei', 'SimHei', 'Noto Sans CJK SC', sans-serif" font-size="8" fill="#5A7A9A">B</text>
+
+  <rect x="290" y="565" width="30" height="16" rx="3" fill="url(#attnGrad)" stroke="#1B4F7A" stroke-width="0.8"/>
+  <text x="325" y="577" font-family="'Microsoft YaHei', 'SimHei', 'Noto Sans CJK SC', sans-serif" font-size="8" fill="#5A7A9A">è</text>
+
+  <rect x="380" y="565" width="30" height="16" rx="3" fill="url(#lnGrad)" stroke="#1B4F7A" stroke-width="0.8"/>
+  <text x="415" y="577" font-family="'Microsoft YaHei', 'SimHei', 'Noto Sans CJK SC', sans-serif" font-size="8" fill="#5A7A9A">R</text>
+
+  <line x1="480" y1="573" x2="510" y2="573" stroke="#4A90D9" stroke-width="1.2" marker-end="url(#arrowBlue)"/>
+  <text x="518" y="577" font-family="'Microsoft YaHei', 'SimHei', 'Noto Sans CJK SC', sans-serif" font-size="8" fill="#5A7A9A">pnA</text>
+
+  <line x1="580" y1="573" x2="610" y2="573" stroke="#7A9AB0" stroke-width="1.2" stroke-dasharray="4,3"/>
+  <text x="618" y="577" font-family="'Microsoft YaHei', 'SimHei', 'Noto Sans CJK SC', sans-serif" font-size="8" fill="#5A7A9A">îÞ¥</text>
+
+  <!-- ===== B¦è ===== -->
+  <text x="930" y="575" text-anchor="end" font-family="'Microsoft YaHei', 'SimHei', 'Noto Sans CJK SC', sans-serif"
+        font-size="9" fill="#8AA0B8">öôB¦: O(n² · d)</text>
+
+</svg>

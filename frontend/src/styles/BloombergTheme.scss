@@ -1,0 +1,13 @@
+$bg-primary: #0a1628;
+$bg-secondary: #132743;
+$bg-card: #1a3050;
+$bg-hover: #243a5e;
+
+$accent-gold: #d4af37;
+$accent-green: #00ff88;
+$accent-red: #ff4444;
+
+body { background: $bg-primary; color: #e8e8e8; font-family: 'Inter', sans-serif; }
+.text-gain { color: $accent-green; }
+.text-loss { color: $accent-red; }
+.text-gold { color: $accent-gold; }

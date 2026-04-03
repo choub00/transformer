@@ -3,6 +3,7 @@
 提供模拟交易账户的完整状态管理，包含东方财富杯规则（净值 < 0.92 淘汰）。
 """
 
+import hashlib
 import time
 import threading
 import numpy as np

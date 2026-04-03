@@ -15,36 +15,17 @@ from api.schemas import (
 )
 from api.account_manager import get_account_manager, get_reasonable_price
 from api.predictor import get_registry
+from api.tickers_registry import load_tickers, enrich_ticker_row, valid_ticker_set
 
 router = APIRouter(prefix="/dashboard", tags=["Dashboard"])
-
-
-# ─── 内部数据生成（开发/演示用）────────────────────────────
-
-_TICKERS = [
-    {"ticker": "AAPL",  "name": "Apple Inc.",        "sector": "科技"},
-    {"ticker": "MSFT",  "name": "Microsoft Corp.",  "sector": "科技"},
-    {"ticker": "GOOGL", "name": "Alphabet Inc.",    "sector": "科技"},
-    {"ticker": "NVDA",  "name": "NVIDIA Corp.",      "sector": "科技"},
-    {"ticker": "AMZN",  "name": "Amazon.com Inc.",   "sector": "消费"},
-    {"ticker": "META",  "name": "Meta Platforms",    "sector": "科技"},
-    {"ticker": "TSLA",  "name": "Tesla Inc.",         "sector": "汽车"},
-    {"ticker": "JPM",   "name": "JPMorgan Chase",    "sector": "金融"},
-    {"ticker": "V",     "name": "Visa Inc.",           "sector": "金融"},
-    {"ticker": "JNJ",   "name": "Johnson & Johnson", "sector": "医药"},
-    {"ticker": "WMT",   "name": "Walmart Inc.",      "sector": "消费"},
-    {"ticker": "PG",    "name": "Procter & Gamble",  "sector": "消费"},
-    {"ticker": "MA",    "name": "Mastercard Inc.",   "sector": "金融"},
-    {"ticker": "UNH",   "name": "UnitedHealth Group","sector": "医药"},
-    {"ticker": "HD",    "name": "Home Depot Inc.",  "sector": "消费"},
-    {"ticker": "DIS",   "name": "Walt Disney Co.",  "sector": "传媒"},
-]
 
 
 def _generate_predictions() -> list[StockPrediction]:
     """生成 AI 预测排名（演示数据）"""
     rng = random.Random(int(time.time()) // 60)  # 每分钟刷新
-    scores = [(t["ticker"], rng.uniform(-0.05, 0.08)) for t in _TICKERS]
+    universe = load_tickers()
+    name_by_ticker = {t["ticker"]: t["name"] for t in universe}
+    scores = [(t["ticker"], rng.uniform(-0.05, 0.08)) for t in universe]
     scores.sort(key=lambda x: x[1], reverse=True)
 
     preds = []
@@ -56,7 +37,7 @@ def _generate_predictions() -> list[StockPrediction]:
         advice_map = {"bullish": "强烈买入", "bearish": "建议观望", "neutral": "持有"}
         preds.append(StockPrediction(
             ticker=ticker,
-            name=next(t["name"] for t in _TICKERS if t["ticker"] == ticker),
+            name=name_by_ticker.get(ticker, ticker),
             score=score,
             confidence=confidence,
             direction=direction,
@@ -183,7 +164,7 @@ async def get_forecast(ticker: str):
     """
     try:
         ticker_upper = ticker.strip().upper()
-        valid_tickers = {t["ticker"] for t in _TICKERS}
+        valid_tickers = valid_ticker_set()
         if ticker_upper not in valid_tickers:
             raise HTTPException(status_code=400, detail=f"不支持的 ticker: {ticker_upper}")
 
@@ -247,5 +228,7 @@ async def get_forecast(ticker: str):
 
 @router.get("/tickers")
 async def get_tickers():
-    """获取股票列表"""
-    return {"tickers": _TICKERS}
+    """获取股票列表（与交易白名单一致；数据来自 watchlist.json 或内置默认）"""
+    rows = [dict(t) for t in load_tickers()]
+    enriched = [enrich_ticker_row(t, get_reasonable_price(t["ticker"])) for t in rows]
+    return {"tickers": enriched}

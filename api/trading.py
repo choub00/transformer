@@ -12,7 +12,7 @@ from api.schemas import (
     TradeHistory, TradeLog, AutoTradeStatus, AISignal,
 )
 from api.account_manager import get_account_manager, get_reasonable_price
-from api.dashboard import _generate_predictions, _TICKERS
+from api.tickers_registry import valid_ticker_set
 
 router = APIRouter(prefix="/trade", tags=["Trade"])
 
@@ -34,11 +34,12 @@ async def place_order(req: OrderRequest):
             raise HTTPException(status_code=400, detail="ticker 不能为空")
 
         ticker_upper = req.ticker.strip().upper()
-        valid_tickers = {t["ticker"] for t in _TICKERS}
-        if ticker_upper not in valid_tickers:
+        allowed = valid_ticker_set()
+        if ticker_upper not in allowed:
+            sample = sorted(allowed)[:12]
             raise HTTPException(
                 status_code=400,
-                detail=f"不支持的 ticker: {ticker_upper}，支持: {[t['ticker'] for t in _TICKERS]}",
+                detail=f"不支持的 ticker: {ticker_upper}，当前白名单示例: {sample}",
             )
 
         price = req.price if req.price else get_reasonable_price(ticker_upper)

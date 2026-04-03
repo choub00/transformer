@@ -118,9 +118,8 @@
         <div class="qty-shortcuts">
           <button class="shortcut-btn" @click="quantity = 100">100</button>
           <button class="shortcut-btn" @click="quantity = 500">500</button>
-          <button class="shortcut-btn" @click="quantity = 1000">1000</button>
-          <button class="shortcut-btn" @click="quantity = 'max'" :disabled="side !== 'buy'">
-            {{ side === 'buy' ? '满仓' : '—' }}
+          <button type="button" class="full-allin-btn" @click="applyMaxBuy" :disabled="side !== 'buy'">
+            {{ side === 'buy' ? '按可买上限' : '—' }}
           </button>
         </div>
       </div>
@@ -134,13 +133,21 @@
           <span class="cost-value">${{ formatNumber(tradeAmount) }}</span>
         </div>
         <div class="cost-row">
-          <span class="cost-label">手续费（0.15%）</span>
+          <span class="cost-label-with-hint" @mouseenter="showFeeHint = true" @mouseleave="showFeeHint = false">
+            <span>手续费（0.15%）</span>
+            <span class="cost-hint-icon">i</span>
+            <div class="fee-tooltip" v-if="showFeeHint">
+              <strong>费率说明</strong>
+              东方财富杯规则：单边 0.15%，买卖双向收取。<br/>
+              不足 $1 按 $1 收取（最低消费）。
+            </div>
+          </span>
           <span class="cost-value fee">-${{ formatNumber(tradeFee) }}</span>
         </div>
         <div class="cost-divider"></div>
         <div class="cost-row total">
-          <span class="cost-label">{{ side === 'buy' ? '实际扣款' : '实际回款' }}</span>
-          <span class="cost-value">${{ formatNumber(totalCost) }}</span>
+          <span class="cost-label">实际{{ side === 'buy' ? '扣款' : '回款' }}</span>
+          <span class="cost-value total">${{ formatNumber(totalCost) }}</span>
         </div>
         <div class="cost-row" v-if="side === 'buy'">
           <span class="cost-label">预计持仓成本</span>
@@ -192,9 +199,10 @@ const emit = defineEmits<{
 
 // ─── State ─────────────────────────────────────────────────────────────
 const side = ref<'buy' | 'sell'>('buy')
-const quantity = ref<number>(0)
+const quantity = ref<number>(100)
 const submitting = ref(false)
 const errorMsg = ref('')
+const showFeeHint = ref(false)
 
 // ─── 常量 ─────────────────────────────────────────────────────────────
 const FEE_RATE = 0.0015  // 东方财富杯规则：单边 0.15%
@@ -233,6 +241,14 @@ function adjustQty(delta: number) {
   quantity.value = Math.max(0, quantity.value + delta)
 }
 
+function applyMaxBuy() {
+  if (side.value !== 'buy') return
+  const price = props.currentPrice
+  if (price <= 0) return
+  const maxShares = Math.floor(props.availableCash / (price * (1 + FEE_RATE)))
+  quantity.value = Math.max(0, maxShares)
+}
+
 function formatNumber(n: number): string {
   return n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 }
@@ -257,7 +273,7 @@ async function handleSubmit() {
       duration: 3000,
     })
 
-    quantity.value = 0
+    quantity.value = side.value === 'buy' ? 100 : 0
     emit('tradeSuccess')
 
   } catch {
@@ -269,9 +285,17 @@ async function handleSubmit() {
 
 // ─── 监听：切换方向时重置数量 ───────────────────────────────────────
 watch(side, () => {
-  quantity.value = 0
+  quantity.value = side.value === 'buy' ? 100 : 0
   errorMsg.value = ''
 })
+
+watch(
+  () => props.ticker,
+  () => {
+    quantity.value = side.value === 'buy' ? 100 : 0
+    errorMsg.value = ''
+  },
+)
 </script>
 
 <style lang="scss" scoped>
@@ -482,7 +506,7 @@ watch(side, () => {
   }
 }
 
-// ─── 数量输入 ────────────────────────────────────────────────────────
+// ─── 数量输入（步进器 + 快捷胶囊）────────────────────────────────────
 .quantity-group {
   display: flex;
   flex-direction: column;
@@ -490,43 +514,56 @@ watch(side, () => {
 }
 
 .field-label {
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 600;
-  color: var(--text-primary);
+  color: var(--text-secondary);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
 }
 
+// 步进器主行
 .quantity-input-wrap {
   display: flex;
   align-items: center;
   gap: 8px;
 }
 
+// 步进按钮：≥44×44px 触摸友好
 .qty-btn {
-  padding: 10px 14px;
-  border-radius: 8px;
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  flex-shrink: 0;
+  border-radius: 10px;
   border: 1px solid var(--border-default);
   background: var(--bg-secondary);
   color: var(--text-primary);
-  font-size: 13px;
+  font-size: 18px;
+  font-weight: 600;
   cursor: pointer;
   transition: all 0.15s;
-  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 
   &:hover {
     border-color: var(--accent-cyan);
     color: var(--accent-cyan);
+    background: var(--accent-cyan-dim);
   }
+  &:active { transform: scale(0.94); }
 }
 
 .qty-input {
   flex: 1;
-  padding: 10px 14px;
-  border-radius: 8px;
+  height: 44px;
+  padding: 0 8px;
+  border-radius: 10px;
   border: 1px solid var(--border-default);
   background: var(--bg-secondary);
   color: var(--text-primary);
-  font-size: 16px;
-  font-weight: 600;
+  font-size: 18px;
+  font-weight: 700;
   font-family: 'JetBrains Mono', monospace;
   text-align: center;
   outline: none;
@@ -541,21 +578,27 @@ watch(side, () => {
   &::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
 }
 
+// 快捷数量：胶囊按钮，选中态填充
 .qty-shortcuts {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: 8px;
 }
 
 .shortcut-btn {
-  flex: 1;
-  padding: 8px;
-  border-radius: 8px;
-  border: 1px solid var(--border-default);
+  height: 36px;
+  padding: 0 12px;
+  border-radius: 20px;
+  border: 1.5px solid var(--border-default);
   background: transparent;
   color: var(--text-secondary);
-  font-size: 12px;
+  font-size: 13px;
+  font-weight: 600;
   cursor: pointer;
-  transition: all 0.15s;
+  transition: all 0.18s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 
   &:hover:not(:disabled) {
     border-color: var(--accent-cyan);
@@ -564,12 +607,35 @@ watch(side, () => {
   }
 
   &:disabled {
-    opacity: 0.4;
+    opacity: 0.35;
     cursor: not-allowed;
   }
 }
 
-// ─── 成本预览 ────────────────────────────────────────────────────────
+// 满仓：两次确认文案弱化
+.full-allin-btn {
+  grid-column: 1 / -1;
+  height: 32px;
+  padding: 0 12px;
+  border-radius: 16px;
+  border: 1px dashed var(--border-hover);
+  background: transparent;
+  color: var(--text-tertiary);
+  font-size: 11px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.18s;
+  letter-spacing: 0.02em;
+
+  &:hover:not(:disabled) {
+    border-color: var(--accent-amber, #FFB800);
+    color: var(--accent-amber, #FFB800);
+    background: rgba(255,184,0,0.08);
+  }
+  &:disabled { opacity: 0.3; cursor: not-allowed; }
+}
+
+// ─── 成本预览（明细 → 分割线 → 实际扣款）──────────────────────────────────
 .cost-preview {
   background: var(--bg-secondary);
   border-radius: 12px;
@@ -582,53 +648,124 @@ watch(side, () => {
 .cost-row {
   display: flex;
   justify-content: space-between;
+  align-items: center;
   font-size: 13px;
 
   &.total {
-    .cost-label { font-weight: 700; color: var(--text-primary); }
-    .cost-value { font-weight: 700; color: var(--accent-cyan); font-size: 15px; }
+    padding-top: 10px;
+    margin-top: 2px;
+    border-top: 2px solid var(--border-hover);
   }
 }
 
-.cost-label { color: var(--text-secondary); }
-.cost-value { color: var(--text-primary); font-family: 'JetBrains Mono', monospace; }
-.cost-value.fee { color: var(--accent-red); }
+.cost-label {
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.cost-label-with-hint {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+  position: relative;
+}
+
+.cost-hint-icon {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 1px solid var(--text-tertiary);
+  color: var(--text-tertiary);
+  font-size: 9px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: help;
+  transition: color 0.15s;
+
+  &:hover { color: var(--text-secondary); }
+}
+
+.fee-tooltip {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  z-index: 10;
+  width: 200px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-default);
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 11px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+  pointer-events: none;
+
+  strong { color: var(--text-primary); display: block; margin-bottom: 4px; }
+}
+
+.cost-value {
+  color: var(--text-primary);
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 600;
+}
+.cost-value.fee { color: var(--text-tertiary); }
+.cost-value.total { font-weight: 700; font-size: 15px; color: var(--text-primary); }
 
 .cost-divider {
   height: 1px;
-  background: var(--border-default);
-  margin: 4px 0;
+  background: transparent;  // 分割线移至 .cost-row.total 内
 }
 
-// ─── 提交按钮 ────────────────────────────────────────────────────────
+// ─── 提交按钮（高对比 WCAG AA，CTA 层级）────────────────────────────────
 .submit-btn {
-  padding: 14px;
+  padding: 16px;
   border-radius: 12px;
   border: none;
   font-size: 15px;
   font-weight: 700;
+  letter-spacing: 0.02em;
   cursor: pointer;
   transition: all 0.2s;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
+  min-height: 52px;   // 移动端大字友好
 
+  // 买入：深色底 + 近白字（最强对比，WCAG AA+）
   &.buy {
-    background: var(--accent-green);
-    color: #0D1117;
-    &:hover:not(:disabled) { background: #00cc9f; box-shadow: 0 0 20px var(--accent-green-glow); }
+    background: #0D1117;
+    color: #F0F6FC;
+    border: 2px solid var(--accent-green);
+    &:hover:not(:disabled) {
+      background: var(--accent-green);
+      color: #0D1117;
+      box-shadow: 0 0 24px var(--accent-green-glow);
+    }
+    &:active:not(:disabled) { transform: scale(0.98); }
   }
 
+  // 卖出：琥珀/橙底 + 深色字（危险操作，但与买入同高对比）
   &.sell {
-    background: var(--accent-red);
-    color: #fff;
-    &:hover:not(:disabled) { background: #e63529; box-shadow: 0 0 20px var(--accent-red-glow); }
+    background: #FF9500;
+    color: #3D1800;
+    &:hover:not(:disabled) {
+      background: #FFB340;
+      box-shadow: 0 0 24px rgba(255,149,0,0.5);
+    }
+    &:active:not(:disabled) { transform: scale(0.98); }
   }
 
   &.disabled, &:disabled {
     opacity: 0.4;
     cursor: not-allowed;
+    pointer-events: none;
   }
 
   &.loading {

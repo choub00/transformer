@@ -100,8 +100,10 @@ class GatedResidualNetwork(nn.Module):
         self.dropout = nn.Dropout(dropout)
         self.activation = nn.SiLU()
 
-        nn.init.zeros_(self.fc_out.bias)
-        nn.init.zeros_(self.gate_out.bias)
+        if self.fc_out.bias is not None:
+            nn.init.zeros_(self.fc_out.bias)
+        if self.gate_out.bias is not None:
+            nn.init.zeros_(self.gate_out.bias)
 
     def forward(self, x: torch.Tensor, context: Optional[torch.Tensor] = None) -> torch.Tensor:
         h = self.activation(self.fc_gate(x))

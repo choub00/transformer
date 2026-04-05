@@ -6,7 +6,7 @@
  */
 
 import axios, { type AxiosInstance, type AxiosError, type CancelTokenSource } from 'axios'
-import { ElNotification } from 'element-plus'
+import ElNotification from 'element-plus/es/components/notification/index'
 import type {
   AccountBalance, AccountConfig, KLineResponse, TickerListResponse,
   PredictionsResponse, OrderRequest, OrderResponse, DelayedOrderRequest,
@@ -20,7 +20,7 @@ import type {
 // ─────────────────────────────────────────────────────────────────────────────
 
 export const api: AxiosInstance = axios.create({
-  baseURL: 'http://localhost:8080/api/v1',
+  baseURL: import.meta.env.VITE_API_BASE_URL || '/api/v1',
   timeout: 30_000,
   headers: { 'Content-Type': 'application/json' },
 })

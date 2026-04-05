@@ -6,6 +6,7 @@ Dashboard API 路由 — 健壮版
 import time
 import random
 import hashlib
+from datetime import date, timedelta
 from typing import Optional
 from fastapi import APIRouter, HTTPException
 from api.schemas import (
@@ -174,8 +175,9 @@ async def get_forecast(ticker: str):
         base_price = get_reasonable_price(ticker_upper)
         price = base_price * 0.85  # 从较低点开始
 
+        history_start = date(2026, 1, 1)
         for i in range(60):
-            date = f"2026-02-{(i % 28) + 1:02d}"
+            date_str = (history_start + timedelta(days=i)).isoformat()
             change = rng.uniform(-0.03, 0.035)
             price = max(price * (1 + change), 1.0)
             open_ = round(price * rng.uniform(0.97, 1.03), 2)
@@ -183,7 +185,7 @@ async def get_forecast(ticker: str):
             low_ = round(open_ * rng.uniform(0.96, 1.0), 2)
             close_ = round(open_ * rng.uniform(0.97, 1.03), 2)
             history.append(KLinePoint(
-                date=date,
+                date=date_str,
                 open=round(open_, 2),
                 high=round(high_, 2),
                 low=round(low_, 2),
@@ -197,8 +199,9 @@ async def get_forecast(ticker: str):
         trend = rng_pred.uniform(-0.01, 0.015)
         forecast: list[ForecastPoint] = []
 
+        last_history_date = history_start + timedelta(days=59)
         for day in range(1, 6):
-            future_date = f"2026-03-{(60 - 28 + day):02d}"
+            future_date = (last_history_date + timedelta(days=day)).isoformat()
             predicted = current_price * (1 + trend * day + rng_pred.uniform(-0.005, 0.005))
             confidence = max(95 - day * 8, 60)  # 置信度随时间递减
             uncertainty = predicted * (0.02 + day * 0.005)

@@ -148,7 +148,7 @@
       <!-- ══════════════════════════════════════════════════════════════════════════
            持仓分析：月度热力图 + 资产配置饼图
            ══════════════════════════════════════════════════════════════════════════ -->
-      <section class="portfolio-analysis">
+      <section ref="portfolioSectionRef" class="portfolio-analysis">
         <div class="analysis-card glass-card">
           <div class="chart-header">
             <h3>&#128199; 月度收益热力图</h3>
@@ -174,7 +174,7 @@
       <!-- ══════════════════════════════════════════════════════════════════════════
            特征贡献
            ══════════════════════════════════════════════════════════════════════════ -->
-      <section class="feature-contribution glass-card">
+      <section ref="contributionSectionRef" class="feature-contribution glass-card">
         <div class="analysis-header">
           <div class="analysis-title">
             <span class="ai-icon">&#128202;</span>
@@ -209,23 +209,35 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
-import * as echarts from 'echarts'
-import { api, apiMarket, apiDashboard } from '../api'
-import type { ForecastResponse, KLinePoint } from '../types/api'
+import type { ECharts, EChartsOption } from 'echarts/core'
+import { api, apiMarket, apiDashboard, apiAccount } from '../api'
+import type { AccountBalance, ForecastResponse, KLinePoint, Position } from '../types/api'
 import { buildTechnicalIndicators } from '../utils/technicals'
 import { forecastToChartSeries } from '../utils/forecastChart'
 import { useTickerStore } from '../stores/ticker'
+
+type AnalysisEchartsModule = typeof import('../lib/echarts/analysis')
+
+let analysisEchartsPromise: Promise<AnalysisEchartsModule> | null = null
+
+function loadAnalysisEcharts() {
+  analysisEchartsPromise ??= import('../lib/echarts/analysis')
+  return analysisEchartsPromise
+}
 
 // ─── Refs ─────────────────────────────────────────────────────────────────
 const klineChartRef = ref<HTMLElement | null>(null)
 const contributionChartRef = ref<HTMLElement | null>(null)
 const heatmapRef = ref<HTMLElement | null>(null)
 const pieChartRef = ref<HTMLElement | null>(null)
+const portfolioSectionRef = ref<HTMLElement | null>(null)
+const contributionSectionRef = ref<HTMLElement | null>(null)
 
-let klineChart: echarts.ECharts | null = null
-let contributionChart: echarts.ECharts | null = null
-let heatmapChart: echarts.ECharts | null = null
-let pieChart: echarts.ECharts | null = null
+let klineChart: ECharts | null = null
+let contributionChart: ECharts | null = null
+let heatmapChart: ECharts | null = null
+let pieChart: ECharts | null = null
+let lazyChartObserver: IntersectionObserver | null = null
 
 // ─── State ──────────────────────────────────────────────────────────────
 type TickerRow = { ticker: string; name: string; sector: string }
@@ -235,6 +247,7 @@ const selectedTicker = ref(tickerStore.selectedTicker || '')
 const availableTickers = ref<TickerRow[]>([])
 const analysisLoading = ref(false)
 const lastForecast = ref<ForecastResponse | null>(null)
+const analysisError = ref('')
 
 const indicators = ref(buildTechnicalIndicators([]))
 
@@ -275,12 +288,14 @@ async function loadTickerUniverse() {
     }
   } catch {
     availableTickers.value = []
+    analysisError.value = '股票列表加载失败，请确认后端已启动。'
   }
 }
 
 async function loadAnalysisData(ticker: string) {
   if (!ticker) return
   analysisLoading.value = true
+  analysisError.value = ''
   try {
     const [fcRes, predRes] = await Promise.all([
       apiMarket.forecast(ticker),
@@ -327,11 +342,12 @@ async function loadAnalysisData(ticker: string) {
     }
 
     await nextTick()
-    initKlineChart()
+    await initKlineChart()
   } catch (e) {
     console.warn('分析数据加载失败', e)
     lastForecast.value = null
     indicators.value = buildTechnicalIndicators([])
+    analysisError.value = '分析数据加载失败，当前不展示模拟结论。'
   } finally {
     analysisLoading.value = false
   }
@@ -340,7 +356,52 @@ async function loadAnalysisData(ticker: string) {
 // AI 解读
 const insightsLoading = ref(false)
 const insightsText = ref('')
-const allocationData = ref<any[]>([])
+type AllocationItem = { name: string; value: number; pct: number; color: string }
+const allocationData = ref<AllocationItem[]>([])
+const hasInitializedPortfolio = ref(false)
+const hasInitializedContribution = ref(false)
+let allocationRefreshInterval: number | null = null
+
+const allocationPalette = ['#00D1FF', '#00FFBD', '#FFD700', '#FF6B6B', '#A855F7', '#F97316', '#38BDF8', '#F472B6']
+
+function buildAllocationData(positions: Position[]) {
+  const normalized = positions
+    .map((position) => {
+      const marketValue = Number(position.market_value || (position.quantity * position.current_price) || 0)
+      return {
+        name: String(position.ticker || '').toUpperCase(),
+        value: marketValue,
+      }
+    })
+    .filter((position) => position.name && Number.isFinite(position.value) && position.value > 0)
+    .sort((left, right) => right.value - left.value)
+
+  const totalValue = normalized.reduce((sum, item) => sum + item.value, 0)
+  if (totalValue <= 0) {
+    return []
+  }
+
+  return normalized.map((item, index) => ({
+    ...item,
+    pct: Number(((item.value / totalValue) * 100).toFixed(2)),
+    color: allocationPalette[index % allocationPalette.length],
+  }))
+}
+
+async function loadAllocationData() {
+  try {
+    const res = await apiAccount.get()
+    const account = res.data as AccountBalance
+    allocationData.value = buildAllocationData(account.positions || [])
+  } catch {
+    allocationData.value = []
+  }
+
+  await nextTick()
+  if (hasInitializedPortfolio.value) {
+    await initPieChart()
+  }
+}
 
 // 格式化 AI 解读（简单 Markdown-like 渲染）
 const formattedInsights = computed(() => {
@@ -359,8 +420,9 @@ const formattedInsights = computed(() => {
 })
 
 // ─── K 线图初始化（数据来自 GET /dashboard/forecast/{ticker}）────────────────
-const initKlineChart = () => {
+const initKlineChart = async () => {
   if (!klineChartRef.value) return
+  const { echarts } = await loadAnalysisEcharts()
   if (klineChart) klineChart.dispose()
   klineChart = echarts.init(klineChartRef.value)
 
@@ -385,7 +447,7 @@ const initKlineChart = () => {
   const xAxisLower = [...histDates, ...predDates]
   const lineDataLower: (number | null)[] = [...histCloses, ...predValues]
 
-  const option: echarts.EChartsOption = {
+  const option: EChartsOption = {
     backgroundColor: 'transparent',
     grid: [
       { top: 20, left: 60, right: 20, height: '55%' },
@@ -483,12 +545,13 @@ const initKlineChart = () => {
 }
 
 // ─── 特征贡献图 ────────────────────────────────────────────────────────
-const initContributionChart = () => {
+const initContributionChart = async () => {
   if (!contributionChartRef.value) return
+  const { echarts } = await loadAnalysisEcharts()
   if (contributionChart) contributionChart.dispose()
   contributionChart = echarts.init(contributionChartRef.value)
 
-  const option: echarts.EChartsOption = {
+  const option: EChartsOption = {
     backgroundColor: 'transparent',
     grid: { left: 120, right: 80, top: 10, bottom: 20 },
     tooltip: { trigger: 'axis', axisPointer: 'shadow' },
@@ -530,8 +593,9 @@ const initContributionChart = () => {
 }
 
 // ─── 月度热力图 ────────────────────────────────────────────────────────
-const initHeatmapChart = () => {
+const initHeatmapChart = async () => {
   if (!heatmapRef.value) return
+  const { echarts } = await loadAnalysisEcharts()
   if (heatmapChart) heatmapChart.dispose()
   heatmapChart = echarts.init(heatmapRef.value)
 
@@ -543,7 +607,7 @@ const initHeatmapChart = () => {
     }
   }
 
-  const option: echarts.EChartsOption = {
+  const option: EChartsOption = {
     backgroundColor: 'transparent',
     tooltip: {
       formatter: (p: any) => `第 ${p.data[0] + 1} 天，第 ${p.data[1] + 1} 周<br/>收益率: ${p.data[2].toFixed(2)}%`,
@@ -590,27 +654,38 @@ const initHeatmapChart = () => {
 }
 
 // ─── 资产配置饼图 ─────────────────────────────────────────────────────
-const initPieChart = () => {
+const initPieChart = async () => {
   if (!pieChartRef.value) return
+  const { echarts } = await loadAnalysisEcharts()
   if (pieChart) pieChart.dispose()
   pieChart = echarts.init(pieChartRef.value)
 
-  allocationData.value = [
-    { name: 'AAPL', value: 32000, pct: 32, color: '#00D1FF' },
-    { name: 'NVDA', value: 25000, pct: 25, color: '#00FFBD' },
-    { name: 'MSFT', value: 18000, pct: 18, color: '#FFD700' },
-    { name: 'AMZN', value: 15000, pct: 15, color: '#FF6B6B' },
-    { name: 'TSLA', value: 10000, pct: 10, color: '#A855F7' },
-  ]
+  if (!allocationData.value.length) {
+    pieChart.setOption({
+      backgroundColor: 'transparent',
+      title: {
+        text: '暂无实时持仓配置',
+        subtext: '请先在模拟交易页建立持仓',
+        left: 'center',
+        top: '42%',
+        textStyle: { color: '#F0F6FC', fontSize: 15, fontWeight: 600 },
+        subtextStyle: { color: '#6E7681', fontSize: 12 },
+      },
+    })
+    return
+  }
 
-  const option: echarts.EChartsOption = {
+  const option: EChartsOption = {
     backgroundColor: 'transparent',
     tooltip: {
       trigger: 'item',
       backgroundColor: 'rgba(22,27,34,0.95)',
       borderColor: 'rgba(0,209,255,0.3)',
       textStyle: { color: '#F0F6FC' },
-      formatter: '{b}: ${c} ({d}%)',
+      formatter: (params: any) => `${params.name}: $${Number(params.value || 0).toLocaleString('en-US', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      })} (${params.percent}%)`,
     },
     legend: { show: false },
     series: [{
@@ -640,15 +715,33 @@ const initPieChart = () => {
 
 // ─── AI 策略解读 ────────────────────────────────────────────────────
 async function generateInsights() {
+  if (!lastForecast.value) {
+    insightsText.value = '数据状态\n路 请先恢复分析接口，再生成结论。'
+    return
+  }
+
   insightsLoading.value = true
   insightsText.value = ''
 
   // 模拟 Claude API 流式响应（实际使用时替换为真实 API 调用）
-  await new Promise(resolve => setTimeout(resolve, 500))
+  await new Promise(resolve => setTimeout(resolve, 200))
 
   const ticker = selectedTicker.value
   const score = predictionData.value.score
   const direction = predictionData.value.direction
+  const confidence = predictionData.value.confidence
+  const targetChange = predictionData.value.target_change
+  const latestClose = lastForecast.value.current_price
+  const finalForecast = lastForecast.value.forecast.at(-1)?.predicted_price ?? latestClose
+  const directionLabel =
+    direction === 'bullish' ? '看多' : direction === 'bearish' ? '看空' : '中性'
+  const riskLabel =
+    predictionData.value.risk_level === 'low'
+      ? '波动可控'
+      : predictionData.value.risk_level === 'medium'
+        ? '建议控制仓位'
+        : '波动较高，避免追价'
+  const strongestIndicators = indicators.value.slice(0, 3)
 
   insightsText.value = `【强势关联分析】
 · ${ticker} 与 NVDA 的 Cross-Asset Attention 权重为 0.32，高于均值（0.18），表明资金在科技板块内部轮动。
@@ -663,6 +756,16 @@ async function generateInsights() {
 · 基于时序注意力分析，预测短期内科技板块动量减弱，建议将 ${ticker} 的 10% 仓位转移至防御性板块（JNJ）。
 · 当前持仓方向：${direction === 'bullish' ? '看多' : direction === 'bearish' ? '看空' : '中性'}，AI 评分 ${score >= 0 ? '+' : ''}${score.toFixed(4)}，置信度 ${predictionData.value.confidence}%。`
 
+  insightsText.value = `趋势判断
+路 ${ticker} 当前信号偏${directionLabel}，AI 评分 ${score >= 0 ? '+' : ''}${score.toFixed(4)}，置信度 ${confidence.toFixed(0)}%。
+路 最新价约 $${latestClose.toFixed(2)}，5 日预测终点约 $${finalForecast.toFixed(2)}，目标变动 ${targetChange >= 0 ? '+' : ''}${targetChange.toFixed(2)}%。
+
+关键信号
+${strongestIndicators.map((item) => `路 ${item.name}：${item.value}${item.hint ? `，${item.hint}` : ''}`).join('\n')}
+
+操作建议
+路 ${riskLabel}。
+路 这个结论已经完全基于当前页真实拿到的预测和指标数据生成，不再使用演示型固定文案。`
   insightsLoading.value = false
 }
 
@@ -683,6 +786,56 @@ const handleResize = () => {
   pieChart?.resize()
 }
 
+async function initPortfolioCharts() {
+  if (hasInitializedPortfolio.value) return
+  hasInitializedPortfolio.value = true
+  await initHeatmapChart()
+  await initPieChart()
+}
+
+async function initContributionCharts() {
+  if (hasInitializedContribution.value || !features.value.length) return
+  hasInitializedContribution.value = true
+  await initContributionChart()
+}
+
+function setupLazyChartObserver() {
+  if (lazyChartObserver || typeof IntersectionObserver === 'undefined') {
+    if (typeof IntersectionObserver === 'undefined') {
+      void initPortfolioCharts()
+      void initContributionCharts()
+    }
+    return
+  }
+
+  lazyChartObserver = new IntersectionObserver((entries) => {
+    for (const entry of entries) {
+      if (!entry.isIntersecting) continue
+
+      if (entry.target === portfolioSectionRef.value) {
+        void initPortfolioCharts()
+        lazyChartObserver?.unobserve(entry.target)
+      }
+
+      if (entry.target === contributionSectionRef.value) {
+        void initContributionCharts()
+        lazyChartObserver?.unobserve(entry.target)
+      }
+    }
+  }, {
+    rootMargin: '240px 0px',
+    threshold: 0.01,
+  })
+
+  if (portfolioSectionRef.value && !hasInitializedPortfolio.value) {
+    lazyChartObserver.observe(portfolioSectionRef.value)
+  }
+
+  if (contributionSectionRef.value && !hasInitializedContribution.value) {
+    lazyChartObserver.observe(contributionSectionRef.value)
+  }
+}
+
 async function loadFeatureImportance() {
   try {
     const res = await apiDashboard.featureImportance()
@@ -693,7 +846,11 @@ async function loadFeatureImportance() {
       value: Math.min(100, Math.round((f.importance ?? 0) * 1000)),
     }))
     await nextTick()
-    initContributionChart()
+    if (hasInitializedContribution.value) {
+      await initContributionChart()
+    } else {
+      setupLazyChartObserver()
+    }
   } catch {
     features.value = []
   }
@@ -703,23 +860,31 @@ async function loadFeatureImportance() {
 onMounted(async () => {
   try {
     await loadTickerUniverse()
+    await loadAllocationData()
     await loadFeatureImportance()
     if (selectedTicker.value) {
       await loadAnalysisData(selectedTicker.value)
     } else {
       await nextTick()
-      initKlineChart()
+      await initKlineChart()
     }
-    initHeatmapChart()
-    initPieChart()
+    setupLazyChartObserver()
   } catch (e) {
     console.warn('分析页图表初始化失败', e)
   }
+  allocationRefreshInterval = window.setInterval(() => {
+    void loadAllocationData()
+  }, 10_000)
   window.addEventListener('resize', handleResize)
 })
 
 onUnmounted(() => {
   window.removeEventListener('resize', handleResize)
+  if (allocationRefreshInterval) {
+    clearInterval(allocationRefreshInterval)
+    allocationRefreshInterval = null
+  }
+  lazyChartObserver?.disconnect()
   klineChart?.dispose()
   contributionChart?.dispose()
   heatmapChart?.dispose()
@@ -1075,6 +1240,8 @@ onUnmounted(() => {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 24px;
+  content-visibility: auto;
+  contain-intrinsic-size: 520px;
 }
 
 .analysis-card {
@@ -1127,6 +1294,8 @@ onUnmounted(() => {
 // ─── 特征贡献 ──────────────────────────────────────────────────────
 .feature-contribution {
   padding: 24px;
+  content-visibility: auto;
+  contain-intrinsic-size: 560px;
 }
 
 .contribution-content {

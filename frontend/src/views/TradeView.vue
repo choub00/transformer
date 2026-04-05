@@ -93,6 +93,7 @@
       <div class="chart-container">
         <div ref="klineChartRef" class="kline-chart"></div>
       </div>
+      <div v-if="chartStatus" class="chart-status">{{ chartStatus }}</div>
 
       <!-- 预测区标注 -->
       <div class="prediction-legend">
@@ -301,7 +302,7 @@
               <td class="text-right mono">${{ row.current_price.toFixed(2) }}</td>
               <td class="text-right mono text-accent-cyan">${{ formatNumber(row.market_value) }}</td>
               <td class="text-right">
-                <div class="pnl-cell" :class="row.unrealized_pnl >= 0 ? 'positive' : 'negative'">
+                <div class="pnl-cell" :class="row.unrealized_pnl >= 0 ? 'profit-up' : 'profit-down'">
                   <span class="pnl-value">
                     {{ row.unrealized_pnl >= 0 ? '+' : '' }}${{ formatNumber(Math.abs(row.unrealized_pnl)) }}
                   </span>
@@ -366,7 +367,7 @@
             </div>
             <div class="detail-stat">
               <span class="detail-stat-label">浮动盈亏</span>
-              <span class="detail-stat-value" :class="detailView.unrealizedPnl >= 0 ? 'text-glow-green' : 'text-glow-red'">
+              <span class="detail-stat-value" :class="detailView.unrealizedPnl >= 0 ? 'text-glow-red' : 'text-glow-green'">
                 {{ detailView.unrealizedPnl >= 0 ? '+' : '' }}${{ formatNumber(Math.abs(detailView.unrealizedPnl)) }}
                 ({{ detailView.unrealizedPnlPct >= 0 ? '+' : '' }}{{ detailView.unrealizedPnlPct.toFixed(2) }}%)
               </span>
@@ -419,7 +420,7 @@
                 </div>
                 <div class="detail-list-item">
                   <span class="detail-list-label">盈亏判断</span>
-                  <span class="detail-list-value" :class="detailView.unrealizedPnl >= 0 ? 'text-glow-green' : 'text-glow-red'">
+                  <span class="detail-list-value" :class="detailView.unrealizedPnl >= 0 ? 'text-glow-red' : 'text-glow-green'">
                     {{ detailView.unrealizedPnl >= 0 ? '盈利' : '亏损' }}
                   </span>
                 </div>
@@ -433,6 +434,7 @@
 
           <div class="detail-chart-section" v-if="!detailModal.loading">
             <div ref="timelineChartRef" class="timeline-chart"></div>
+            <div v-if="detailChartStatus" class="chart-status">{{ detailChartStatus }}</div>
           </div>
 
           <div class="detail-modal-actions">
@@ -445,7 +447,6 @@
 
     <!-- Toast 容器 -->
     <Teleport to="body">
-      <div id="toast-container"></div>
     </Teleport>
   </div>
 </template>
@@ -453,12 +454,23 @@
 <script setup lang="ts">
 import { ref, reactive, computed, onMounted, onUnmounted, watch, nextTick } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import * as echarts from 'echarts'
+import ElMessage from 'element-plus/es/components/message/index'
+import type { ECharts, EChartsOption } from 'echarts/core'
 import gsap from 'gsap'
 import { api, cancelRequest, getCancelToken, apiMarket } from '../api'
+import type { AccountBalance, Position } from '../types/api'
 import TradePanel from '../components/TradePanel.vue'
 import { useTickerStore } from '../stores/ticker'
 import { forecastToChartSeries } from '../utils/forecastChart'
+
+type TradeEchartsModule = typeof import('../lib/echarts/trade')
+
+let tradeEchartsPromise: Promise<TradeEchartsModule> | null = null
+
+function loadTradeEcharts() {
+  tradeEchartsPromise ??= import('../lib/echarts/trade')
+  return tradeEchartsPromise
+}
 
 // ─── 常量 ────────────────────────────────────────────────────────────────────
 const FEE_RATE = 0.0015
@@ -508,6 +520,8 @@ const tradePrice = ref(178.50)
 const tradeQuantity = ref(10)
 const isSubmitting = ref(false)
 const isLoading = ref(false)
+const chartStatus = ref('')
+const detailChartStatus = ref('')
 
 // GSAP animated values
 const displayTotalAssets = ref(100000)
@@ -515,12 +529,25 @@ const displayCash = ref(100000)
 const displayPortfolioValue = ref(0)
 const displayPnl = ref(0)
 
-const account = reactive<any>({
+const account = reactive<AccountBalance>({
   total_assets: 100000,
   cash: 100000,
+  init_cash: 100000,
   portfolio_value: 0,
   total_pnl: 0,
+  total_return_pct: 0,
+  available_cash: 100000,
+  positions_count: 0,
+  total_fees: 0,
+  total_trades: 0,
+  winning_trades: 0,
+  losing_trades: 0,
+  win_rate: 0,
+  daily_pnl: 0,
+  daily_trades: 0,
   positions: [],
+  equity_curve: [],
+  updated_at: '',
 })
 
 async function loadStockList() {
@@ -696,7 +723,7 @@ function selectTickerFromSearch() {
 }
 
 const klineChartRef = ref<HTMLElement | null>(null)
-let klineChart: echarts.ECharts | null = null
+let klineChart: ECharts | null = null
 let gsapAssetsTween: gsap.core.Tween | null = null
 
 // ─── 计算属性 ────────────────────────────────────────────────────────────────
@@ -755,6 +782,28 @@ const formatNumber = (num: number) => {
   return num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 }
 
+function getStablePortfolioValue() {
+  const snapshot = Number(account.portfolio_value || 0)
+  if (snapshot > 0) {
+    return snapshot
+  }
+
+  return account.positions?.reduce((sum: number, position: Position) => {
+    const marketValue = Number(position.market_value || 0)
+    return sum + (Number.isFinite(marketValue) ? marketValue : 0)
+  }, 0) || 0
+}
+
+function getAllocationPct(marketValue: number) {
+  const portfolioValue = getStablePortfolioValue()
+  return portfolioValue > 0 ? (marketValue / portfolioValue) * 100 : 0
+}
+
+function isValidPrice(value: unknown) {
+  const numericValue = Number(value)
+  return Number.isFinite(numericValue) && numericValue > 0
+}
+
 // ─── 当前选中股票的持仓 ─────────────────────────────────────────────────────
 const currentPosition = computed(() =>
   account.positions?.find((p: any) => p.ticker === selectedTicker.value) ?? null
@@ -769,18 +818,31 @@ const detailView = computed(() => {
 
   const quantity = Number(position?.quantity || detailModal.value.quantity || 0)
   const entryPrice = Number(position?.entry_price || detailModal.value.entry_price || stock?.price || 0)
-  const livePrice = Number(
-    detailModal.value.current_price > 0
-      ? detailModal.value.current_price
-      : ticker === selectedTicker.value
-        ? currentPrice.value
-        : stock?.price || position?.current_price || entryPrice,
-  )
-  const marketValue = quantity * livePrice
-  const costBasis = quantity * entryPrice
-  const unrealizedPnl = marketValue - costBasis
-  const unrealizedPnlPct = costBasis > 0 ? (unrealizedPnl / costBasis) * 100 : 0
-  const allocationPct = displayPortfolioValue.value > 0 ? (marketValue / displayPortfolioValue.value) * 100 : 0
+  const fallbackPrice = ticker === selectedTicker.value
+    ? currentPrice.value
+    : stock?.price || position?.current_price || entryPrice
+  const livePrice = isValidPrice(detailModal.value.current_price)
+    ? Number(detailModal.value.current_price)
+    : isValidPrice(fallbackPrice)
+      ? Number(fallbackPrice)
+      : Number(detailModal.value.market_value || 0) > 0 && quantity > 0
+        ? Number(detailModal.value.market_value) / quantity
+        : entryPrice
+  const costBasis = Number.isFinite(detailModal.value.cost_basis) && detailModal.value.cost_basis > 0
+    ? Number(detailModal.value.cost_basis)
+    : quantity * entryPrice
+  const marketValue = Number.isFinite(detailModal.value.market_value) && detailModal.value.market_value > 0
+    ? Number(detailModal.value.market_value)
+    : quantity * livePrice
+  const unrealizedPnl = Number.isFinite(detailModal.value.unrealized_pnl)
+    ? Number(detailModal.value.unrealized_pnl)
+    : marketValue - costBasis
+  const unrealizedPnlPct = Number.isFinite(detailModal.value.unrealized_pnl_pct)
+    ? Number(detailModal.value.unrealized_pnl_pct)
+    : costBasis > 0 ? (unrealizedPnl / costBasis) * 100 : 0
+  const allocationPct = Number.isFinite(detailModal.value.allocation_pct)
+    ? detailModal.value.allocation_pct
+    : getAllocationPct(marketValue)
 
   return {
     ticker,
@@ -793,7 +855,7 @@ const detailView = computed(() => {
     costBasis,
     unrealizedPnl,
     unrealizedPnlPct,
-    stockChange: stock?.change ?? detailModal.value.stock_change ?? 0,
+    stockChange: detailModal.value.stock_change ?? stock?.change ?? 0,
     allocationPct,
     aiAdvice: position?.ai_advice || detailModal.value.ai_advice || '持有',
     status: quantity > 0 ? '持有中' : '已清空',
@@ -838,6 +900,7 @@ async function refreshAiPanelSafe(ticker: string, revision: number) {
 
 async function initKlineChartSafe(ticker: string, revision: number) {
   if (!klineChartRef.value) return
+  const { echarts } = await loadTradeEcharts()
 
   const activeTicker = normalizeTicker(ticker)
 
@@ -895,7 +958,7 @@ async function initKlineChartSafe(ticker: string, revision: number) {
 
   const xLower = [...histDates, ...predDates]
 
-  const option: echarts.EChartsOption = {
+  const option: EChartsOption = {
     backgroundColor: '#0d1117',
     grid: [
       { top: 24, left: 56, right: 16, height: '56%' },
@@ -1038,27 +1101,21 @@ function gsapAnimateValue(targetRef: typeof displayTotalAssets, target: number) 
 }
 
 // ─── 离线降级：API 不可用时生成占位 K 线 ────────────────────────────────────────
-const generateKlineData = (ticker: string, basePrice: number) => {
-  const dates: string[] = []
-  const data: number[][] = []
-  for (let i = 0; i < 100; i++) {
+const generateKlineData = (_ticker: string, basePrice: number) => {
+  const dates = Array.from({ length: 30 }, (_, index) => {
     const date = new Date()
-    date.setDate(date.getDate() - (100 - i))
-    dates.push(date.toISOString().split('T')[0])
-    const volatility = basePrice * 0.03
-    const base = basePrice + (Math.random() - 0.5) * volatility
-    const open = base + (Math.random() - 0.5) * 5
-    const close = base + (Math.random() - 0.5) * 5
-    const high = Math.max(open, close) + Math.random() * 3
-    const low = Math.min(open, close) - Math.random() * 3
-    data.push([Math.max(0, open), Math.max(0, close), Math.max(0.01, low), Math.max(0.01, high)])
-  }
+    date.setDate(date.getDate() - (29 - index))
+    return date.toISOString().split('T')[0]
+  })
+  const safeBase = Math.max(basePrice, 1)
+  const data = dates.map(() => [safeBase, safeBase, safeBase, safeBase])
   return { dates, data }
 }
 
 // ─── K 线图：优先 GET /dashboard/forecast/{ticker} ───────────────────────────
 const initKlineChart = async () => {
   if (!klineChartRef.value) return
+  const { echarts } = await loadTradeEcharts()
 
   if (klineChart) {
     klineChart.dispose()
@@ -1073,6 +1130,7 @@ const initKlineChart = async () => {
   let predDates: string[] = []
   let lineDataLower: number[] = []
   let histDates: string[] = []
+  chartStatus.value = ''
 
   try {
     const res = await apiMarket.forecast(selectedTicker.value)
@@ -1088,16 +1146,16 @@ const initKlineChart = async () => {
     const gen = generateKlineData(selectedTicker.value, basePrice)
     dates = gen.dates
     data = gen.data
+    chartStatus.value = '实时行情不可用，当前仅显示静态占位价格，不再伪造走势。'
     const lastClose = data[data.length - 1][1]
-    const predictions: { date: string; value: number }[] = []
-    for (let i = 1; i <= 5; i++) {
+    const predictions: { date: string; value: number }[] = Array.from({ length: 5 }, (_, index) => {
       const date = new Date()
-      date.setDate(date.getDate() + i)
-      predictions.push({
+      date.setDate(date.getDate() + index + 1)
+      return {
         date: date.toISOString().split('T')[0],
-        value: lastClose * (1 + i * 0.005),
-      })
-    }
+        value: lastClose,
+      }
+    })
     histDates = dates.slice(-20)
     const histCloses = data.slice(-20).map((d) => d[1])
     predDates = predictions.map((p) => p.date)
@@ -1106,7 +1164,7 @@ const initKlineChart = async () => {
 
   const xLower = [...histDates, ...predDates]
 
-  const option: echarts.EChartsOption = {
+  const option: EChartsOption = {
     backgroundColor: '#0d1117',
     grid: [
       { top: 24, left: 56, right: 16, height: '56%' },
@@ -1237,22 +1295,28 @@ const initKlineChart = async () => {
 async function fetchAccount() {
   isLoading.value = true
   try {
-    const res = await api.get('/account')
+    const res = await api.get<AccountBalance>('/account')
     const data = res.data
     account.total_assets = data.total_assets ?? 100000
     account.cash = data.cash ?? 100000
+    account.init_cash = data.init_cash ?? account.init_cash ?? 100000
     account.portfolio_value = data.portfolio_value ?? 0
     account.total_pnl = data.total_pnl ?? 0
-    account.positions = Array.isArray(data.positions) ? data.positions : []
+    account.total_return_pct = data.total_return_pct ?? 0
+    account.available_cash = data.available_cash ?? data.cash ?? account.cash
+    account.positions_count = data.positions_count ?? (Array.isArray(data.positions) ? data.positions.length : 0)
+    account.total_fees = data.total_fees ?? 0
+    account.total_trades = data.total_trades ?? 0
+    account.winning_trades = data.winning_trades ?? 0
+    account.losing_trades = data.losing_trades ?? 0
+    account.win_rate = data.win_rate ?? 0
+    account.daily_pnl = data.daily_pnl ?? 0
+    account.daily_trades = data.daily_trades ?? 0
+    account.equity_curve = Array.isArray(data.equity_curve) ? data.equity_curve : []
+    account.updated_at = data.updated_at ?? ''
+    account.positions = Array.isArray(data.positions) ? data.positions.map((position) => ({ ...position })) : []
     mergeHeldTickersIntoList()
-    displayTotalAssets.value = account.total_assets
-    displayCash.value = account.cash
-    displayPortfolioValue.value = account.portfolio_value
-    displayPnl.value = account.total_pnl
-    gsapAnimateValue(displayTotalAssets, account.total_assets)
-    gsapAnimateValue(displayCash, account.cash)
-    gsapAnimateValue(displayPortfolioValue, account.portfolio_value)
-    gsapAnimateValue(displayPnl, account.total_pnl)
+    syncPricesFromStockList()
   } catch {
     console.warn('账户 API 暂不可用，保留当前界面数据（避免下单成功后误清空持仓）')
   } finally {
@@ -1282,7 +1346,7 @@ const detailModal = ref({
 })
 
 const timelineChartRef = ref<HTMLElement | null>(null)
-let timelineChart: echarts.ECharts | null = null
+let timelineChart: ECharts | null = null
 let detailRefreshInterval: number | null = null
 let detailRefreshRevision = 0
 
@@ -1306,12 +1370,20 @@ async function refreshDetailModalSafe(ticker: string, revision: number) {
     const pos = account.positions?.find((p: any) => p.ticker === activeTicker)
     const quantity = Number(pos?.quantity || detailModal.value.quantity || 0)
     const entryPrice = Number(pos?.entry_price || detailModal.value.entry_price || current || stock?.price || 0)
-    const livePrice = current > 0 ? current : Number(stock?.price || pos?.current_price || detailModal.value.current_price || entryPrice)
+    const previousPrice = Number(pos?.current_price || detailModal.value.current_price || 0)
+    const livePrice = isValidPrice(current)
+      ? current
+      : isValidPrice(stock?.price)
+        ? Number(stock?.price)
+        : isValidPrice(previousPrice)
+          ? previousPrice
+          : entryPrice
     const marketValue = quantity * livePrice
     const costBasis = quantity * entryPrice
     const unrealizedPnl = marketValue - costBasis
     const unrealizedPnlPct = costBasis > 0 ? (unrealizedPnl / costBasis) * 100 : 0
-    const allocationPct = displayPortfolioValue.value > 0 ? (marketValue / displayPortfolioValue.value) * 100 : 0
+    const allocationPct = getAllocationPct(marketValue)
+    const stockChange = Number(stock?.change ?? detailModal.value.stock_change ?? 0)
 
     detailModal.value.current_price = livePrice
     detailModal.value.market_value = marketValue
@@ -1319,6 +1391,7 @@ async function refreshDetailModalSafe(ticker: string, revision: number) {
     detailModal.value.unrealized_pnl = unrealizedPnl
     detailModal.value.unrealized_pnl_pct = unrealizedPnlPct
     detailModal.value.allocation_pct = allocationPct
+    detailModal.value.stock_change = stockChange
 
     if (pos) {
       pos.current_price = livePrice
@@ -1351,14 +1424,18 @@ const openDetailModal = (ticker: string) => {
   const stock = stockList.value.find((s) => s.ticker === ticker)
   const quantity = Number(pos?.quantity || 0)
   const entryPrice = Number(pos?.entry_price || stock?.price || 0)
-  const currentPrice = Number(pos?.current_price || stock?.price || entryPrice)
-  const marketValue = Number(pos?.market_value || quantity * currentPrice)
+  const modalPrice = isValidPrice(pos?.current_price)
+    ? Number(pos?.current_price)
+    : isValidPrice(stock?.price)
+      ? Number(stock?.price)
+      : entryPrice
+  const marketValue = Number(pos?.market_value || quantity * modalPrice)
   const costBasis = quantity * entryPrice
   const unrealizedPnl = Number(pos?.unrealized_pnl ?? (marketValue - costBasis))
   const unrealizedPnlPct = Number(
-    pos?.unrealized_pnl_pct ?? (entryPrice > 0 ? ((currentPrice / entryPrice) - 1) * 100 : 0),
+    pos?.unrealized_pnl_pct ?? (entryPrice > 0 ? ((modalPrice / entryPrice) - 1) * 100 : 0),
   )
-  const allocationPct = displayPortfolioValue.value > 0 ? (marketValue / displayPortfolioValue.value) * 100 : 0
+  const allocationPct = getAllocationPct(marketValue)
   detailModal.value = {
     visible: true,
     ticker,
@@ -1367,34 +1444,38 @@ const openDetailModal = (ticker: string) => {
     quantity,
     entry_date: '2026-01-15',
     entry_price: entryPrice,
-    current_price: currentPrice,
+    current_price: modalPrice,
     market_value: marketValue,
     cost_basis: costBasis,
     unrealized_pnl: unrealizedPnl,
     unrealized_pnl_pct: unrealizedPnlPct,
-    stock_change: stock?.change || 0,
+    stock_change: Number(stock?.change ?? 0),
     allocation_pct: allocationPct,
     ai_advice: pos?.ai_advice || '持有',
     position: pos,
     loading: false,
   }
   if (ticker === selectedTicker.value) {
-    detailModal.value.current_price = currentPrice.value
+    detailModal.value.current_price = isValidPrice(currentPrice.value) ? currentPrice.value : modalPrice
   }
   startDetailRefresh(ticker)
-  nextTick(() => initTimelineChart())
+  void nextTick(async () => {
+    await initTimelineChart()
+  })
 }
 
 const closeDetailModal = () => {
   detailModal.value.visible = false
   detailModal.value.position = null
+  detailChartStatus.value = ''
   stopDetailRefresh()
   timelineChart?.dispose()
   timelineChart = null
 }
 
-const initTimelineChart = () => {
+const initTimelineChart = async () => {
   if (!timelineChartRef.value) return
+  const { echarts } = await loadTradeEcharts()
   if (timelineChart) timelineChart.dispose()
   timelineChart = echarts.init(timelineChartRef.value)
 
@@ -1405,14 +1486,18 @@ const initTimelineChart = () => {
     d.setDate(d.getDate() - (days - i))
     return d.toISOString().split('T')[0]
   })
-  let base = pos?.entry_price || 150
-  const pnlData = []
-  for (let i = 0; i < days; i++) {
-    base = Math.max(base + (Math.random() - 0.48) * 3, (pos?.entry_price || 150) * 0.8)
-    pnlData.push((base - (pos?.entry_price || 150)) * (pos?.quantity || 10))
-  }
+  const entryPrice = pos?.entry_price || detailModal.value.entry_price || 150
+  const current = detailModal.value.current_price || entryPrice
+  const quantity = pos?.quantity || detailModal.value.quantity || 10
+  const pnlNow = (current - entryPrice) * quantity
+  const pnlData = Array.from({ length: days }, (_, index) => {
+    const progress = index / Math.max(days - 1, 1)
+    const eased = 1 - Math.pow(1 - progress, 2)
+    return Number((pnlNow * eased).toFixed(2))
+  })
+  detailChartStatus.value = '轨迹基于当前持仓盈亏做平滑回溯，用于说明持仓状态，不再随机生成。'
 
-  const option: echarts.EChartsOption = {
+  const option: EChartsOption = {
     backgroundColor: 'transparent',
     tooltip: {
       trigger: 'axis',
@@ -1533,13 +1618,11 @@ const changePeriod = (period: string) => {
 
 // ─── Toast 提示 ─────────────────────────────────────────────────────────────
 const showToast = (message: string, type: 'success' | 'error' = 'success') => {
-  const container = document.getElementById('toast-container')
-  if (!container) return
-  const toast = document.createElement('div')
-  toast.className = `toast toast-${type}`
-  toast.textContent = message
-  container.appendChild(toast)
-  setTimeout(() => toast.remove(), 3000)
+  if (type === 'success') {
+    ElMessage.success(message)
+    return
+  }
+  ElMessage.error(message)
 }
 
 // ─── 提交订单 ───────────────────────────────────────────────────────────────
@@ -1652,25 +1735,56 @@ const toggleAutoTrading = async () => {
 let priceUpdateInterval: number | null = null
 
 const syncPricesFromStockList = () => {
-  account.positions?.forEach((pos: any) => {
+  account.positions?.forEach((pos: Position) => {
     const stock = stockList.value.find((s) => s.ticker === pos.ticker)
-    if (stock) {
-      pos.current_price = stock.price
-      pos.market_value = pos.quantity * stock.price
-      pos.unrealized_pnl = (pos.current_price - pos.entry_price) * pos.quantity
-      pos.unrealized_pnl_pct = (pos.current_price / pos.entry_price - 1) * 100
+    const nextPrice = isValidPrice(stock?.price)
+      ? Number(stock?.price)
+      : isValidPrice(pos.current_price)
+        ? Number(pos.current_price)
+        : Number(pos.entry_price || 0)
+
+    if (isValidPrice(nextPrice)) {
+      pos.current_price = nextPrice
+      pos.market_value = pos.quantity * nextPrice
+      pos.unrealized_pnl = (nextPrice - pos.entry_price) * pos.quantity
+      pos.unrealized_pnl_pct = pos.entry_price > 0 ? (nextPrice / pos.entry_price - 1) * 100 : 0
     }
   })
 
-  const pv = account.positions?.reduce((sum: number, p: any) => sum + (p.market_value || 0), 0) || 0
-  displayPortfolioValue.value = pv
+  const pv = account.positions?.reduce((sum: number, p: Position) => sum + (p.market_value || 0), 0) || 0
+  const pnl = account.positions?.reduce((sum: number, p: Position) => sum + (p.unrealized_pnl || 0), 0) || 0
+
   account.portfolio_value = pv
-  account.total_assets = displayCash.value + pv
-  displayTotalAssets.value = account.total_assets
-  displayPnl.value = account.positions?.reduce((sum: number, p: any) => sum + (p.unrealized_pnl || 0), 0) || 0
+  account.total_pnl = pnl
+  account.positions_count = account.positions?.length || 0
+  account.available_cash = account.cash
+  account.total_assets = account.cash + pv
+  account.total_return_pct = account.init_cash > 0
+    ? ((account.total_assets - account.init_cash) / account.init_cash) * 100
+    : 0
+
+  gsapAnimateValue(displayCash, account.cash)
+  gsapAnimateValue(displayPortfolioValue, pv)
+  gsapAnimateValue(displayTotalAssets, account.total_assets)
+  gsapAnimateValue(displayPnl, pnl)
+
+  if (detailModal.value.visible && detailModal.value.ticker) {
+    const activePosition = account.positions?.find((p: Position) => p.ticker === detailModal.value.ticker)
+    const activeStock = stockList.value.find((s) => s.ticker === detailModal.value.ticker)
+    if (activePosition) {
+      detailModal.value.current_price = activePosition.current_price
+      detailModal.value.market_value = activePosition.market_value
+      detailModal.value.unrealized_pnl = activePosition.unrealized_pnl
+      detailModal.value.unrealized_pnl_pct = activePosition.unrealized_pnl_pct
+      detailModal.value.cost_basis = activePosition.entry_price * activePosition.quantity
+      detailModal.value.allocation_pct = pv > 0 ? (activePosition.market_value / pv) * 100 : 0
+      detailModal.value.stock_change = Number(activeStock?.change ?? detailModal.value.stock_change ?? 0)
+    }
+  }
 }
 
 const startPriceUpdates = () => {
+  if (priceUpdateInterval) clearInterval(priceUpdateInterval)
   priceUpdateInterval = window.setInterval(() => {
     void loadStockList().then(() => {
       const st = stockList.value.find((s) => s.ticker === selectedTicker.value)
@@ -1681,7 +1795,7 @@ const startPriceUpdates = () => {
       }
       syncPricesFromStockList()
     })
-  }, 20_000)
+  }, 5_000)
 }
 
 // ─── 窗口调整 ───────────────────────────────────────────────────────────────
@@ -1748,31 +1862,15 @@ onUnmounted(() => {
 // ════════════════════════════════════════════════════════════════════════════
 // Toast 容器（全局）
 // ════════════════════════════════════════════════════════════════════════════
-:global(#toast-container) {
-  position: fixed;
-  top: 80px;
-  right: 20px;
-  z-index: 9999;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-:global(.toast) {
-  padding: 12px 20px;
-  border-radius: 8px;
-  font-weight: 600;
-  animation: slideIn 0.3s ease-out;
-}
-
-:global(.toast-success) {
-  background: linear-gradient(135deg, var(--accent-green), var(--accent-cyan));
-  color: var(--bg-primary);
-}
-
-:global(.toast-error) {
-  background: linear-gradient(135deg, var(--accent-red), #FF6B6B);
-  color: white;
+.chart-status {
+  margin-top: 12px;
+  padding: 10px 12px;
+  border: 1px solid rgba(255, 184, 0, 0.18);
+  background: rgba(255, 184, 0, 0.08);
+  color: #f6c768;
+  border-radius: 10px;
+  font-size: 12px;
+  line-height: 1.5;
 }
 
 @keyframes slideIn {
@@ -1786,7 +1884,8 @@ onUnmounted(() => {
 .trade-view {
   display: grid;
   grid-template-columns: 1fr 400px;
-  grid-template-rows: auto 1fr auto;
+  grid-template-rows: auto auto auto;
+  align-items: start;
   gap: 24px;
   padding-bottom: 72px;
 }
@@ -2040,6 +2139,7 @@ onUnmounted(() => {
   grid-row: 2;
   grid-column: 1;
   padding: 20px;
+  align-self: start;
   background: rgba(13, 17, 23, 0.92);
   border: 1px solid var(--border-default);
   border-radius: 16px;
@@ -2153,34 +2253,39 @@ onUnmounted(() => {
 
 .period-btn {
   padding: 8px 16px;
-  border-color: rgba(255,255,255,0.12);
+  border: 1px solid rgba(255,255,255,0.18);
   border-radius: 8px;
-  background: transparent;
-  color: var(--text-secondary);
+  background: rgba(13,17,23,0.82);
+  color: rgba(240,246,252,0.82);
   font-size: 13px;
+  font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.03);
+  transition: all 0.2s ease;
 
   &:hover {
-    border-color: var(--text-secondary);
+    border-color: rgba(0,209,255,0.45);
+    background: rgba(0,209,255,0.08);
     color: var(--text-primary);
   }
 
   &.active {
-    background: rgba(0,209,255,0.1);
+    background: rgba(0,209,255,0.14);
     border-color: var(--accent-cyan);
     color: var(--accent-cyan);
+    box-shadow: 0 0 0 1px rgba(0,209,255,0.14), 0 8px 24px rgba(0,209,255,0.08);
   }
 }
 
 // ─── 交易面板 ────────────────────────────────────────────────────────────────
 .trade-panel {
-  grid-row: 2;
+  grid-row: 2 / span 2;
   grid-column: 2;
   padding: 20px;
   display: flex;
   flex-direction: column;
   gap: 20px;
+  align-self: start;
 }
 
 .account-overview {
@@ -2612,27 +2717,29 @@ onUnmounted(() => {
 }
 
 .toggle-btn {
-  background: transparent;
-  border: none;
+  background: rgba(13,17,23,0.82);
+  border: 1px solid rgba(255,255,255,0.14);
+  border-radius: 999px;
   cursor: pointer;
-  padding: 0;
+  padding: 2px;
   display: flex;
   align-items: center;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.03);
 }
 
 .toggle-track {
   display: block;
   width: 48px;
   height: 28px;
-  background: var(--bg-primary);
-  border: 1px solid var(--border-default);
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.12);
   border-radius: 14px;
   position: relative;
   transition: background 0.3s, border-color 0.3s;
 
   .toggle-btn.active & {
-    background: var(--accent-cyan);
-    border-color: var(--accent-cyan);
+    background: rgba(0,209,255,0.22);
+    border-color: rgba(0,209,255,0.6);
   }
 }
 
@@ -2669,8 +2776,26 @@ onUnmounted(() => {
 // ─── 持仓列表 ────────────────────────────────────────────────────────────────
 .positions-section {
   grid-row: 3;
-  grid-column: 1 / -1;
+  grid-column: 1;
   padding: 20px;
+}
+
+@media (max-width: 1200px) {
+  .trade-view {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto;
+  }
+
+  .chart-section,
+  .trade-panel,
+  .positions-section {
+    grid-column: 1;
+    grid-row: auto;
+  }
+
+  .trade-panel {
+    gap: 16px;
+  }
 }
 
 .section-header {
@@ -2738,8 +2863,8 @@ onUnmounted(() => {
   align-items: flex-end;
   gap: 2px;
 
-  &.positive .pnl-value { color: var(--accent-green); animation: breathe-green 1.5s ease-in-out infinite; }
-  &.negative .pnl-value { color: var(--accent-red); animation: breathe-red 1.5s ease-in-out infinite; }
+  &.profit-up .pnl-value { color: var(--accent-red); animation: breathe-red 1.5s ease-in-out infinite; }
+  &.profit-down .pnl-value { color: var(--accent-green); animation: breathe-green 1.5s ease-in-out infinite; }
 }
 
 .pnl-value {
@@ -2776,24 +2901,34 @@ onUnmounted(() => {
 .btn {
   padding: 6px 12px;
   border-radius: 6px;
+  background: rgba(13,17,23,0.88);
   font-size: 12px;
   font-weight: 600;
+  color: var(--text-primary);
   cursor: pointer;
-  transition: all 0.2s;
-  border: none;
+  transition: all 0.18s ease;
+  border: 1px solid rgba(255,255,255,0.14);
   min-height: 34px;
 
   &.btn-ghost {
-    background: transparent;
-    color: var(--text-secondary);
-    border: 1px solid rgba(255,255,255,0.12);
-    &:hover { border-color: #00D1FF; color: #00D1FF; }
+    background: rgba(13,17,23,0.82);
+    color: rgba(240,246,252,0.82);
+    border-color: rgba(255,255,255,0.18);
+    &:hover {
+      border-color: rgba(0,209,255,0.45);
+      background: rgba(0,209,255,0.08);
+      color: #00D1FF;
+    }
   }
   &.btn-danger {
     background: rgba(255,59,48,0.1);
     color: var(--accent-red);
     border: 1px solid rgba(255,59,48,0.3);
-    &:hover { background: rgba(255,59,48,0.2); }
+    &:hover {
+      background: rgba(255,59,48,0.18);
+      border-color: rgba(255,59,48,0.55);
+      color: #ffd2ce;
+    }
   }
   &.btn-sm { padding: 6px 12px; font-size: 12px; }
 }

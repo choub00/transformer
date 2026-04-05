@@ -67,8 +67,10 @@ class GatedResidualNetwork(nn.Module):
         self.activation = nn.SiLU()  # SiLU/Swish: 比 ReLU 更平滑的激活
 
         # 初始化：输出偏置置零（稳定的残差起点）
-        nn.init.zeros_(self.fc_out.bias)
-        nn.init.zeros_(self.gate_out.bias)
+        if self.fc_out.bias is not None:
+            nn.init.zeros_(self.fc_out.bias)
+        if self.gate_out.bias is not None:
+            nn.init.zeros_(self.gate_out.bias)
 
     def forward(self, x: torch.Tensor, context: Optional[torch.Tensor] = None) -> torch.Tensor:
         """

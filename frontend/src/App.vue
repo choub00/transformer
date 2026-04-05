@@ -49,7 +49,7 @@
           <div class="system-status">
             <div class="status-indicator" :class="{ active: isConnected }">
               <span class="status-dot"></span>
-              <span class="status-text">{{ isConnected ? '系统正常' : '连接中' }}</span>
+              <span class="status-text">{{ connectionText }}</span>
             </div>
           </div>
         </div>
@@ -87,7 +87,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue'
-import { ElConfigProvider } from 'element-plus'
+import ElConfigProvider from 'element-plus/es/components/config-provider/index'
 import zhCn from 'element-plus/es/locale/lang/zh-cn'
 import gsap from 'gsap'
 import { api } from './api'
@@ -101,9 +101,11 @@ const enableNoiseCanvas = false
 
 // ─── State ──────────────────────────────────────────────────────────────
 const isConnected = ref(false)
+const connectionText = ref('连接检查中')
 const currentTime = ref('')
 let timeInterval: number | undefined
 let noiseAnimationId: number | undefined
+let healthInterval: number | undefined
 
 // ─── WebGL 噪声背景 ────────────────────────────────────────────────────
 const initNoiseBackground = () => {
@@ -190,8 +192,10 @@ const checkConnection = async () => {
   try {
     await api.get('/health')
     isConnected.value = true
+    connectionText.value = '系统正常'
   } catch {
     isConnected.value = false
+    connectionText.value = '后端未连接'
   }
 }
 
@@ -211,11 +215,13 @@ onMounted(() => {
   updateTime()
   timeInterval = window.setInterval(updateTime, 1000)
   checkConnection()
+  healthInterval = window.setInterval(checkConnection, 15000)
   window.addEventListener('resize', handleResize)
 })
 
 onUnmounted(() => {
   if (timeInterval) clearInterval(timeInterval)
+  if (healthInterval) clearInterval(healthInterval)
   if (noiseAnimationId) cancelAnimationFrame(noiseAnimationId)
   window.removeEventListener('resize', handleResize)
 })

@@ -36,6 +36,8 @@
       <div class="equity-chart">
         <div ref="equityChartRef" class="chart-container"></div>
       </div>
+      <div v-if="dashboardError" class="dashboard-status error">{{ dashboardError }}</div>
+      <div v-else-if="!lastUpdated && !isLoading" class="dashboard-status">暂无可展示的数据，请先启动后端服务。</div>
     </section>
 
     <!-- ══════════════════════════════════════════════════════════════════════
@@ -181,11 +183,20 @@
 <script setup lang="ts">
 import { ref, reactive, computed, onMounted, onUnmounted, nextTick, watch } from 'vue'
 import { useRouter } from 'vue-router'
-import { ElMessage } from 'element-plus'
-import * as echarts from 'echarts'
+import ElMessage from 'element-plus/es/components/message/index'
+import type { ECharts, EChartsOption } from 'echarts/core'
 import { api } from '../api'
 import gsap from 'gsap'
 import type { EquityCurve } from '../types/api'
+
+type DashboardEchartsModule = typeof import('../lib/echarts/dashboard')
+
+let dashboardEchartsPromise: Promise<DashboardEchartsModule> | null = null
+
+function loadDashboardEcharts() {
+  dashboardEchartsPromise ??= import('../lib/echarts/dashboard')
+  return dashboardEchartsPromise
+}
 
 const router = useRouter()
 
@@ -194,13 +205,14 @@ const equityChartRef = ref<HTMLElement | null>(null)
 const featuresChartRef = ref<HTMLElement | null>(null)
 const totalAssetsRef = ref<HTMLElement | null>(null)
 
-let equityChart: echarts.ECharts | null = null
-let featuresChart: echarts.ECharts | null = null
+let equityChart: ECharts | null = null
+let featuresChart: ECharts | null = null
 let gsapTween: gsap.core.Tween | null = null
 
 // ─── State ───────────────────────────────────────────────────────────────────
 const isLoading = ref(false)
 const lastUpdated = ref('')
+const dashboardError = ref('')
 
 const account = reactive({
   total_assets: 100000,
@@ -273,8 +285,9 @@ function animateTo(target: number) {
 }
 
 // ─── 权益曲线图 ───────────────────────────────────────────────────────────────
-function initEquityChart(curve: EquityCurve) {
+async function initEquityChart(curve: EquityCurve) {
   if (!equityChartRef.value) return
+  const { echarts } = await loadDashboardEcharts()
   if (equityChart) equityChart.dispose()
   equityChart = echarts.init(equityChartRef.value)
 
@@ -282,7 +295,7 @@ function initEquityChart(curve: EquityCurve) {
   const strategy = curve?.strategy_equity || []
   const benchmark = curve?.benchmark_equity || []
 
-  const option: echarts.EChartsOption = {
+  const option: EChartsOption = {
     backgroundColor: 'transparent',
     grid: { top: 20, right: 20, bottom: 40, left: 70 },
     tooltip: {
@@ -349,14 +362,15 @@ function initEquityChart(curve: EquityCurve) {
 }
 
 // ─── 特征重要性图 ─────────────────────────────────────────────────────────────
-function initFeaturesChart() {
+async function initFeaturesChart() {
   if (!featuresChartRef.value) return
+  const { echarts } = await loadDashboardEcharts()
   if (featuresChart) featuresChart.dispose()
   featuresChart = echarts.init(featuresChartRef.value)
 
   const feats = [...featureImportance.value].sort((a, b) => b.importance - a.importance).slice(0, 6)
 
-  const option: echarts.EChartsOption = {
+  const option: EChartsOption = {
     backgroundColor: 'transparent',
     grid: { top: 10, right: 80, bottom: 20, left: 10 },
     xAxis: {
@@ -399,6 +413,7 @@ function initFeaturesChart() {
 // ─── 数据获取 ──────────────────────────────────────────────────────────────────
 async function fetchDashboard() {
   isLoading.value = true
+  dashboardError.value = ''
   try {
     const res = await api.get('/dashboard/full')
     const data = res.data
@@ -425,13 +440,13 @@ async function fetchDashboard() {
     // 权益曲线
     if (data.equity_curve) {
       await nextTick()
-      initEquityChart(data.equity_curve)
+      await initEquityChart(data.equity_curve)
     }
 
     // 特征重要性图
     if (featureImportance.value.length > 0) {
       await nextTick()
-      initFeaturesChart()
+      await initFeaturesChart()
     }
 
     lastUpdated.value = new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })
@@ -444,6 +459,8 @@ async function fetchDashboard() {
 }
 
 function loadMockData() {
+  dashboardError.value = '实时数据加载失败，当前页不再使用模拟数据伪装结果。'
+  return void 0
   account.total_assets = 128350.42
   account.cash = 83450.00
   account.portfolio_value = 44900.42
@@ -482,9 +499,9 @@ function loadMockData() {
     return Math.round(base * 100) / 100
   })
 
-  nextTick(() => {
-    initEquityChart({ dates, strategy_equity: strategy, benchmark_equity: benchmark })
-    initFeaturesChart()
+  void nextTick(async () => {
+    await initEquityChart({ dates, strategy_equity: strategy, benchmark_equity: benchmark })
+    await initFeaturesChart()
   })
 
   lastUpdated.value = new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })
@@ -492,6 +509,10 @@ function loadMockData() {
 
 async function refreshData() {
   await fetchDashboard()
+  if (dashboardError.value) {
+    ElMessage.warning('刷新失败，请检查后端服务')
+    return
+  }
   ElMessage.success('数据已刷新')
 }
 

@@ -74,7 +74,7 @@
         </div>
         <div class="position-row">
           <span class="pos-label">浮动盈亏</span>
-          <span class="pos-value" :class="currentPosition.unrealized_pnl >= 0 ? 'positive' : 'negative'">
+          <span class="pos-value" :class="currentPosition.unrealized_pnl >= 0 ? 'profit-up' : 'profit-down'">
             {{ currentPosition.unrealized_pnl >= 0 ? '+' : '' }}${{ formatNumber(Math.abs(currentPosition.unrealized_pnl)) }}
             ({{ currentPosition.unrealized_pnl_pct >= 0 ? '+' : '' }}{{ currentPosition.unrealized_pnl_pct.toFixed(2) }}%)
           </span>
@@ -176,7 +176,7 @@
 
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
-import { ElNotification } from 'element-plus'
+import ElNotification from 'element-plus/es/components/notification/index'
 import { apiTrade } from '../api'
 import type { Position } from '../types/api'
 
@@ -473,8 +473,8 @@ watch(
 
 .pos-label { color: var(--text-tertiary); }
 .pos-value { color: var(--text-primary); font-weight: 500; font-family: 'JetBrains Mono', monospace; }
-.pos-value.positive { color: var(--accent-green); }
-.pos-value.negative { color: var(--accent-red); }
+.pos-value.profit-up { color: var(--accent-red); }
+.pos-value.profit-down { color: var(--accent-green); }
 
 // ─── 方向选择 ────────────────────────────────────────────────────────
 .side-selector {
@@ -486,23 +486,42 @@ watch(
 .side-btn {
   padding: 12px;
   border-radius: 12px;
-  border: 1px solid var(--border-default);
-  background: transparent;
+  border: 1px solid rgba(255,255,255,0.16);
+  background: rgba(13,17,23,0.82);
   font-size: 15px;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.03);
+  transition: all 0.2s ease;
 
   &.buy-btn {
-    color: var(--text-secondary);
-    &:hover { border-color: var(--accent-green); color: var(--accent-green); background: var(--accent-green-dim); }
-    &.active { border-color: var(--accent-green); color: var(--accent-green); background: var(--accent-green-dim); }
+    color: rgba(240,246,252,0.82);
+    &:hover {
+      border-color: rgba(0,255,189,0.5);
+      color: var(--accent-green);
+      background: rgba(0,255,189,0.10);
+    }
+    &.active {
+      border-color: rgba(0,255,189,0.7);
+      color: var(--accent-green);
+      background: rgba(0,255,189,0.14);
+      box-shadow: 0 0 0 1px rgba(0,255,189,0.12), 0 10px 24px rgba(0,255,189,0.08);
+    }
   }
 
   &.sell-btn {
-    color: var(--text-secondary);
-    &:hover { border-color: var(--accent-red); color: var(--accent-red); background: var(--accent-red-dim); }
-    &.active { border-color: var(--accent-red); color: var(--accent-red); background: var(--accent-red-dim); }
+    color: rgba(240,246,252,0.82);
+    &:hover {
+      border-color: rgba(255,59,48,0.5);
+      color: var(--accent-red);
+      background: rgba(255,59,48,0.10);
+    }
+    &.active {
+      border-color: rgba(255,59,48,0.65);
+      color: var(--accent-red);
+      background: rgba(255,59,48,0.14);
+      box-shadow: 0 0 0 1px rgba(255,59,48,0.12), 0 10px 24px rgba(255,59,48,0.08);
+    }
   }
 }
 
@@ -535,8 +554,8 @@ watch(
   min-width: 44px;
   flex-shrink: 0;
   border-radius: 10px;
-  border: 1px solid var(--border-default);
-  background: var(--bg-secondary);
+  border: 1px solid rgba(255,255,255,0.16);
+  background: rgba(13,17,23,0.82);
   color: var(--text-primary);
   font-size: 18px;
   font-weight: 600;
@@ -547,9 +566,9 @@ watch(
   justify-content: center;
 
   &:hover {
-    border-color: var(--accent-cyan);
+    border-color: rgba(0,209,255,0.5);
     color: var(--accent-cyan);
-    background: var(--accent-cyan-dim);
+    background: rgba(0,209,255,0.10);
   }
   &:active { transform: scale(0.94); }
 }
@@ -589,9 +608,9 @@ watch(
   height: 36px;
   padding: 0 12px;
   border-radius: 20px;
-  border: 1.5px solid var(--border-default);
-  background: transparent;
-  color: var(--text-secondary);
+  border: 1px solid rgba(255,255,255,0.18);
+  background: rgba(13,17,23,0.82);
+  color: rgba(240,246,252,0.82);
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
@@ -601,9 +620,9 @@ watch(
   justify-content: center;
 
   &:hover:not(:disabled) {
-    border-color: var(--accent-cyan);
+    border-color: rgba(0,209,255,0.5);
     color: var(--accent-cyan);
-    background: var(--accent-cyan-dim);
+    background: rgba(0,209,255,0.10);
   }
 
   &:disabled {
@@ -618,9 +637,9 @@ watch(
   height: 32px;
   padding: 0 12px;
   border-radius: 16px;
-  border: 1px dashed var(--border-hover);
-  background: transparent;
-  color: var(--text-tertiary);
+  border: 1px dashed rgba(255,255,255,0.22);
+  background: rgba(13,17,23,0.72);
+  color: rgba(240,246,252,0.68);
   font-size: 11px;
   font-weight: 500;
   cursor: pointer;

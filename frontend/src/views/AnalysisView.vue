@@ -12,22 +12,75 @@
       <!-- ══════════════════════════════════════════════════════════════════════════
            股票选择器
            ══════════════════════════════════════════════════════════════════════════ -->
-      <section class="ticker-selector glass-card">
-        <div class="selector-label">选择股票</div>
-        <div v-if="!availableTickers.length" class="selector-empty">正在加载标的列表…</div>
-        <div class="ticker-list" v-else>
+      <div class="stock-selector glass-card">
+        <div class="selector-header">
+          <div class="selector-copy">
+            <div class="selector-kicker">选择股票</div>
+            <div class="selector-title">点击下拉切换标的，或直接输入代码回车</div>
+          </div>
+          <div class="selector-meta">
+            <span class="selector-count">{{ stockList.length }} 只</span>
+          </div>
+        </div>
+
+        <div class="recent-tickers" v-if="recentStocks.length">
+          <span class="recent-label">最近访问</span>
           <button
-            v-for="ticker in availableTickers"
-            :key="ticker.ticker"
-            class="ticker-btn"
-            :class="{ active: selectedTicker === ticker.ticker }"
-            @click="selectTicker(ticker.ticker)"
+            v-for="stock in recentStocks"
+            :key="stock.ticker"
+            type="button"
+            class="recent-chip"
+            :class="{ active: stock.ticker === selectedTicker }"
+            @click="selectTickerSafe(stock.ticker)"
           >
-            <span class="ticker-code">{{ ticker.ticker }}</span>
-            <span class="ticker-sector">{{ ticker.sector }}</span>
+            <span class="recent-chip-ticker">{{ stock.ticker }}</span>
+            <span class="recent-chip-name">{{ stock.name }}</span>
           </button>
         </div>
-      </section>
+
+        <div class="ticker-search-row">
+          <el-input
+            v-model="tickerSearch"
+            class="ticker-search"
+            clearable
+            placeholder="输入代码后按 Enter 切换，例如 AAPL"
+            @keyup.enter="selectTickerFromSearch"
+          />
+          <button type="button" class="ticker-search-btn" @click="selectTickerFromSearch">切换</button>
+        </div>
+
+        <el-select
+          v-model="selectedTicker"
+          class="stock-select"
+          filterable
+          popper-class="stock-select-popper"
+          placeholder="选择股票"
+          @change="selectTickerSafe"
+        >
+          <el-option
+            v-for="stock in stockList"
+            :key="stock.ticker"
+            :label="stock.ticker"
+            :value="stock.ticker"
+          >
+            <div class="stock-option">
+              <div class="stock-option-main">
+                <span class="stock-option-ticker">{{ stock.ticker }}</span>
+                <span class="stock-option-name">{{ stock.name }}</span>
+              </div>
+              <div class="stock-option-meta">
+                <span class="stock-option-sector">{{ stock.sector || '未分类' }}</span>
+                <span class="stock-option-price" :class="stock.change >= 0 ? 'pos' : 'neg'">
+                  ${{ stock.price.toFixed(2) }}
+                </span>
+                <span class="stock-option-change" :class="stock.change >= 0 ? 'pos' : 'neg'">
+                  {{ stock.change >= 0 ? '+' : '' }}{{ stock.change.toFixed(2) }}%
+                </span>
+              </div>
+            </div>
+          </el-option>
+        </el-select>
+      </div>
 
       <!-- ══════════════════════════════════════════════════════════════════════════
            分析图表区
@@ -209,8 +262,9 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
+import ElMessage from 'element-plus/es/components/message/index'
 import type { ECharts, EChartsOption } from 'echarts/core'
-import { api, apiMarket, apiDashboard, apiAccount } from '../api'
+import { api, apiMarket, apiDashboard, apiAccount, cancelRequest } from '../api'
 import type { AccountBalance, ForecastResponse, KLinePoint, Position } from '../types/api'
 import { buildTechnicalIndicators } from '../utils/technicals'
 import { forecastToChartSeries } from '../utils/forecastChart'
@@ -240,11 +294,37 @@ let pieChart: ECharts | null = null
 let lazyChartObserver: IntersectionObserver | null = null
 
 // ─── State ──────────────────────────────────────────────────────────────
-type TickerRow = { ticker: string; name: string; sector: string }
+const RECENT_TICKERS_KEY = 'alpha-transformer:recent-tickers'
+
+type StockRow = {
+  ticker: string
+  name: string
+  basePrice: number
+  price: number
+  change: number
+  sector?: string
+}
 
 const tickerStore = useTickerStore()
 const selectedTicker = ref(tickerStore.selectedTicker || '')
-const availableTickers = ref<TickerRow[]>([])
+const stockList = ref<StockRow[]>([])
+const tickerSearch = ref('')
+const recentTickers = ref<string[]>([])
+
+function normalizeTicker(ticker: string) {
+  return ticker.trim().toUpperCase()
+}
+
+function findStockRow(ticker: string) {
+  const key = normalizeTicker(ticker)
+  return stockList.value.find((s) => s.ticker === key)
+}
+
+const recentStocks = computed(() =>
+  recentTickers.value
+    .map((ticker) => findStockRow(ticker) || { ticker, name: ticker, basePrice: 0, price: 0, change: 0 })
+    .filter((stock, index, arr) => stock && arr.findIndex((item) => item.ticker === stock.ticker) === index),
+)
 const analysisLoading = ref(false)
 const lastForecast = ref<ForecastResponse | null>(null)
 const analysisError = ref('')
@@ -268,26 +348,60 @@ function riskFromScore(score: number): 'low' | 'medium' | 'high' {
   return 'high'
 }
 
+function loadRecentTickers() {
+  try {
+    const raw = window.localStorage.getItem(RECENT_TICKERS_KEY)
+    if (!raw) return
+    const parsed = JSON.parse(raw)
+    if (Array.isArray(parsed)) {
+      recentTickers.value = parsed
+        .map((item) => normalizeTicker(String(item || '')))
+        .filter(Boolean)
+        .slice(0, 6)
+    }
+  } catch {
+    recentTickers.value = []
+  }
+}
+
+function saveRecentTicker(ticker: string) {
+  const next = normalizeTicker(ticker)
+  if (!next) return
+  recentTickers.value = [next, ...recentTickers.value.filter((item) => item !== next)].slice(0, 6)
+  try {
+    window.localStorage.setItem(RECENT_TICKERS_KEY, JSON.stringify(recentTickers.value))
+  } catch {
+    /* ignore */
+  }
+}
+
 async function loadTickerUniverse() {
   try {
+    loadRecentTickers()
     const res = await apiMarket.tickers()
     const rows = res.data?.tickers ?? []
-    availableTickers.value = rows.map((t: { ticker: string; name?: string; sector?: string }) => ({
+    stockList.value = rows.map((t) => ({
       ticker: t.ticker,
       name: t.name || t.ticker,
-      sector: t.sector || '—',
+      sector: t.sector,
+      basePrice: t.price,
+      price: t.price,
+      change: t.change_pct ?? 0,
     }))
-    if (!selectedTicker.value && availableTickers.value.length) {
-      selectedTicker.value = availableTickers.value[0].ticker
-      tickerStore.selectTicker(availableTickers.value[0].ticker, availableTickers.value[0].name)
+    if (!selectedTicker.value && stockList.value.length) {
+      const first = stockList.value[0]
+      selectedTicker.value = first.ticker
+      tickerSearch.value = first.ticker
+      tickerStore.selectTicker(first.ticker, first.name)
     } else if (selectedTicker.value) {
-      const current = availableTickers.value.find((t) => t.ticker === selectedTicker.value)
+      tickerSearch.value = selectedTicker.value
+      const current = findStockRow(selectedTicker.value)
       if (current) {
         tickerStore.selectTicker(current.ticker, current.name)
       }
     }
   } catch {
-    availableTickers.value = []
+    stockList.value = []
     analysisError.value = '股票列表加载失败，请确认后端已启动。'
   }
 }
@@ -459,6 +573,24 @@ const initKlineChart = async () => {
       backgroundColor: 'rgba(22,27,34,0.95)',
       borderColor: 'rgba(0,209,255,0.3)',
       textStyle: { color: '#F0F6FC' },
+      formatter: (params: any) => {
+        const k = params.find((item: any) => item.seriesName === 'K线')
+        const linePt = params.find((item: any) => item.seriesName === 'AI 预测')
+        if (k?.value) {
+          const [o, c, l, h] = k.value
+          return `<div style="font-size:12px">
+            <div style="color:#8B949E;margin-bottom:4px">${k.axisValue}</div>
+            <div>开盘: $${o.toFixed(2)} 收盘: $${c.toFixed(2)}</div>
+            <div>最高: $${h.toFixed(2)} 最低: $${l.toFixed(2)}</div>
+          </div>`
+        }
+        if (linePt) {
+          return `<div style="font-size:12px;color:#00D1FF">
+            AI 预测 ${linePt.axisValue}: $${linePt.value != null ? Number(linePt.value).toFixed(2) : '—'}
+          </div>`
+        }
+        return ''
+      },
     },
     xAxis: [
       {
@@ -769,13 +901,30 @@ ${strongestIndicators.map((item) => `路 ${item.name}：${item.value}${item.hint
   insightsLoading.value = false
 }
 
-// ─── 选择股票 ────────────────────────────────────────────────────────
-function selectTicker(ticker: string) {
-  const next = ticker.trim().toUpperCase()
+// ─── 选择股票（与模拟交易页同一套交互）────────────────────────────────
+function selectTickerSafe(ticker: string) {
+  const next = normalizeTicker(ticker)
+  if (!next) return
+
+  cancelRequest(`forecast-${selectedTicker.value}`)
+
   selectedTicker.value = next
-  const current = availableTickers.value.find((t) => t.ticker === next)
-  tickerStore.selectTicker(next, current?.name || next)
+  const stock = findStockRow(next)
+  tickerStore.selectTicker(next, stock?.name || next)
+  tickerSearch.value = next
+  saveRecentTicker(next)
+
   void loadAnalysisData(next)
+}
+
+function selectTickerFromSearch() {
+  const next = normalizeTicker(tickerSearch.value)
+  if (!next) return
+  if (!findStockRow(next)) {
+    ElMessage.error(`未找到股票：${next}`)
+    return
+  }
+  selectTickerSafe(next)
 }
 
 // ─── 窗口调整 ───────────────────────────────────────────────────────
@@ -922,67 +1071,255 @@ onUnmounted(() => {
   gap: 24px;
 }
 
-// ─── 股票选择器 ──────────────────────────────────────────────────────
-.ticker-selector {
-  padding: 20px;
-}
-
-.selector-label {
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--text-primary);
-  margin-bottom: 16px;
-}
-
-.selector-empty {
-  font-size: 13px;
-  color: var(--text-tertiary);
-  padding: 8px 0;
-}
-
-.ticker-list {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-}
-
-.ticker-btn {
+// ─── 股票选择栏（与模拟交易页一致）────────────────────────────────────
+.stock-selector {
   display: flex;
   flex-direction: column;
-  align-items: center;
+  gap: 14px;
+  padding: 18px 20px;
+  background: rgba(22, 27, 34, 0.82);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(48, 54, 61, 0.8);
+  border-radius: 14px;
+}
+
+.selector-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  gap: 16px;
+}
+
+.selector-copy {
+  display: flex;
+  flex-direction: column;
   gap: 4px;
-  padding: 12px 20px;
-  border: 1px solid var(--border-default);
-  border-radius: 12px;
-  background: transparent;
+}
+
+.recent-tickers {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.recent-label {
+  font-size: 11px;
+  color: var(--text-tertiary);
+  letter-spacing: 0.04em;
+}
+
+.recent-chip {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(48, 54, 61, 0.9);
+  background: rgba(13, 17, 23, 0.7);
+  color: var(--text-primary);
   cursor: pointer;
-  transition: all 0.2s;
+  appearance: none;
+  transition: all 0.2s ease;
+}
 
-  &:hover {
-    border-color: var(--accent-cyan);
-    background: var(--accent-cyan-dim);
+.recent-chip:hover {
+  border-color: rgba(0, 209, 255, 0.6);
+  background: rgba(0, 209, 255, 0.08);
+  transform: translateY(-1px);
+}
+
+.recent-chip.active {
+  border-color: rgba(0, 209, 255, 0.8);
+  background: rgba(0, 209, 255, 0.12);
+  box-shadow: 0 0 0 1px rgba(0, 209, 255, 0.12) inset;
+}
+
+.recent-chip-ticker {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.recent-chip-name {
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+.ticker-search-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.ticker-search {
+  flex: 1;
+}
+
+:deep(.ticker-search .el-input__wrapper) {
+  min-height: 40px;
+  padding: 0 12px;
+  background: rgba(13, 17, 23, 0.92);
+  border: 1px solid rgba(48, 54, 61, 0.9);
+  box-shadow: none;
+  border-radius: 10px;
+}
+
+:deep(.ticker-search .el-input__wrapper.is-focus),
+:deep(.ticker-search .el-input__wrapper:hover) {
+  border-color: rgba(0, 209, 255, 0.75);
+}
+
+:deep(.ticker-search .el-input__inner) {
+  color: var(--text-primary);
+}
+
+.ticker-search-btn {
+  height: 40px;
+  padding: 0 16px;
+  border-radius: 10px;
+  border: 1px solid rgba(0, 209, 255, 0.25);
+  background: rgba(0, 209, 255, 0.08);
+  color: var(--accent-cyan);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.ticker-search-btn:hover {
+  background: rgba(0, 209, 255, 0.14);
+  border-color: rgba(0, 209, 255, 0.55);
+}
+
+.selector-kicker {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--accent-cyan);
+  text-transform: uppercase;
+}
+
+.selector-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.selector-count {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(0, 209, 255, 0.25);
+  color: var(--text-secondary);
+  font-size: 12px;
+  background: rgba(0, 209, 255, 0.06);
+}
+
+.stock-select {
+  width: 100%;
+}
+
+.stock-option {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+}
+
+.stock-option-main {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  min-width: 0;
+}
+
+.stock-option-ticker {
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--text-primary);
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.stock-option-name {
+  font-size: 12px;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.stock-option-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+  font-size: 12px;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.stock-option-sector {
+  color: var(--text-secondary);
+  font-family: inherit;
+}
+
+.stock-option-price {
+  &.pos {
+    color: var(--accent-green);
   }
-
-  &.active {
-    border-color: var(--accent-cyan);
-    background: var(--accent-cyan-dim);
-
-    .ticker-code {
-      color: var(--accent-cyan);
-    }
+  &.neg {
+    color: var(--accent-red);
   }
+}
 
-  .ticker-code {
-    font-size: 14px;
-    font-weight: 700;
-    font-family: 'JetBrains Mono', monospace;
-    color: var(--text-primary);
-  }
+.stock-option-change {
+  font-weight: 700;
 
-  .ticker-sector {
-    font-size: 11px;
-    color: var(--text-tertiary);
+  &.pos {
+    color: var(--accent-green);
   }
+  &.neg {
+    color: var(--accent-red);
+  }
+}
+
+:deep(.stock-select .el-select__wrapper) {
+  min-height: 54px;
+  padding: 10px 14px;
+  background: rgba(13, 17, 23, 0.95);
+  border: 1px solid rgba(48, 54, 61, 0.9);
+  box-shadow: none;
+  border-radius: 12px;
+}
+
+:deep(.stock-select .el-select__wrapper.is-focused),
+:deep(.stock-select .el-select__wrapper:hover) {
+  border-color: rgba(0, 209, 255, 0.8);
+}
+
+:deep(.stock-select .el-select__selected-item) {
+  color: var(--text-primary);
+}
+
+:deep(.stock-select-popper) {
+  border: 1px solid rgba(48, 54, 61, 0.95);
+  background: rgba(13, 17, 23, 0.98);
+  box-shadow: 0 18px 48px rgba(0, 0, 0, 0.45);
+}
+
+:deep(.stock-select-popper .el-select-dropdown__item) {
+  padding: 10px 12px;
+  height: auto;
+}
+
+:deep(.stock-select-popper .el-select-dropdown__item.is-selected) {
+  color: var(--accent-cyan);
+}
+
+:deep(.stock-select-popper .el-select-dropdown__item:hover) {
+  background: rgba(0, 209, 255, 0.08);
 }
 
 // ─── 分析图表 ──────────────────────────────────────────────────────

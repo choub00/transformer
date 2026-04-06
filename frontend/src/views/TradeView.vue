@@ -975,19 +975,19 @@ async function initKlineChartSafe(ticker: string, revision: number) {
       borderColor: 'rgba(0,209,255,0.3)',
       textStyle: { color: '#F0F6FC' },
       formatter: (params: any) => {
-        const k = params.find((p: any) => p.seriesName === 'K绾?')
-        const p = params.find((p: any) => p.seriesName === 'AI 棰勬祴')
+        const k = params.find((item: any) => item.seriesName === 'K线')
+        const linePt = params.find((item: any) => item.seriesName === 'AI 预测')
         if (k) {
           const [o, c, l, h] = k.value
           return `<div style="font-size:12px">
             <div style="color:#8B949E;margin-bottom:4px">${k.axisValue}</div>
-            <div>寮€鐩? $${o.toFixed(2)} 鏀剁洏: $${c.toFixed(2)}</div>
-            <div>鏈€楂? $${h.toFixed(2)} 鏈€浣? $${l.toFixed(2)}</div>
+            <div>开盘: $${o.toFixed(2)} 收盘: $${c.toFixed(2)}</div>
+            <div>最高: $${h.toFixed(2)} 最低: $${l.toFixed(2)}</div>
           </div>`
         }
-        if (p) {
+        if (linePt) {
           return `<div style="font-size:12px;color:#00D1FF">
-            AI 棰勬祴 ${p.axisValue}: $${p.value?.toFixed(2) || '0.00'}
+            AI 预测 ${linePt.axisValue}: $${linePt.value?.toFixed(2) || '—'}
           </div>`
         }
         return ''
@@ -1027,7 +1027,7 @@ async function initKlineChartSafe(ticker: string, revision: number) {
     ],
     series: [
       {
-        name: 'K绾?',
+        name: 'K线',
         type: 'candlestick',
         data: data,
         xAxisIndex: 0,
@@ -1040,7 +1040,7 @@ async function initKlineChartSafe(ticker: string, revision: number) {
         },
       },
       {
-        name: 'AI 棰勬祴',
+        name: 'AI 预测',
         type: 'line',
         data: lineDataLower,
         xAxisIndex: 1,
@@ -1074,7 +1074,7 @@ async function initKlineChartSafe(ticker: string, revision: number) {
                   position: 'top',
                   color: '#00D1FF',
                   fontSize: 10,
-                  formatter: 'AQM 棰勬祴鍖?',
+                  formatter: 'AQM 预测区',
                 },
               }
             : undefined,

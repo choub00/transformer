@@ -160,8 +160,10 @@ async def get_forecast(ticker: str):
     获取指定股票的历史 K 线 + Alpha-Transformer-Next 未来5天预测。
 
     返回两组对齐序列：
-    - history: 最近60天 OHLC 数据
-    - forecast: 未来5天预测（含95%置信区间）
+    - history: 最近 60 个自然日 OHLC（窗口终点为**服务器当前日期** date.today()，每日自动滚动）
+    - forecast: 未来 5 个自然日预测（含 95% 置信区间）
+
+    说明：演示数据为随机游走；接入真实行情后应改为按交易日历与数据源刷新。
     """
     try:
         ticker_upper = ticker.strip().upper()
@@ -169,13 +171,14 @@ async def get_forecast(ticker: str):
         if ticker_upper not in valid_tickers:
             raise HTTPException(status_code=400, detail=f"不支持的 ticker: {ticker_upper}")
 
-        # 生成最近60天历史 K 线
+        # 生成最近 60 天历史 K 线（窗口以今天为最后一天，避免日期冻结在固定起点）
         history: list[KLinePoint] = []
         rng = random.Random(ticker_upper + "_hist")
         base_price = get_reasonable_price(ticker_upper)
         price = base_price * 0.85  # 从较低点开始
 
-        history_start = date(2026, 1, 1)
+        today = date.today()
+        history_start = today - timedelta(days=59)
         for i in range(60):
             date_str = (history_start + timedelta(days=i)).isoformat()
             change = rng.uniform(-0.03, 0.035)
@@ -199,7 +202,7 @@ async def get_forecast(ticker: str):
         trend = rng_pred.uniform(-0.01, 0.015)
         forecast: list[ForecastPoint] = []
 
-        last_history_date = history_start + timedelta(days=59)
+        last_history_date = today
         for day in range(1, 6):
             future_date = (last_history_date + timedelta(days=day)).isoformat()
             predicted = current_price * (1 + trend * day + rng_pred.uniform(-0.005, 0.005))

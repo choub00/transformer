@@ -269,6 +269,7 @@ import type { AccountBalance, ForecastResponse, KLinePoint, Position } from '../
 import { buildTechnicalIndicators } from '../utils/technicals'
 import { forecastToChartSeries } from '../utils/forecastChart'
 import { useTickerStore } from '../stores/ticker'
+import { FORECAST_REFRESH_MS } from '../config'
 
 type AnalysisEchartsModule = typeof import('../lib/echarts/analysis')
 
@@ -475,6 +476,7 @@ const allocationData = ref<AllocationItem[]>([])
 const hasInitializedPortfolio = ref(false)
 const hasInitializedContribution = ref(false)
 let allocationRefreshInterval: number | null = null
+let forecastRefreshInterval: number | null = null
 
 const allocationPalette = ['#00D1FF', '#00FFBD', '#FFD700', '#FF6B6B', '#A855F7', '#F97316', '#38BDF8', '#F472B6']
 
@@ -1024,6 +1026,12 @@ onMounted(async () => {
   allocationRefreshInterval = window.setInterval(() => {
     void loadAllocationData()
   }, 10_000)
+  if (FORECAST_REFRESH_MS > 0) {
+    forecastRefreshInterval = window.setInterval(() => {
+      const t = selectedTicker.value
+      if (t) void loadAnalysisData(t)
+    }, FORECAST_REFRESH_MS)
+  }
   window.addEventListener('resize', handleResize)
 })
 
@@ -1032,6 +1040,10 @@ onUnmounted(() => {
   if (allocationRefreshInterval) {
     clearInterval(allocationRefreshInterval)
     allocationRefreshInterval = null
+  }
+  if (forecastRefreshInterval) {
+    clearInterval(forecastRefreshInterval)
+    forecastRefreshInterval = null
   }
   lazyChartObserver?.disconnect()
   klineChart?.dispose()

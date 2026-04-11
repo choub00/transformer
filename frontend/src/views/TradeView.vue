@@ -462,6 +462,7 @@ import type { AccountBalance, Position } from '../types/api'
 import TradePanel from '../components/TradePanel.vue'
 import { useTickerStore } from '../stores/ticker'
 import { forecastToChartSeries } from '../utils/forecastChart'
+import { FORECAST_REFRESH_MS } from '../config'
 
 type TradeEchartsModule = typeof import('../lib/echarts/trade')
 
@@ -1733,6 +1734,7 @@ const toggleAutoTrading = async () => {
 
 // ─── 行情同步：定期从 /dashboard/tickers 拉取（与 watchlist 单一数据源一致）──────
 let priceUpdateInterval: number | null = null
+let forecastRefreshInterval: number | null = null
 
 const syncPricesFromStockList = () => {
   account.positions?.forEach((pos: Position) => {
@@ -1842,6 +1844,11 @@ onMounted(async () => {
     }
     updatePositionAdvice()
     startPriceUpdates()
+    if (FORECAST_REFRESH_MS > 0) {
+      forecastRefreshInterval = window.setInterval(() => {
+        void initKlineChartSafe(selectedTicker.value, tickerSelectionRevision)
+      }, FORECAST_REFRESH_MS)
+    }
     window.addEventListener('resize', handleResize)
   } catch (e) {
     console.error('模拟交易页挂载异常', e)
@@ -1854,6 +1861,7 @@ onUnmounted(() => {
   klineChart?.dispose()
   timelineChart?.dispose()
   if (priceUpdateInterval) clearInterval(priceUpdateInterval)
+  if (forecastRefreshInterval) clearInterval(forecastRefreshInterval)
   if (gsapAssetsTween) gsapAssetsTween.kill()
 })
 </script>

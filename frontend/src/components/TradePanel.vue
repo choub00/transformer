@@ -473,8 +473,9 @@ watch(
 
 .pos-label { color: var(--text-tertiary); }
 .pos-value { color: var(--text-primary); font-weight: 500; font-family: 'JetBrains Mono', monospace; }
-.pos-value.profit-up { color: var(--accent-red); }
-.pos-value.profit-down { color: var(--accent-green); }
+/* 语义化：up=盈利(绿)，down=亏损(红) */
+.pos-value.profit-up { color: var(--accent-green); }
+.pos-value.profit-down { color: var(--accent-red); }
 
 // ─── 方向选择 ────────────────────────────────────────────────────────
 .side-selector {

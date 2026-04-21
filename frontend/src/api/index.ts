@@ -95,9 +95,9 @@ export const apiAccount = {
 // ─────────────────────────────────────────────────────────────────────────────
 
 export const apiMarket = {
-  /** K线数据与预测 */
+  /** Alpha Vantage 实时 K 线（优先，失败时后端自动降级模拟数据） */
   kline: (ticker: string, period = '1y') =>
-    api.get<KLineResponse>(`/market/kline/${ticker}`, {
+    api.get<KLineResponse>(`/dashboard/kline/realtime/${ticker}`, {
       params: { period },
       cancelToken: getCancelToken(`kline-${ticker}`).token,
     }),

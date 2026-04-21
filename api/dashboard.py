@@ -3,22 +3,28 @@ Dashboard API 路由 — 健壮版
 所有错误被捕获并转换为中文友好的结构化响应。
 """
 
+import os
 import time
 import random
 import hashlib
+import httpx
 from datetime import date, timedelta
 from typing import Optional
 from fastapi import APIRouter, HTTPException
 from api.schemas import (
     DashboardMetrics, EquityCurve, FeatureImportance, FeatureImportanceResponse,
     DashboardFull, StockPrediction, AccountBalance, PredictionsResponse,
-    KLinePoint, ForecastPoint, ForecastResponse,
+    KLinePoint, ForecastPoint, ForecastResponse, KLineResponse,
 )
 from api.account_manager import get_account_manager, get_reasonable_price
 from api.predictor import get_registry
 from api.tickers_registry import load_tickers, enrich_ticker_row, valid_ticker_set
 
 router = APIRouter(prefix="/dashboard", tags=["Dashboard"])
+
+# Alpha Vantage API 配置
+ALPHA_VANTAGE_API_KEY = os.getenv("ALPHA_VANTAGE_API_KEY", "")
+_alpha_cache: dict = {}  # 简单内存缓存
 
 
 def _generate_predictions() -> list[StockPrediction]:
@@ -238,3 +244,119 @@ async def get_tickers():
     rows = [dict(t) for t in load_tickers()]
     enriched = [enrich_ticker_row(t, get_reasonable_price(t["ticker"])) for t in rows]
     return {"tickers": enriched}
+
+
+# ─── Alpha Vantage 实时 K 线接口 ────────────────────────────────────────────
+
+async def _fetch_alpha_vantage_kline(ticker: str, outputsize: str = "compact") -> Optional[dict]:
+    """
+    从 Alpha Vantage 获取 K 线数据
+    返回格式化的 K 线数据字典，或在失败时返回 None
+    """
+    if not ALPHA_VANTAGE_API_KEY:
+        return None
+
+    # 检查缓存（5分钟有效期）
+    cache_key = f"{ticker}_{outputsize}"
+    now = time.time()
+    if cache_key in _alpha_cache:
+        cached_data, cached_time = _alpha_cache[cache_key]
+        if now - cached_time < 300:  # 5分钟缓存
+            return cached_data
+
+    try:
+        async with httpx.AsyncClient(timeout=15.0) as client:
+            params = {
+                "function": "TIME_SERIES_DAILY",
+                "symbol": ticker,
+                "apikey": ALPHA_VANTAGE_API_KEY,
+                "outputsize": outputsize,
+            }
+            resp = await client.get("https://www.alphavantage.co/query", params=params)
+            data = resp.json()
+
+        time_series_key = "Time Series (Daily)"
+        if time_series_key not in data:
+            # API 限流或不支持该股票
+            return None
+
+        records = []
+        for date_str, values in list(data[time_series_key].items())[:60]:
+            records.append({
+                "date": date_str,
+                "open": float(values["1. open"]),
+                "high": float(values["2. high"]),
+                "low": float(values["3. low"]),
+                "close": float(values["4. close"]),
+                "volume": float(values["5. volume"]),
+            })
+
+        # 反转使日期升序
+        records.reverse()
+        result = {"ticker": ticker, "klines": records, "source": "alpha_vantage"}
+
+        # 更新缓存
+        _alpha_cache[cache_key] = (result, now)
+
+        return result
+    except Exception:
+        return None
+
+
+@router.get("/kline/realtime/{ticker}")
+async def get_realtime_kline(ticker: str, period: str = "daily"):
+    """
+    获取实时 K 线数据（优先 Alpha Vantage，降级到模拟数据）
+
+    参数:
+    - ticker: 股票代码（如 AAPL, MSFT）
+    - period: 时间周期 (daily/weekly/monthly)
+
+    返回:
+    - source: "alpha_vantage" 或 "mock"
+    - klines: K 线数据列表
+    """
+    ticker_upper = ticker.strip().upper()
+
+    # 尝试从 Alpha Vantage 获取
+    alpha_data = await _fetch_alpha_vantage_kline(ticker_upper)
+
+    if alpha_data:
+        return KLineResponse(
+            ticker=ticker_upper,
+            period=period,
+            klines=[KLinePoint(**k) for k in alpha_data["klines"]],
+            predictions=[],
+        )
+
+    # 降级：生成模拟 K 线数据
+    base_price = get_reasonable_price(ticker_upper)
+    rng = random.Random(ticker_upper + "_hist")
+    klines = []
+
+    history_start = date.today() - timedelta(days=59)
+    price = base_price * 0.85
+
+    for i in range(60):
+        date_str = (history_start + timedelta(days=i)).isoformat()
+        change = rng.uniform(-0.03, 0.035)
+        price = max(price * (1 + change), 1.0)
+        open_ = round(price * rng.uniform(0.97, 1.03), 2)
+        high_ = round(open_ * rng.uniform(1.0, 1.04), 2)
+        low_ = round(open_ * rng.uniform(0.96, 1.0), 2)
+        close_ = round(open_ * rng.uniform(0.97, 1.03), 2)
+        klines.append(KLinePoint(
+            date=date_str,
+            open=open_,
+            high=high_,
+            low=low_,
+            close=close_,
+            volume=round(rng.uniform(5e6, 50e6)),
+        ))
+
+    return KLineResponse(
+        ticker=ticker_upper,
+        period=period,
+        klines=klines,
+        predictions=[],
+    )

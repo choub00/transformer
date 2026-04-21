@@ -8,6 +8,7 @@
   /* 深空暗黑主题 */
   --bg-primary: #0D1117;
   --bg-secondary: #161B22;
+  --bg-tertiary: #1C2128;
   --bg-card: rgba(22, 27, 34, 0.8);
   --bg-hover: rgba(22, 27, 34, 0.95);
 
@@ -45,10 +46,53 @@
   --border-default: rgba(255, 255, 255, 0.08);
   --border-hover: rgba(255, 255, 255, 0.15);
 
+  /* ─── 语义化颜色 ─────────────────────────────────────────────────────────── */
+  /* K线/涨跌标准色：绿色=涨/盈利，红色=跌/亏损 */
+  --up-color: var(--accent-green);
+  --up-color-dim: var(--accent-green-dim);
+  --up-color-glow: var(--accent-green-glow);
+  --down-color: var(--accent-red);
+  --down-color-dim: var(--accent-red-dim);
+  --down-color-glow: var(--accent-red-glow);
+  /* 兼容旧名 */
+  --positive-color: var(--up-color);
+  --negative-color: var(--down-color);
+
+  /* K线专用颜色（统一标准） */
+  --kline-up: var(--accent-green);
+  --kline-down: var(--accent-red);
+  --kline-up-border: rgba(0, 255, 189, 0.6);
+  --kline-down-border: rgba(255, 59, 48, 0.6);
+  --kline-up-candle: var(--accent-green);
+  --kline-down-candle: var(--accent-red);
+
+  /* 图表通用颜色 */
+  --chart-line: var(--accent-cyan);
+  --chart-area: rgba(0, 209, 255, 0.15);
+  --chart-tooltip-bg: rgba(22, 27, 34, 0.95);
+  --chart-tooltip-border: var(--border-default);
+
   /* 过渡 */
+  --transition-micro: 0.1s ease;
   --transition-fast: 0.15s ease;
   --transition-normal: 0.3s ease;
   --transition-slow: 0.5s ease;
+  --transition-spring: 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* 圆角标准 */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --radius-full: 9999px;
+
+  /* 阴影标准 */
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 16px 48px rgba(0, 0, 0, 0.5);
+  --shadow-glow-cyan: 0 0 20px var(--accent-cyan-glow);
+  --shadow-glow-green: 0 0 20px var(--accent-green-glow);
+  --shadow-glow-red: 0 0 20px var(--accent-red-glow);
 }
 
 /* ─── 全局重置 ─────────────────────────────────────────────────────────────── */
@@ -369,4 +413,373 @@ html.dark {
 /* ─── 响应式容器 ───────────────────────────────────────────────────────────── */
 @media (max-width: 768px) {
   body { font-size: 14px; }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   Phase 1.5: 完善基础动画类 & 微交互
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+/* ─── 骨架屏动画 ─────────────────────────────────────────────────────────────── */
+.skeleton-container {
+  position: relative;
+  overflow: hidden;
+}
+
+.skeleton-line {
+  height: 16px;
+  background: var(--bg-secondary);
+  border-radius: var(--radius-sm);
+  position: relative;
+  overflow: hidden;
+}
+
+.skeleton-line::after,
+.skeleton-block::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.04) 50%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.5s ease-in-out infinite;
+}
+
+.skeleton-block {
+  background: var(--bg-secondary);
+  border-radius: var(--radius-md);
+  position: relative;
+  overflow: hidden;
+}
+
+.skeleton-chart {
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+  height: 160px;
+  padding: 16px;
+}
+
+.skeleton-bar {
+  flex: 1;
+  background: var(--bg-secondary);
+  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.skeleton-bar::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.03) 50%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.8s ease-in-out infinite;
+}
+
+.skeleton-bar:nth-child(1) { height: 40%; animation-delay: 0s; }
+.skeleton-bar:nth-child(2) { height: 65%; animation-delay: 0.1s; }
+.skeleton-bar:nth-child(3) { height: 45%; animation-delay: 0.2s; }
+.skeleton-bar:nth-child(4) { height: 80%; animation-delay: 0.3s; }
+.skeleton-bar:nth-child(5) { height: 55%; animation-delay: 0.4s; }
+.skeleton-bar:nth-child(6) { height: 70%; animation-delay: 0.5s; }
+.skeleton-bar:nth-child(7) { height: 50%; animation-delay: 0.6s; }
+.skeleton-bar:nth-child(8) { height: 85%; animation-delay: 0.7s; }
+
+@keyframes skeleton-shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+/* ─── 按钮微交互 ─────────────────────────────────────────────────────────────── */
+.btn {
+  position: relative;
+  overflow: hidden;
+}
+
+.btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255,255,255,0.15) 0%, transparent 60%);
+  opacity: 0;
+  transition: opacity var(--transition-fast);
+}
+
+.btn:hover::before {
+  opacity: 1;
+}
+
+.btn:active {
+  transform: scale(0.97);
+}
+
+.btn-primary:active {
+  transform: scale(0.97);
+  box-shadow: 0 2px 8px var(--accent-cyan-dim);
+}
+
+.btn-success:active {
+  transform: scale(0.97);
+  box-shadow: 0 2px 8px var(--accent-green-dim);
+}
+
+.btn-danger:active {
+  transform: scale(0.97);
+  box-shadow: 0 2px 8px var(--accent-red-dim);
+}
+
+/* ─── 卡片悬浮微交互 ─────────────────────────────────────────────────────────── */
+.glass-card {
+  cursor: pointer;
+}
+
+.glass-card-interactive {
+  cursor: pointer;
+  transition:
+    transform var(--transition-fast),
+    box-shadow var(--transition-fast),
+    border-color var(--transition-fast);
+}
+
+.glass-card-interactive:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+  border-color: rgba(0, 209, 255, 0.25);
+}
+
+.glass-card-interactive:active {
+  transform: translateY(-1px);
+}
+
+/* ─── 置信度条动画 ───────────────────────────────────────────────────────────── */
+.confidence-bar-animated {
+  position: relative;
+  height: 8px;
+  background: var(--bg-primary);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+.confidence-fill-animated {
+  height: 100%;
+  border-radius: var(--radius-sm);
+  background: linear-gradient(90deg, var(--accent-cyan), var(--accent-green));
+  transform-origin: left;
+  animation: confidence-grow 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+@keyframes confidence-grow {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+
+/* ─── 数字滚动动画 ───────────────────────────────────────────────────────────── */
+.animated-number {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+  transition: color var(--transition-fast);
+}
+
+.animated-number.flash-up {
+  color: var(--up-color);
+  animation: number-flash-up 0.4s ease;
+}
+
+.animated-number.flash-down {
+  color: var(--down-color);
+  animation: number-flash-down 0.4s ease;
+}
+
+@keyframes number-flash-up {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); text-shadow: var(--shadow-glow-green); }
+}
+
+@keyframes number-flash-down {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); text-shadow: var(--shadow-glow-red); }
+}
+
+/* ─── 页面切换过渡 ───────────────────────────────────────────────────────────── */
+.page-transition-enter-active,
+.page-transition-leave-active {
+  transition: opacity var(--transition-normal), transform var(--transition-normal);
+}
+
+.page-transition-enter-from {
+  opacity: 0;
+  transform: translateY(12px);
+}
+
+.page-transition-leave-to {
+  opacity: 0;
+  transform: translateY(-12px);
+}
+
+/* ─── 列表项悬浮动画 ────────────────────────────────────────────────────────── */
+.list-item-interactive {
+  transition:
+    background-color var(--transition-micro),
+    transform var(--transition-micro);
+  cursor: pointer;
+}
+
+.list-item-interactive:hover {
+  background-color: rgba(0, 209, 255, 0.05);
+  transform: translateX(4px);
+}
+
+/* ─── Tab 切换动画 ───────────────────────────────────────────────────────────── */
+.tab-transition-enter-active,
+.tab-transition-leave-active {
+  transition: opacity var(--transition-fast), transform var(--transition-fast);
+}
+
+.tab-transition-enter-from {
+  opacity: 0;
+  transform: translateX(8px);
+}
+
+.tab-transition-leave-to {
+  opacity: 0;
+  transform: translateX(-8px);
+}
+
+/* ─── 渐入动画 ───────────────────────────────────────────────────────────────── */
+.fade-in {
+  animation: fadeIn var(--transition-normal) ease forwards;
+}
+
+.fade-in-up {
+  animation: fadeInUp var(--transition-normal) ease forwards;
+}
+
+.fade-in-scale {
+  animation: fadeInScale var(--transition-normal) ease forwards;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeInScale {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+/* ─── 脉冲动画 ───────────────────────────────────────────────────────────────── */
+.pulse-soft {
+  animation: pulseSoft 2s ease-in-out infinite;
+}
+
+@keyframes pulseSoft {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+/* ─── 表格行悬浮高亮 ─────────────────────────────────────────────────────────── */
+.el-table tbody tr:hover td {
+  background-color: rgba(0, 209, 255, 0.05) !important;
+}
+
+.el-table tbody tr {
+  transition: background-color var(--transition-micro), transform var(--transition-micro);
+}
+
+.el-table tbody tr:hover {
+  transform: scale(1.003);
+}
+
+/* ─── 滚动容器样式 ───────────────────────────────────────────────────────────── */
+.scroll-container {
+  scrollbar-width: thin;
+  scrollbar-color: var(--text-tertiary) var(--bg-secondary);
+}
+
+.scroll-container::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.scroll-container::-webkit-scrollbar-track {
+  background: var(--bg-secondary);
+  border-radius: 3px;
+}
+
+.scroll-container::-webkit-scrollbar-thumb {
+  background: var(--text-tertiary);
+  border-radius: 3px;
+}
+
+.scroll-container::-webkit-scrollbar-thumb:hover {
+  background: var(--text-secondary);
+}
+
+/* ─── 空状态样式 ─────────────────────────────────────────────────────────────── */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 24px;
+  text-align: center;
+}
+
+.empty-state-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+  opacity: 0.4;
+}
+
+.empty-state-text {
+  color: var(--text-tertiary);
+  font-size: 14px;
+}
+
+/* ─── 加载中状态 ─────────────────────────────────────────────────────────────── */
+.loading-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(13, 17, 23, 0.6);
+  backdrop-filter: blur(4px);
+  z-index: 10;
+}
+
+.loading-dots {
+  display: flex;
+  gap: 6px;
+}
+
+.loading-dots span {
+  width: 8px;
+  height: 8px;
+  background: var(--accent-cyan);
+  border-radius: 50%;
+  animation: loadingDot 1.2s ease-in-out infinite;
+}
+
+.loading-dots span:nth-child(2) { animation-delay: 0.2s; }
+.loading-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes loadingDot {
+  0%, 100% { transform: scale(0.8); opacity: 0.5; }
+  50% { transform: scale(1.2); opacity: 1; }
 }

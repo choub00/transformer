@@ -7,6 +7,17 @@ import time
 import sys
 import os
 
+# 加载 .env 文件（如果存在）
+from pathlib import Path
+env_path = Path(__file__).parent / ".env"
+if env_path.exists():
+    with open(env_path, encoding="utf-8") as f:
+        for line in f:
+            line = line.strip()
+            if line and not line.startswith("#") and "=" in line:
+                key, value = line.split("=", 1)
+                os.environ[key.strip()] = value.strip()
+
 # 确保项目根目录在 Python 路径
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 

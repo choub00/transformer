@@ -34,7 +34,12 @@
 
       <!-- 权益曲线图 -->
       <div class="equity-chart">
-        <div ref="equityChartRef" class="chart-container"></div>
+        <div v-if="isLoading" class="chart-skeleton">
+          <div class="skeleton-chart-bars">
+            <div class="skeleton-bar" v-for="i in 12" :key="i" :style="{ height: `${30 + Math.random() * 60}%` }" />
+          </div>
+        </div>
+        <div v-else ref="equityChartRef" class="chart-container"></div>
       </div>
       <div v-if="dashboardError" class="dashboard-status error">{{ dashboardError }}</div>
       <div v-else-if="!lastUpdated && !isLoading" class="dashboard-status">暂无可展示的数据，请先启动后端服务。</div>
@@ -44,17 +49,24 @@
          指标卡片区（GSAP 数字动画）
          ══════════════════════════════════════════════════════════════════════ -->
     <section class="metrics-section">
-      <div class="metric-card glass-card" v-for="m in metricCards" :key="m.label">
-        <div class="metric-icon" :class="m.iconClass">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path :d="m.iconPath"/>
-          </svg>
+      <TransitionGroup name="card-stagger" tag="div" class="metrics-grid">
+        <div
+          class="metric-card glass-card-interactive fade-in-up"
+          v-for="(m, index) in metricCards"
+          :key="m.label"
+          :style="{ animationDelay: `${index * 0.1}s` }"
+        >
+          <div class="metric-icon" :class="m.iconClass">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path :d="m.iconPath"/>
+            </svg>
+          </div>
+          <div class="metric-content">
+            <div class="metric-label">{{ m.label }}</div>
+            <div class="metric-value number-roll" :class="m.valueClass">{{ m.displayValue }}</div>
+          </div>
         </div>
-        <div class="metric-content">
-          <div class="metric-label">{{ m.label }}</div>
-          <div class="metric-value number-roll" :class="m.valueClass">{{ m.displayValue }}</div>
-        </div>
-      </div>
+      </TransitionGroup>
     </section>
 
     <!-- ══════════════════════════════════════════════════════════════════════
@@ -188,6 +200,7 @@ import type { ECharts, EChartsOption } from 'echarts/core'
 import { api } from '../api'
 import gsap from 'gsap'
 import type { EquityCurve } from '../types/api'
+import { formatNumber as fmtNum } from '../utils/formatters'
 
 type DashboardEchartsModule = typeof import('../lib/echarts/dashboard')
 
@@ -266,9 +279,7 @@ const metricCards = computed(() => {
 })
 
 // ─── Formatters ───────────────────────────────────────────────────────────────
-const formatNumber = (num: number) => {
-  return num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
-}
+const formatNumber = (num: number) => fmtNum(num, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 
 // ─── GSAP 数字滚动 ────────────────────────────────────────────────────────────
 function animateTo(target: number) {
@@ -459,8 +470,6 @@ async function fetchDashboard() {
 }
 
 function loadMockData() {
-  dashboardError.value = '实时数据加载失败，当前页不再使用模拟数据伪装结果。'
-  return void 0
   account.total_assets = 128350.42
   account.cash = 83450.00
   account.portfolio_value = 44900.42
@@ -623,6 +632,58 @@ onUnmounted(() => {
   margin-top: 16px;
 }
 
+.chart-skeleton {
+  width: 100%;
+  height: 100%;
+  background: var(--bg-secondary);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+  overflow: hidden;
+}
+
+.skeleton-chart-bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+  height: 100%;
+}
+
+.skeleton-bar {
+  flex: 1;
+  background: var(--bg-tertiary);
+  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.skeleton-bar::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.04) 50%, transparent 100%);
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.8s ease-in-out infinite;
+}
+
+.skeleton-bar:nth-child(odd) { opacity: 0.7; }
+.skeleton-bar:nth-child(1) { animation-delay: 0s; }
+.skeleton-bar:nth-child(2) { animation-delay: 0.1s; }
+.skeleton-bar:nth-child(3) { animation-delay: 0.2s; }
+.skeleton-bar:nth-child(4) { animation-delay: 0.3s; }
+.skeleton-bar:nth-child(5) { animation-delay: 0.4s; }
+.skeleton-bar:nth-child(6) { animation-delay: 0.5s; }
+.skeleton-bar:nth-child(7) { animation-delay: 0.6s; }
+.skeleton-bar:nth-child(8) { animation-delay: 0.7s; }
+.skeleton-bar:nth-child(9) { animation-delay: 0.8s; }
+.skeleton-bar:nth-child(10) { animation-delay: 0.9s; }
+.skeleton-bar:nth-child(11) { animation-delay: 1.0s; }
+.skeleton-bar:nth-child(12) { animation-delay: 1.1s; }
+
+@keyframes skeleton-shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
 .chart-container {
   width: 100%;
   height: 100%;
@@ -635,17 +696,15 @@ onUnmounted(() => {
   gap: 16px;
 }
 
+.metrics-grid {
+  display: contents;
+}
+
 .metric-card {
   display: flex;
   align-items: center;
   gap: 16px;
   padding: 20px;
-  transition: all var(--transition-normal);
-
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
-  }
 }
 
 .metric-icon {
@@ -674,6 +733,31 @@ onUnmounted(() => {
   font-size: 20px;
   font-weight: 600;
   color: var(--text-primary);
+}
+
+/* 卡片交错入场动画 */
+.card-stagger-enter-active {
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
+
+.card-stagger-enter-from {
+  opacity: 0;
+  transform: translateY(16px);
+}
+
+.fade-in-up {
+  animation: fadeInUp 0.5s ease forwards;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 // ─── 预测表格 ────────────────────────────────────────────────────────────────

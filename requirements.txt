@@ -1,6 +1,11 @@
 # AlphaTransformer 依赖
 # Python >= 3.10
 
+# Web 服务
+fastapi>=0.104.0
+uvicorn[standard]>=0.24.0
+httpx>=0.25.0  # HTTP 客户端（用于 Alpha Vantage 等外部 API）
+
 # PyTorch
 torch>=2.1.0
 torchvision>=0.16.0

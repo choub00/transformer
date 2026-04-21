@@ -63,6 +63,11 @@ Stock Forecast/Scripts/*.exe
 Thumbs.db
 desktop.ini
 
+# Environment variables（包含 API Key 等敏感信息）
+.env
+.env.local
+.env.*.local
+
 # Confidential
 *.pem
 cacert.pem

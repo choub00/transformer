@@ -3,6 +3,9 @@
    深空暗黑主题 + 毛玻璃质感 + 2026 金融终端风格
    ═══════════════════════════════════════════════════════════════════════════════ */
 
+/* ─── Google Fonts 引入 ──────────────────────────────────────────────────────── */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700;800&display=swap');
+
 /* ─── CSS 变量 ─────────────────────────────────────────────────────────────── */
 :root {
   /* 深空暗黑主题 */
@@ -126,17 +129,29 @@ html, body {
 
 /* ─── 毛玻璃卡片 ─────────────────────────────────────────────────────────────── */
 .glass-card {
-  background: var(--glass-bg);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid var(--glass-border);
+  /* 使用微渐变替代纯色，增加光影过渡 */
+  background: linear-gradient(145deg, rgba(30, 35, 45, 0.7), rgba(15, 20, 25, 0.8));
+  backdrop-filter: blur(24px) saturate(120%);
+  -webkit-backdrop-filter: blur(24px) saturate(120%);
+
+  /* 核心：添加顶部内高光，模拟玻璃厚度 */
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+
   border-radius: 16px;
-  box-shadow: var(--glass-shadow);
-  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+  /* 阴影分为环境阴影和底部重阴影 */
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5),
+              inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 
 .glass-card:hover {
-  border-color: rgba(0, 209, 255, 0.2);
+  border-color: rgba(0, 209, 255, 0.3);
+  /* 悬浮时增加弥散环境光 */
+  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.6),
+              0 0 24px rgba(0, 209, 255, 0.1),
+              inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  transform: translateY(-2px);
 }
 
 /* ─── 发光文字 ─────────────────────────────────────────────────────────────── */
@@ -233,8 +248,21 @@ html, body {
 
 /* ─── 数字滚动 ─────────────────────────────────────────────────────────────── */
 .number-roll {
+  font-family: 'JetBrains Mono', monospace;
   font-variant-numeric: tabular-nums;
   font-feature-settings: "tnum";
+  letter-spacing: -0.5px;
+}
+
+/* 金融数字专用类 */
+.equity-value .amount,
+.metric-value,
+.change-value-cell,
+.score-value,
+.footer-value {
+  font-family: 'JetBrains Mono', monospace;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.5px;
 }
 
 /* ─── PnL 呼吸灯 ───────────────────────────────────────────────────────────── */
@@ -350,15 +378,26 @@ html.dark {
   --el-table-bg-color: transparent !important;
   --el-table-tr-bg-color: transparent !important;
   --el-table-header-bg-color: rgba(22, 27, 34, 0.5) !important;
-  --el-table-row-hover-bg-color: var(--bg-hover) !important;
+  --el-table-row-hover-bg-color: rgba(0, 209, 255, 0.06) !important;
   --el-table-border-color: var(--border-default) !important;
   --el-table-text-color: var(--text-primary) !important;
   --el-table-header-text-color: var(--text-secondary) !important;
 }
 
+/* 优化表格头部 - 电竞/量化感 */
 .el-table th.el-table__cell {
-  background: rgba(22, 27, 34, 0.5) !important;
+  background: rgba(22, 27, 34, 0.8) !important;
   font-weight: 600;
+  text-transform: uppercase;
+  font-size: 12px;
+  letter-spacing: 0.5px;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+/* 表格行悬浮动效 */
+.el-table__body tr:hover > td.el-table__cell {
+  background-color: var(--el-table-row-hover-bg-color) !important;
+  box-shadow: inset 2px 0 0 var(--accent-cyan);
 }
 
 .el-table td.el-table__cell {
@@ -572,9 +611,18 @@ html.dark {
 .confidence-fill-animated {
   height: 100%;
   border-radius: var(--radius-sm);
+  /* 增加进度条的金属条纹质感 */
   background: linear-gradient(90deg, var(--accent-cyan), var(--accent-green));
+  background-size: 200% 100%;
+  animation: gradientMove 3s linear infinite;
+  box-shadow: 0 0 10px rgba(0, 255, 189, 0.4);
   transform-origin: left;
   animation: confidence-grow 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+@keyframes gradientMove {
+  0% { background-position: 100% 0; }
+  100% { background-position: -100% 0; }
 }
 
 @keyframes confidence-grow {

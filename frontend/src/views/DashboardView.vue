@@ -57,7 +57,7 @@
           :style="{ animationDelay: `${index * 0.1}s` }"
         >
           <div class="metric-icon" :class="m.iconClass">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2">
               <path :d="m.iconPath"/>
             </svg>
           </div>
@@ -311,9 +311,13 @@ async function initEquityChart(curve: EquityCurve) {
     grid: { top: 20, right: 20, bottom: 40, left: 70 },
     tooltip: {
       trigger: 'axis',
-      backgroundColor: 'rgba(22,27,34,0.95)',
-      borderColor: 'rgba(0,209,255,0.3)',
-      textStyle: { color: '#F0F6FC' },
+      // 毛玻璃 Tooltip 核心配置
+      backgroundColor: 'rgba(13, 17, 23, 0.85)',
+      borderColor: 'rgba(0, 209, 255, 0.4)',
+      borderWidth: 1,
+      padding: [12, 16],
+      textStyle: { color: '#F0F6FC', fontFamily: 'JetBrains Mono, sans-serif' },
+      extraCssText: 'backdrop-filter: blur(10px); box-shadow: 0 8px 32px rgba(0,0,0,0.6); border-radius: 8px;',
       formatter: (params: any) => {
         const s = params.find((p: any) => p.seriesName === '策略权益')
         const b = params.find((p: any) => p.seriesName === '基准')
@@ -508,7 +512,8 @@ function loadMockData() {
     return Math.round(base * 100) / 100
   })
 
-  void nextTick(async () => {
+  // 延迟执行图表初始化，等待 DOM 就绪
+  nextTick(async () => {
     await initEquityChart({ dates, strategy_equity: strategy, benchmark_equity: benchmark })
     await initFeaturesChart()
   })
@@ -704,19 +709,48 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   gap: 16px;
-  padding: 20px;
+  padding: 24px 20px;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+
+  // 卡片内部的极光扫过效果
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0; left: -100%; width: 50%; height: 100%;
+    background: linear-gradient(to right, transparent, rgba(255,255,255,0.05), transparent);
+    transform: skewX(-20deg);
+    transition: left 0.7s ease;
+  }
+
+  &:hover {
+    transform: translateY(-4px) scale(1.02);
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
+
+    &::after {
+      left: 200%;
+    }
+
+    .metric-icon {
+      transform: scale(1.1) rotate(5deg);
+    }
+  }
 }
 
 .metric-icon {
-  width: 48px;
-  height: 48px;
-  border-radius: 12px;
+  width: 54px;
+  height: 54px;
+  border-radius: 14px;
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: transform 0.4s ease;
+  // 给图标加上更深邃的内发光
+  box-shadow: inset 0 0 20px rgba(255,255,255,0.05);
   background: var(--accent-cyan-dim);
 
-  svg { width: 24px; height: 24px; stroke: var(--accent-cyan); }
+  svg { width: 28px; height: 28px; stroke-width: 2.5px; stroke: var(--accent-cyan); }
 
   &.green { background: var(--accent-green-dim); svg { stroke: var(--accent-green); } }
   &.red { background: var(--accent-red-dim); svg { stroke: var(--accent-red); } }
@@ -842,9 +876,23 @@ onUnmounted(() => {
 
 .confidence-fill {
   height: 100%;
+  /* 增加进度条的金属条纹质感 */
   background: linear-gradient(90deg, var(--accent-cyan), var(--accent-green));
+  background-size: 200% 100%;
+  animation: gradientMove 3s linear infinite, confidence-grow 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  box-shadow: 0 0 10px rgba(0, 255, 189, 0.4);
   border-radius: 3px;
   transition: width 0.5s ease;
+}
+
+@keyframes gradientMove {
+  0% { background-position: 100% 0; }
+  100% { background-position: -100% 0; }
+}
+
+@keyframes confidence-grow {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
 }
 
 .confidence-text {

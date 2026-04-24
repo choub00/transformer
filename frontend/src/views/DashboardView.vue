@@ -3,7 +3,7 @@
     <!-- ══════════════════════════════════════════════════════════════════════
          资产总览区（权益曲线）
          ══════════════════════════════════════════════════════════════════════ -->
-    <section class="equity-section glass-card">
+    <section class="equity-section glass-card module-shell module-shell--cyan">
       <div class="equity-header">
         <div class="equity-label">
           <span class="label-icon">&#9670;</span>
@@ -33,13 +33,13 @@
       </div>
 
       <!-- 权益曲线图 -->
-      <div class="equity-chart">
-        <div v-if="isLoading" class="chart-skeleton">
+      <div class="equity-chart" ref="equityChartRef">
+        <div v-show="isLoading" class="chart-skeleton">
           <div class="skeleton-chart-bars">
             <div class="skeleton-bar" v-for="i in 12" :key="i" :style="{ height: `${30 + Math.random() * 60}%` }" />
           </div>
         </div>
-        <div v-else ref="equityChartRef" class="chart-container"></div>
+        <div class="chart-container"></div>
       </div>
       <div v-if="dashboardError" class="dashboard-status error">{{ dashboardError }}</div>
       <div v-else-if="!lastUpdated && !isLoading" class="dashboard-status">暂无可展示的数据，请先启动后端服务。</div>
@@ -50,42 +50,37 @@
          ══════════════════════════════════════════════════════════════════════ -->
     <section class="metrics-section">
       <TransitionGroup name="card-stagger" tag="div" class="metrics-grid">
-        <div
-          class="metric-card glass-card-interactive fade-in-up"
+        <MetricCard
           v-for="(m, index) in metricCards"
           :key="m.label"
+          class="fade-in-up"
           :style="{ animationDelay: `${index * 0.1}s` }"
-        >
-          <div class="metric-icon" :class="m.iconClass">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path :d="m.iconPath"/>
-            </svg>
-          </div>
-          <div class="metric-content">
-            <div class="metric-label">{{ m.label }}</div>
-            <div class="metric-value number-roll" :class="m.valueClass">{{ m.displayValue }}</div>
-          </div>
-        </div>
+          :label="m.label"
+          :value="m.displayValue"
+          :value-class="m.valueClass"
+          :icon-path="m.iconPath"
+          :accent="toMetricAccent(m.iconClass)"
+        />
       </TransitionGroup>
     </section>
 
     <!-- ══════════════════════════════════════════════════════════════════════
          AI 股票推荐区
          ══════════════════════════════════════════════════════════════════════ -->
-    <section class="predictions-section glass-card">
+    <section class="predictions-section glass-card module-shell module-shell--green">
       <div class="section-header">
         <div class="section-title">
           <span class="title-icon">&#63720;</span>
           <h2>AI 股票推荐</h2>
         </div>
-        <div class="section-meta">
+        <div class="section-meta status-rail">
           <span class="meta-label">AlphaT-2026 模型</span>
           <span class="meta-divider">|</span>
           <span class="meta-time">更新于 {{ lastUpdated }}</span>
         </div>
       </div>
 
-      <div class="predictions-table">
+      <div class="predictions-table data-panel">
         <el-table :data="predictions" stripe highlight-current-row>
           <el-table-column label="排名" width="60" align="center">
             <template #default="{ $index }">
@@ -157,13 +152,13 @@
     <!-- ══════════════════════════════════════════════════════════════════════
          特征重要性
          ══════════════════════════════════════════════════════════════════════ -->
-    <section class="features-section glass-card">
+    <section class="features-section glass-card module-shell module-shell--gold">
       <div class="section-header">
         <div class="section-title">
           <span class="title-icon">&#128202;</span>
           <h2>特征重要性</h2>
         </div>
-        <div class="section-meta">
+        <div class="section-meta status-rail">
           <span class="meta-label">AlphaTransformer Cross-Asset Attention</span>
         </div>
       </div>
@@ -193,14 +188,15 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed, onMounted, onUnmounted, nextTick, watch } from 'vue'
+import { ref, reactive, computed, onMounted, onUnmounted, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import ElMessage from 'element-plus/es/components/message/index'
-import type { ECharts, EChartsOption } from 'echarts/core'
+import type { ECharts, EChartsCoreOption } from 'echarts/core'
 import { api } from '../api'
 import gsap from 'gsap'
 import type { EquityCurve } from '../types/api'
 import { formatNumber as fmtNum } from '../utils/formatters'
+import MetricCard from '../components/ui/MetricCard.vue'
 
 type DashboardEchartsModule = typeof import('../lib/echarts/dashboard')
 
@@ -213,14 +209,19 @@ function loadDashboardEcharts() {
 
 const router = useRouter()
 
+type MetricAccent = 'cyan' | 'green' | 'gold' | 'red'
+
+function toMetricAccent(value: string): MetricAccent {
+  return ['cyan', 'green', 'gold', 'red'].includes(value) ? value as MetricAccent : 'cyan'
+}
+
 // ─── Refs ───────────────────────────────────────────────────────────────────
 const equityChartRef = ref<HTMLElement | null>(null)
 const featuresChartRef = ref<HTMLElement | null>(null)
-const totalAssetsRef = ref<HTMLElement | null>(null)
-
 let equityChart: ECharts | null = null
 let featuresChart: ECharts | null = null
 let gsapTween: gsap.core.Tween | null = null
+let isActive = true
 
 // ─── State ───────────────────────────────────────────────────────────────────
 const isLoading = ref(false)
@@ -297,16 +298,23 @@ function animateTo(target: number) {
 
 // ─── 权益曲线图 ───────────────────────────────────────────────────────────────
 async function initEquityChart(curve: EquityCurve) {
-  if (!equityChartRef.value) return
+  const el = equityChartRef.value
+  const container = el?.querySelector('.chart-container') as HTMLElement | null
+  if (!container) {
+    console.warn('[initEquityChart] container not found')
+    return
+  }
+
   const { echarts } = await loadDashboardEcharts()
+  if (!isActive) return
   if (equityChart) equityChart.dispose()
-  equityChart = echarts.init(equityChartRef.value)
+  equityChart = echarts.init(container)
 
   const dates = curve?.dates || []
   const strategy = curve?.strategy_equity || []
   const benchmark = curve?.benchmark_equity || []
 
-  const option: EChartsOption = {
+  const option: EChartsCoreOption = {
     backgroundColor: 'transparent',
     grid: { top: 20, right: 20, bottom: 40, left: 70 },
     tooltip: {
@@ -376,12 +384,13 @@ async function initEquityChart(curve: EquityCurve) {
 async function initFeaturesChart() {
   if (!featuresChartRef.value) return
   const { echarts } = await loadDashboardEcharts()
+  if (!isActive) return
   if (featuresChart) featuresChart.dispose()
   featuresChart = echarts.init(featuresChartRef.value)
 
   const feats = [...featureImportance.value].sort((a, b) => b.importance - a.importance).slice(0, 6)
 
-  const option: EChartsOption = {
+  const option: EChartsCoreOption = {
     backgroundColor: 'transparent',
     grid: { top: 10, right: 80, bottom: 20, left: 10 },
     xAxis: {
@@ -552,6 +561,7 @@ onMounted(async () => {
 })
 
 onUnmounted(() => {
+  isActive = false
   window.removeEventListener('resize', handleResize)
   equityChart?.dispose()
   featuresChart?.dispose()

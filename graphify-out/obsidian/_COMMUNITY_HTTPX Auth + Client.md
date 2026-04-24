@@ -1,0 +1,216 @@
+---
+type: community
+cohesion: 0.03
+members: 178
+---
+
+# HTTPX Auth + Client
+
+**Cohesion:** 0.03 - loosely connected
+**Members:** 178 nodes
+
+## Members
+- [[.__aenter__()]] - code - d:\transformer\graphify\worked\httpx\raw\client.py
+- [[.__aexit__()]] - code - d:\transformer\graphify\worked\httpx\raw\client.py
+- [[.__contains__()]] - code - d:\transformer\graphify\worked\httpx\raw\models.py
+- [[.__enter__()]] - code - d:\transformer\graphify\worked\httpx\raw\client.py
+- [[.__exit__()]] - code - d:\transformer\graphify\worked\httpx\raw\client.py
+- [[.__getitem__()_1]] - code - d:\transformer\graphify\worked\httpx\raw\models.py
+- [[.__init__()_5]] - code - d:\transformer\graphify\worked\httpx\raw\auth.py
+- [[.__init__()_6]] - code - d:\transformer\graphify\worked\httpx\raw\auth.py
+- [[.__init__()_7]] - code - d:\transformer\graphify\worked\httpx\raw\auth.py
+- [[.__init__()_12]] - code - d:\transformer\graphify\worked\httpx\raw\client.py
+- [[.__init__()_10]] - code - d:\transformer\graphify\worked\httpx\raw\client.py
+- [[.__init__()_11]] - code - d:\transformer\graphify\worked\httpx\raw\client.py
+- [[.__init__()_9]] - code - d:\transformer\graphify\worked\httpx\raw\client.py
+- [[.__init__()_8]] - code - d:\transformer\graphify\worked\httpx\raw\client.py
+- [[.__init__()_13]] - code - d:\transformer\graphify\worked\httpx\raw\exceptions.py
+- [[.__init__()_14]] - code - d:\transformer\graphify\worked\httpx\raw\exceptions.py
+- [[.__init__()_17]] - code - d:\transformer\graphify\worked\httpx\raw\models.py
+- [[.__init__()_18]] - code - d:\transformer\graphify\worked\httpx\raw\models.py
+- [[.__init__()_19]] - code - d:\transformer\graphify\worked\httpx\raw\models.py
+- [[.__init__()_15]] - code - d:\transformer\graphify\worked\httpx\raw\models.py
+- [[.__init__()_22]] - code - d:\transformer\graphify\worked\httpx\raw\transport.py
+- [[.__init__()_20]] - code - d:\transformer\graphify\worked\httpx\raw\transport.py
+- [[.__init__()_21]] - code - d:\transformer\graphify\worked\httpx\raw\transport.py
+- [[.__init__()_23]] - code - d:\transformer\graphify\worked\httpx\raw\transport.py
+- [[.__init__()_24]] - code - d:\transformer\graphify\worked\httpx\raw\transport.py
+- [[.__repr__()_1]] - code - d:\transformer\graphify\worked\httpx\raw\models.py
+- [[.__repr__()_2]] - code - d:\transformer\graphify\worked\httpx\raw\models.py
+- [[.__repr__()]] - code - d:\transformer\graphify\worked\httpx\raw\models.py
+- [[.__setitem__()]] - code - d:\transformer\graphify\worked\httpx\raw\models.py
+- [[.__str__()_1]] - code - d:\transformer\graphify\worked\httpx\raw\models.py
+- [[._build_credentials()]] - code - d:\transformer\graphify\worked\httpx\raw\auth.py
+- [[._build_request()]] - code - d:\transformer\graphify\worked\httpx\raw\client.py
+- [[._get_connection_key()]] - code - d:\transformer\graphify\worked\httpx\raw\transport.py
+- [[._merge_cookies()]] - code - d:\transformer\graphify\worked\httpx\raw\client.py
+- [[._parse_challenge()]] - code - d:\transformer\graphify\worked\httpx\raw\auth.py
+- [[._send()]] - code - d:\transformer\graphify\worked\httpx\raw\transport.py
+- [[.aclose()]] - code - d:\transformer\graphify\worked\httpx\raw\client.py
+- [[.aclose()_1]] - code - d:\transformer\graphify\worked\httpx\raw\transport.py
+- [[.aclose()_2]] - code - d:\transformer\graphify\worked\httpx\raw\transport.py
+- [[.auth_flow()]] - code - d:\transformer\graphify\worked\httpx\raw\auth.py
+- [[.auth_flow()_1]] - code - d:\transformer\graphify\worked\httpx\raw\auth.py
+- [[.auth_flow()_2]] - code - d:\transformer\graphify\worked\httpx\raw\auth.py
+- [[.auth_flow()_3]] - code - d:\transformer\graphify\worked\httpx\raw\auth.py
+- [[.auth_flow()_4]] - code - d:\transformer\graphify\worked\httpx\raw\auth.py
+- [[.close()]] - code - d:\transformer\graphify\worked\httpx\raw\client.py
+- [[.close()_1]] - code - d:\transformer\graphify\worked\httpx\raw\transport.py
+- [[.delete()_1]] - code - d:\transformer\graphify\worked\httpx\raw\client.py
+- [[.delete()]] - code - d:\transformer\graphify\worked\httpx\raw\client.py
+- [[.get()_4]] - code - d:\transformer\graphify\worked\httpx\raw\client.py
+- [[.get()_3]] - code - d:\transformer\graphify\worked\httpx\raw\client.py
+- [[.get_connection()]] - code - d:\transformer\graphify\worked\httpx\raw\transport.py
+- [[.handle_async_request()]] - code - d:\transformer\graphify\worked\httpx\raw\transport.py
+- [[.handle_async_request()_1]] - code - d:\transformer\graphify\worked\httpx\raw\transport.py
+- [[.handle_request()]] - code - d:\transformer\graphify\worked\httpx\raw\transport.py
+- [[.handle_request()_1]] - code - d:\transformer\graphify\worked\httpx\raw\transport.py
+- [[.handle_request()_2]] - code - d:\transformer\graphify\worked\httpx\raw\transport.py
+- [[.handle_request()_3]] - code - d:\transformer\graphify\worked\httpx\raw\transport.py
+- [[.head()]] - code - d:\transformer\graphify\worked\httpx\raw\client.py
+- [[.patch()]] - code - d:\transformer\graphify\worked\httpx\raw\client.py
+- [[.post()_3]] - code - d:\transformer\graphify\worked\httpx\raw\client.py
+- [[.post()_2]] - code - d:\transformer\graphify\worked\httpx\raw\client.py
+- [[.put()_1]] - code - d:\transformer\graphify\worked\httpx\raw\client.py
+- [[.put()]] - code - d:\transformer\graphify\worked\httpx\raw\client.py
+- [[.raise_for_status()]] - code - d:\transformer\graphify\worked\httpx\raw\models.py
+- [[.request()_1]] - code - d:\transformer\graphify\worked\httpx\raw\client.py
+- [[.request()]] - code - d:\transformer\graphify\worked\httpx\raw\client.py
+- [[.return_connection()]] - code - d:\transformer\graphify\worked\httpx\raw\transport.py
+- [[.send()_1]] - code - d:\transformer\graphify\worked\httpx\raw\client.py
+- [[.send()]] - code - d:\transformer\graphify\worked\httpx\raw\client.py
+- [[A 4xx or 5xx response was received.]] - rationale - d:\transformer\graphify\worked\httpx\raw\exceptions.py
+- [[A network error occurred.]] - rationale - d:\transformer\graphify\worked\httpx\raw\exceptions.py
+- [[A protocol was violated.]] - rationale - d:\transformer\graphify\worked\httpx\raw\exceptions.py
+- [[A transport for testing that returns predefined responses.     Pass a handler f]] - rationale - d:\transformer\graphify\worked\httpx\raw\transport.py
+- [[An error occurred at the transport layer.]] - rationale - d:\transformer\graphify\worked\httpx\raw\exceptions.py
+- [[An error occurred while establishing a proxy connection.]] - rationale - d:\transformer\graphify\worked\httpx\raw\exceptions.py
+- [[An error occurred while issuing a request.]] - rationale - d:\transformer\graphify\worked\httpx\raw\exceptions.py
+- [[Append query parameters to a URL string.]] - rationale - d:\transformer\graphify\worked\httpx\raw\utils.py
+- [[Async transport interface.]] - rationale - d:\transformer\graphify\worked\httpx\raw\transport.py
+- [[AsyncBaseTransport]] - code - d:\transformer\graphify\worked\httpx\raw\transport.py
+- [[AsyncClient]] - code - d:\transformer\graphify\worked\httpx\raw\client.py
+- [[AsyncHTTPTransport]] - code - d:\transformer\graphify\worked\httpx\raw\transport.py
+- [[Asynchronous HTTP client.]] - rationale - d:\transformer\graphify\worked\httpx\raw\client.py
+- [[Attempted to look up a cookie by name but multiple cookies exist.]] - rationale - d:\transformer\graphify\worked\httpx\raw\exceptions.py
+- [[Auth]] - code - d:\transformer\graphify\worked\httpx\raw\auth.py
+- [[Authentication handlers. Auth objects are callables that modify a request befor]] - rationale - d:\transformer\graphify\worked\httpx\raw\auth.py
+- [[Base class for all authentication handlers.]] - rationale - d:\transformer\graphify\worked\httpx\raw\auth.py
+- [[Base class for all httpx exceptions.]] - rationale - d:\transformer\graphify\worked\httpx\raw\exceptions.py
+- [[BaseClient]] - code - d:\transformer\graphify\worked\httpx\raw\client.py
+- [[BaseTransport]] - code - d:\transformer\graphify\worked\httpx\raw\transport.py
+- [[BasicAuth]] - code - d:\transformer\graphify\worked\httpx\raw\auth.py
+- [[Bearer token authentication.]] - rationale - d:\transformer\graphify\worked\httpx\raw\auth.py
+- [[BearerAuth]] - code - d:\transformer\graphify\worked\httpx\raw\auth.py
+- [[Check if a character encoding label is recognized by Python's codec system.]] - rationale - d:\transformer\graphify\worked\httpx\raw\utils.py
+- [[Clear all cookies from a cookie jar in place.]] - rationale - d:\transformer\graphify\worked\httpx\raw\utils.py
+- [[Client]] - code - d:\transformer\graphify\worked\httpx\raw\client.py
+- [[CloseError]] - code - d:\transformer\graphify\worked\httpx\raw\exceptions.py
+- [[Compute the Authorization header value for a digest challenge.]] - rationale - d:\transformer\graphify\worked\httpx\raw\auth.py
+- [[ConnectError]] - code - d:\transformer\graphify\worked\httpx\raw\exceptions.py
+- [[ConnectTimeout]] - code - d:\transformer\graphify\worked\httpx\raw\exceptions.py
+- [[ConnectionPool]] - code - d:\transformer\graphify\worked\httpx\raw\transport.py
+- [[Convert a header key to its canonical Title-Case form.]] - rationale - d:\transformer\graphify\worked\httpx\raw\utils.py
+- [[Convert a primitive value to its string representation.]] - rationale - d:\transformer\graphify\worked\httpx\raw\utils.py
+- [[CookieConflict]] - code - d:\transformer\graphify\worked\httpx\raw\exceptions.py
+- [[Cookies]] - code - d:\transformer\graphify\worked\httpx\raw\models.py
+- [[Core data models URL, Headers, Cookies, Request, Response. These are the centr]] - rationale - d:\transformer\graphify\worked\httpx\raw\models.py
+- [[Decoding of the response failed.]] - rationale - d:\transformer\graphify\worked\httpx\raw\exceptions.py
+- [[DecodingError]] - code - d:\transformer\graphify\worked\httpx\raw\exceptions.py
+- [[DigestAuth]] - code - d:\transformer\graphify\worked\httpx\raw\auth.py
+- [[Exception]] - code
+- [[Expand a params dict into a flat list of (key, value) pairs.     List values be]] - rationale - d:\transformer\graphify\worked\httpx\raw\utils.py
+- [[Extract digest parameters from the WWW-Authenticate header.]] - rationale - d:\transformer\graphify\worked\httpx\raw\auth.py
+- [[Failed to close a connection.]] - rationale - d:\transformer\graphify\worked\httpx\raw\exceptions.py
+- [[Failed to establish a connection.]] - rationale - d:\transformer\graphify\worked\httpx\raw\exceptions.py
+- [[Failed to receive data from the network.]] - rationale - d:\transformer\graphify\worked\httpx\raw\exceptions.py
+- [[Failed to send data through the network.]] - rationale - d:\transformer\graphify\worked\httpx\raw\exceptions.py
+- [[HTTP Basic Authentication.]] - rationale - d:\transformer\graphify\worked\httpx\raw\auth.py
+- [[HTTP Digest Authentication.     Requires a full requestresponse cycle sends t]] - rationale - d:\transformer\graphify\worked\httpx\raw\auth.py
+- [[HTTPError]] - code - d:\transformer\graphify\worked\httpx\raw\exceptions.py
+- [[HTTPStatusError]] - code - d:\transformer\graphify\worked\httpx\raw\exceptions.py
+- [[HTTPTransport]] - code - d:\transformer\graphify\worked\httpx\raw\transport.py
+- [[Headers]] - code - d:\transformer\graphify\worked\httpx\raw\models.py
+- [[InvalidURL]] - code - d:\transformer\graphify\worked\httpx\raw\exceptions.py
+- [[Limits]] - code - d:\transformer\graphify\worked\httpx\raw\client.py
+- [[Load credentials from ~.netrc based on the request host.]] - rationale - d:\transformer\graphify\worked\httpx\raw\auth.py
+- [[Manages a pool of persistent HTTP connections.     Keys connections by (scheme,]] - rationale - d:\transformer\graphify\worked\httpx\raw\transport.py
+- [[MockTransport]] - code - d:\transformer\graphify\worked\httpx\raw\transport.py
+- [[Modify the request. May yield to inspect the response.]] - rationale - d:\transformer\graphify\worked\httpx\raw\auth.py
+- [[NetRCAuth]] - code - d:\transformer\graphify\worked\httpx\raw\auth.py
+- [[NetworkError_1]] - code - d:\transformer\graphify\worked\httpx\raw\exceptions.py
+- [[Parse a Content-Type header value.     Returns (media_type, params_dict).]] - rationale - d:\transformer\graphify\worked\httpx\raw\utils.py
+- [[PoolTimeout]] - code - d:\transformer\graphify\worked\httpx\raw\exceptions.py
+- [[ProtocolError]] - code - d:\transformer\graphify\worked\httpx\raw\exceptions.py
+- [[ProxyError]] - code - d:\transformer\graphify\worked\httpx\raw\exceptions.py
+- [[ProxyTransport]] - code - d:\transformer\graphify\worked\httpx\raw\transport.py
+- [[ReadError]] - code - d:\transformer\graphify\worked\httpx\raw\exceptions.py
+- [[ReadTimeout]] - code - d:\transformer\graphify\worked\httpx\raw\exceptions.py
+- [[Request]] - code - d:\transformer\graphify\worked\httpx\raw\models.py
+- [[RequestError]] - code - d:\transformer\graphify\worked\httpx\raw\exceptions.py
+- [[Response]] - code - d:\transformer\graphify\worked\httpx\raw\models.py
+- [[Return a copy of headers with sensitive values replaced by obfuscated.]] - rationale - d:\transformer\graphify\worked\httpx\raw\utils.py
+- [[Routes requests through an HTTPHTTPS proxy.     Wraps an inner transport and p]] - rationale - d:\transformer\graphify\worked\httpx\raw\transport.py
+- [[Shared implementation for Client and AsyncClient.     Handles auth, redirects,]] - rationale - d:\transformer\graphify\worked\httpx\raw\client.py
+- [[Sync transport interface.]] - rationale - d:\transformer\graphify\worked\httpx\raw\transport.py
+- [[Synchronous HTTP client.]] - rationale - d:\transformer\graphify\worked\httpx\raw\client.py
+- [[The async variant of HTTPTransport.]] - rationale - d:\transformer\graphify\worked\httpx\raw\transport.py
+- [[The main Client and AsyncClient classes. BaseClient holds all shared logic. Cli]] - rationale - d:\transformer\graphify\worked\httpx\raw\client.py
+- [[The main sync HTTP transport.     Uses a ConnectionPool for connection reuse.]] - rationale - d:\transformer\graphify\worked\httpx\raw\transport.py
+- [[Timed out waiting to acquire a connection from the pool.]] - rationale - d:\transformer\graphify\worked\httpx\raw\exceptions.py
+- [[Timed out while connecting to the host.]] - rationale - d:\transformer\graphify\worked\httpx\raw\exceptions.py
+- [[Timed out while receiving data from the host.]] - rationale - d:\transformer\graphify\worked\httpx\raw\exceptions.py
+- [[Timed out while sending data to the host.]] - rationale - d:\transformer\graphify\worked\httpx\raw\exceptions.py
+- [[Timeout]] - code - d:\transformer\graphify\worked\httpx\raw\client.py
+- [[TimeoutException]] - code - d:\transformer\graphify\worked\httpx\raw\exceptions.py
+- [[TooManyRedirects]] - code - d:\transformer\graphify\worked\httpx\raw\exceptions.py
+- [[Transport layer connection management and low-level HTTP sending. HTTPTranspor]] - rationale - d:\transformer\graphify\worked\httpx\raw\transport.py
+- [[TransportError]] - code - d:\transformer\graphify\worked\httpx\raw\exceptions.py
+- [[URL]] - code - d:\transformer\graphify\worked\httpx\raw\models.py
+- [[URL is improperly formed or cannot be parsed.]] - rationale - d:\transformer\graphify\worked\httpx\raw\exceptions.py
+- [[Utility functions shared across the library. Small helpers that don't belong in]] - rationale - d:\transformer\graphify\worked\httpx\raw\utils.py
+- [[WriteError]] - code - d:\transformer\graphify\worked\httpx\raw\exceptions.py
+- [[WriteTimeout]] - code - d:\transformer\graphify\worked\httpx\raw\exceptions.py
+- [[auth.py]] - code - d:\transformer\graphify\worked\httpx\raw\auth.py
+- [[build_url_with_params()]] - code - d:\transformer\graphify\worked\httpx\raw\utils.py
+- [[client.py]] - code - d:\transformer\graphify\worked\httpx\raw\client.py
+- [[exceptions.py]] - code - d:\transformer\graphify\worked\httpx\raw\exceptions.py
+- [[flatten_queryparams()]] - code - d:\transformer\graphify\worked\httpx\raw\utils.py
+- [[httpx-like exception hierarchy. All exceptions inherit from HTTPError at the to]] - rationale - d:\transformer\graphify\worked\httpx\raw\exceptions.py
+- [[is_error()]] - code - d:\transformer\graphify\worked\httpx\raw\models.py
+- [[is_known_encoding()]] - code - d:\transformer\graphify\worked\httpx\raw\utils.py
+- [[is_success()]] - code - d:\transformer\graphify\worked\httpx\raw\models.py
+- [[models.py]] - code - d:\transformer\graphify\worked\httpx\raw\models.py
+- [[normalize_header_key()]] - code - d:\transformer\graphify\worked\httpx\raw\utils.py
+- [[obfuscate_sensitive_headers()]] - code - d:\transformer\graphify\worked\httpx\raw\utils.py
+- [[parse_content_type()]] - code - d:\transformer\graphify\worked\httpx\raw\utils.py
+- [[primitive_value_to_str()]] - code - d:\transformer\graphify\worked\httpx\raw\utils.py
+- [[transport.py]] - code - d:\transformer\graphify\worked\httpx\raw\transport.py
+- [[unset_all_cookies()]] - code - d:\transformer\graphify\worked\httpx\raw\utils.py
+- [[utils.py]] - code - d:\transformer\graphify\worked\httpx\raw\utils.py
+
+## Live Query (requires Dataview plugin)
+
+```dataview
+TABLE source_file, type FROM #community/HTTPX_Auth_+_Client
+SORT file.name ASC
+```
+
+## Connections to other communities
+- 12 edges to [[_COMMUNITY_Graphify Analyze Module]]
+- 7 edges to [[_COMMUNITY_Thesis Debug + Cross-File Analysis]]
+- 4 edges to [[_COMMUNITY_Graphify Ingest + Security]]
+- 3 edges to [[_COMMUNITY_Thesis Word Conversion + Frontend API]]
+- 3 edges to [[_COMMUNITY_Sample Fixtures + Serve]]
+- 1 edge to [[_COMMUNITY_Trading Account Manager + Auto]]
+- 1 edge to [[_COMMUNITY_AlphaTransformer Core Models]]
+- 1 edge to [[_COMMUNITY_Graphify Worked Example API]]
+- 1 edge to [[_COMMUNITY_Thesis Figure Drawing Pipeline]]
+- 1 edge to [[_COMMUNITY_Thesis Doc Analysis Scripts]]
+
+## Top bridge nodes
+- [[Cookies]] - degree 28, connects to 4 communities
+- [[Response]] - degree 47, connects to 2 communities
+- [[AsyncClient]] - degree 27, connects to 2 communities
+- [[Headers]] - degree 21, connects to 2 communities
+- [[._build_credentials()]] - degree 5, connects to 2 communities

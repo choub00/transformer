@@ -1,0 +1,17 @@
+---
+source_file: "d:\transformer\graphify\worked\example\raw\parser.py"
+type: "rationale"
+community: "Graphify Worked Example API"
+location: "L1"
+tags:
+  - graphify/rationale
+  - graphify/EXTRACTED
+  - community/Graphify_Worked_Example_API
+---
+
+# Parser module - reads raw input documents and converts them into a structured f
+
+## Connections
+- [[parser.py]] - `rationale_for` [EXTRACTED]
+
+#graphify/rationale #graphify/EXTRACTED #community/Graphify_Worked_Example_API

@@ -1,0 +1,240 @@
+---
+type: community
+cohesion: 0.02
+members: 207
+---
+
+# Graphify Extract / Multi-Language Parsers
+
+**Cohesion:** 0.02 - loosely connected
+**Members:** 207 nodes
+
+## Members
+- [[Build a stable node ID from one or more name parts.]] - rationale - d:\transformer\graphify\graphify\extract.py
+- [[Deterministic structural extraction from source code using tree-sitter. Outputs]] - rationale - d:\transformer\graphify\graphify\extract.py
+- [[Extract @include, livewire components, and wireclick bindings from Blade tem]] - rationale - d:\transformer\graphify\graphify\extract.py
+- [[Extract AST nodes and edges from a list of code files.      Two-pass process]] - rationale - d:\transformer\graphify\graphify\extract.py
+- [[Extract classes, functions, arrow functions, and imports from a .js.ts.tsx fil]] - rationale - d:\transformer\graphify\graphify\extract.py
+- [[Extract classes, functions, methods, namespace uses, and calls from a .php file.]] - rationale - d:\transformer\graphify\graphify\extract.py
+- [[Extract classes, interfaces, methods, constructors, and imports from a .java fil]] - rationale - d:\transformer\graphify\graphify\extract.py
+- [[Extract classes, interfaces, methods, namespaces, and usings from a .cs file.]] - rationale - d:\transformer\graphify\graphify\extract.py
+- [[Extract classes, methods, singleton methods, and calls from a .rb file.]] - rationale - d:\transformer\graphify\graphify\extract.py
+- [[Extract classes, mixins, functions, imports, and calls from a .dart file using r]] - rationale - d:\transformer\graphify\graphify\extract.py
+- [[Extract classes, objects, functions, and imports from a .kt.kts file.]] - rationale - d:\transformer\graphify\graphify\extract.py
+- [[Extract classes, objects, functions, and imports from a .scala file.]] - rationale - d:\transformer\graphify\graphify\extract.py
+- [[Extract classes, structs, protocols, functions, imports, and calls from a .swift]] - rationale - d:\transformer\graphify\graphify\extract.py
+- [[Extract functions and includes from a .c.h file.]] - rationale - d:\transformer\graphify\graphify\extract.py
+- [[Extract functions, classes, and includes from a .cpp.cc.cxx.hpp file.]] - rationale - d:\transformer\graphify\graphify\extract.py
+- [[Extract functions, classes, methods, and using statements from a .ps1 file.]] - rationale - d:\transformer\graphify\graphify\extract.py
+- [[Extract functions, methods, require() imports, and calls from a .lua file.]] - rationale - d:\transformer\graphify\graphify\extract.py
+- [[Extract functions, methods, type declarations, and imports from a .go file.]] - rationale - d:\transformer\graphify\graphify\extract.py
+- [[Extract functions, structs, enums, traits, impl methods, and use declarations fr]] - rationale - d:\transformer\graphify\graphify\extract.py
+- [[Extract functions, structs, enums, unions, and imports from a .zig file.]] - rationale - d:\transformer\graphify\graphify\extract.py
+- [[Extract interfaces, implementations, protocols, methods, and imports from .m.mm]] - rationale - d:\transformer\graphify\graphify\extract.py
+- [[Extract modules, functions, imports, and calls from a .ex.exs file.]] - rationale - d:\transformer\graphify\graphify\extract.py
+- [[Extract modules, functions, tasks, package imports, and instantiations from .v.]] - rationale - d:\transformer\graphify\graphify\extract.py
+- [[Extract modules, structs, functions, imports, and calls from a .jl file.]] - rationale - d:\transformer\graphify\graphify\extract.py
+- [[Extract require('module') from Lua variable_declaration nodes.]] - rationale - d:\transformer\graphify\graphify\extract.py
+- [[Find the body node using config.body_field, falling back to child types.]] - rationale - d:\transformer\graphify\graphify\extract.py
+- [[Generic AST extractor driven by LanguageConfig.]] - rationale - d:\transformer\graphify\graphify\extract.py
+- [[Get the name from a node using config.name_field, falling back to child types.]] - rationale - d:\transformer\graphify\graphify\extract.py
+- [[Handle enum_entry for Swift. Returns True if handled.]] - rationale - d:\transformer\graphify\graphify\extract.py
+- [[Handle lexical_declaration (arrow functions) for JSTS. Returns True if handled.]] - rationale - d:\transformer\graphify\graphify\extract.py
+- [[Handle namespace_declaration for C. Returns True if handled.]] - rationale - d:\transformer\graphify\graphify\extract.py
+- [[LanguageConfig]] - code - d:\transformer\graphify\graphify\extract.py
+- [[Methods on the same receiver type must share one canonical type node.]] - rationale - d:\transformer\graphify\tests\test_languages.py
+- [[Post-pass extract docstrings and rationale comments from Python source.     Mu]] - rationale - d:\transformer\graphify\graphify\extract.py
+- [[Raise a clear error if tree-sitter is too old for the new Language API.]] - rationale - d:\transformer\graphify\graphify\extract.py
+- [[Recursively unwrap declarator to find the innermost identifier (C).]] - rationale - d:\transformer\graphify\graphify\extract.py
+- [[Recursively unwrap declarator to find the innermost identifier (C++).]] - rationale - d:\transformer\graphify\graphify\extract.py
+- [[Tests for language extractors Java, C, C++, Ruby, C, Kotlin, Scala, PHP, Swift]] - rationale - d:\transformer\graphify\tests\test_languages.py
+- [[Tests for multi-language AST extraction JSTS, Go, Rust.]] - rationale - d:\transformer\graphify\tests\test_multilang.py
+- [[Two-pass import resolution turn file-level imports into class-level edges.]] - rationale - d:\transformer\graphify\graphify\extract.py
+- [[Type node id should be scoped to directory, not file stem.]] - rationale - d:\transformer\graphify\tests\test_languages.py
+- [[_call_pairs()]] - code - d:\transformer\graphify\tests\test_multilang.py
+- [[_calls()]] - code - d:\transformer\graphify\tests\test_languages.py
+- [[_check_tree_sitter_version()]] - code - d:\transformer\graphify\graphify\extract.py
+- [[_confidences()]] - code - d:\transformer\graphify\tests\test_multilang.py
+- [[_csharp_extra_walk()]] - code - d:\transformer\graphify\graphify\extract.py
+- [[_extract_generic()]] - code - d:\transformer\graphify\graphify\extract.py
+- [[_extract_python_rationale()]] - code - d:\transformer\graphify\graphify\extract.py
+- [[_find_body()]] - code - d:\transformer\graphify\graphify\extract.py
+- [[_get_c_func_name()]] - code - d:\transformer\graphify\graphify\extract.py
+- [[_get_cpp_func_name()]] - code - d:\transformer\graphify\graphify\extract.py
+- [[_import_c()]] - code - d:\transformer\graphify\graphify\extract.py
+- [[_import_csharp()]] - code - d:\transformer\graphify\graphify\extract.py
+- [[_import_java()]] - code - d:\transformer\graphify\graphify\extract.py
+- [[_import_js()]] - code - d:\transformer\graphify\graphify\extract.py
+- [[_import_kotlin()]] - code - d:\transformer\graphify\graphify\extract.py
+- [[_import_lua()]] - code - d:\transformer\graphify\graphify\extract.py
+- [[_import_php()]] - code - d:\transformer\graphify\graphify\extract.py
+- [[_import_python()]] - code - d:\transformer\graphify\graphify\extract.py
+- [[_import_scala()]] - code - d:\transformer\graphify\graphify\extract.py
+- [[_import_swift()]] - code - d:\transformer\graphify\graphify\extract.py
+- [[_js_extra_walk()]] - code - d:\transformer\graphify\graphify\extract.py
+- [[_labels()]] - code - d:\transformer\graphify\tests\test_languages.py
+- [[_labels()_1]] - code - d:\transformer\graphify\tests\test_multilang.py
+- [[_make_id()]] - code - d:\transformer\graphify\graphify\extract.py
+- [[_read_text()]] - code - d:\transformer\graphify\graphify\extract.py
+- [[_relations()]] - code - d:\transformer\graphify\tests\test_languages.py
+- [[_resolve_cross_file_imports()]] - code - d:\transformer\graphify\graphify\extract.py
+- [[_resolve_name()]] - code - d:\transformer\graphify\graphify\extract.py
+- [[_swift_extra_walk()]] - code - d:\transformer\graphify\graphify\extract.py
+- [[extract()]] - code - d:\transformer\graphify\graphify\extract.py
+- [[extract.py]] - code - d:\transformer\graphify\graphify\extract.py
+- [[extract_blade()]] - code - d:\transformer\graphify\graphify\extract.py
+- [[extract_c()]] - code - d:\transformer\graphify\graphify\extract.py
+- [[extract_cpp()]] - code - d:\transformer\graphify\graphify\extract.py
+- [[extract_csharp()]] - code - d:\transformer\graphify\graphify\extract.py
+- [[extract_dart()]] - code - d:\transformer\graphify\graphify\extract.py
+- [[extract_elixir()]] - code - d:\transformer\graphify\graphify\extract.py
+- [[extract_go()]] - code - d:\transformer\graphify\graphify\extract.py
+- [[extract_java()]] - code - d:\transformer\graphify\graphify\extract.py
+- [[extract_js()]] - code - d:\transformer\graphify\graphify\extract.py
+- [[extract_julia()]] - code - d:\transformer\graphify\graphify\extract.py
+- [[extract_kotlin()]] - code - d:\transformer\graphify\graphify\extract.py
+- [[extract_lua()]] - code - d:\transformer\graphify\graphify\extract.py
+- [[extract_objc()]] - code - d:\transformer\graphify\graphify\extract.py
+- [[extract_php()]] - code - d:\transformer\graphify\graphify\extract.py
+- [[extract_powershell()]] - code - d:\transformer\graphify\graphify\extract.py
+- [[extract_ruby()]] - code - d:\transformer\graphify\graphify\extract.py
+- [[extract_rust()]] - code - d:\transformer\graphify\graphify\extract.py
+- [[extract_scala()]] - code - d:\transformer\graphify\graphify\extract.py
+- [[extract_swift()]] - code - d:\transformer\graphify\graphify\extract.py
+- [[extract_verilog()]] - code - d:\transformer\graphify\graphify\extract.py
+- [[extract_zig()]] - code - d:\transformer\graphify\graphify\extract.py
+- [[test_c_calls_are_extracted()]] - code - d:\transformer\graphify\tests\test_languages.py
+- [[test_c_emits_calls()]] - code - d:\transformer\graphify\tests\test_languages.py
+- [[test_c_finds_functions()]] - code - d:\transformer\graphify\tests\test_languages.py
+- [[test_c_finds_includes()]] - code - d:\transformer\graphify\tests\test_languages.py
+- [[test_c_no_error()]] - code - d:\transformer\graphify\tests\test_languages.py
+- [[test_cache_hit_returns_same_result()]] - code - d:\transformer\graphify\tests\test_multilang.py
+- [[test_cache_miss_after_file_change()]] - code - d:\transformer\graphify\tests\test_multilang.py
+- [[test_cpp_finds_class()]] - code - d:\transformer\graphify\tests\test_languages.py
+- [[test_cpp_finds_includes()]] - code - d:\transformer\graphify\tests\test_languages.py
+- [[test_cpp_finds_methods()]] - code - d:\transformer\graphify\tests\test_languages.py
+- [[test_cpp_no_error()]] - code - d:\transformer\graphify\tests\test_languages.py
+- [[test_csharp_finds_class()]] - code - d:\transformer\graphify\tests\test_languages.py
+- [[test_csharp_finds_interface()]] - code - d:\transformer\graphify\tests\test_languages.py
+- [[test_csharp_finds_methods()]] - code - d:\transformer\graphify\tests\test_languages.py
+- [[test_csharp_finds_usings()]] - code - d:\transformer\graphify\tests\test_languages.py
+- [[test_csharp_inherits_edge()]] - code - d:\transformer\graphify\tests\test_languages.py
+- [[test_csharp_inherits_iprocessor()]] - code - d:\transformer\graphify\tests\test_languages.py
+- [[test_csharp_no_error()]] - code - d:\transformer\graphify\tests\test_languages.py
+- [[test_elixir_finds_calls()]] - code - d:\transformer\graphify\tests\test_languages.py
+- [[test_elixir_finds_functions()]] - code - d:\transformer\graphify\tests\test_languages.py
+- [[test_elixir_finds_imports()]] - code - d:\transformer\graphify\tests\test_languages.py
+- [[test_elixir_finds_module()]] - code - d:\transformer\graphify\tests\test_languages.py
+- [[test_elixir_method_edges()]] - code - d:\transformer\graphify\tests\test_languages.py
+- [[test_extract_dispatches_all_languages()]] - code - d:\transformer\graphify\tests\test_multilang.py
+- [[test_extract_merges_multiple_files()]] - code - d:\transformer\graphify\tests\test_extract.py
+- [[test_go_emits_calls()]] - code - d:\transformer\graphify\tests\test_multilang.py
+- [[test_go_finds_constructor()]] - code - d:\transformer\graphify\tests\test_multilang.py
+- [[test_go_finds_methods()]] - code - d:\transformer\graphify\tests\test_multilang.py
+- [[test_go_finds_struct()]] - code - d:\transformer\graphify\tests\test_multilang.py
+- [[test_go_has_extracted_calls()]] - code - d:\transformer\graphify\tests\test_multilang.py
+- [[test_go_no_dangling_edges()]] - code - d:\transformer\graphify\tests\test_multilang.py
+- [[test_go_receiver_methods_share_type_node()]] - code - d:\transformer\graphify\tests\test_languages.py
+- [[test_go_receiver_uses_pkg_scope()]] - code - d:\transformer\graphify\tests\test_languages.py
+- [[test_java_finds_class()]] - code - d:\transformer\graphify\tests\test_languages.py
+- [[test_java_finds_imports()]] - code - d:\transformer\graphify\tests\test_languages.py
+- [[test_java_finds_interface()]] - code - d:\transformer\graphify\tests\test_languages.py
+- [[test_java_finds_methods()]] - code - d:\transformer\graphify\tests\test_languages.py
+- [[test_java_no_dangling_edges()]] - code - d:\transformer\graphify\tests\test_languages.py
+- [[test_java_no_error()]] - code - d:\transformer\graphify\tests\test_languages.py
+- [[test_julia_finds_abstract_type()]] - code - d:\transformer\graphify\tests\test_languages.py
+- [[test_julia_finds_calls()]] - code - d:\transformer\graphify\tests\test_languages.py
+- [[test_julia_finds_functions()]] - code - d:\transformer\graphify\tests\test_languages.py
+- [[test_julia_finds_imports()]] - code - d:\transformer\graphify\tests\test_languages.py
+- [[test_julia_finds_inherits()]] - code - d:\transformer\graphify\tests\test_languages.py
+- [[test_julia_finds_module()]] - code - d:\transformer\graphify\tests\test_languages.py
+- [[test_julia_finds_short_function()]] - code - d:\transformer\graphify\tests\test_languages.py
+- [[test_julia_finds_structs()]] - code - d:\transformer\graphify\tests\test_languages.py
+- [[test_julia_no_dangling_edges()]] - code - d:\transformer\graphify\tests\test_languages.py
+- [[test_kotlin_finds_class()]] - code - d:\transformer\graphify\tests\test_languages.py
+- [[test_kotlin_finds_data_class()]] - code - d:\transformer\graphify\tests\test_languages.py
+- [[test_kotlin_finds_function()]] - code - d:\transformer\graphify\tests\test_languages.py
+- [[test_kotlin_finds_methods()]] - code - d:\transformer\graphify\tests\test_languages.py
+- [[test_kotlin_no_error()]] - code - d:\transformer\graphify\tests\test_languages.py
+- [[test_languages.py]] - code - d:\transformer\graphify\tests\test_languages.py
+- [[test_multilang.py]] - code - d:\transformer\graphify\tests\test_multilang.py
+- [[test_objc_finds_imports()]] - code - d:\transformer\graphify\tests\test_languages.py
+- [[test_objc_finds_interface()]] - code - d:\transformer\graphify\tests\test_languages.py
+- [[test_objc_finds_methods()]] - code - d:\transformer\graphify\tests\test_languages.py
+- [[test_objc_finds_subclass()]] - code - d:\transformer\graphify\tests\test_languages.py
+- [[test_objc_inherits_edge()]] - code - d:\transformer\graphify\tests\test_languages.py
+- [[test_objc_no_dangling_edges()]] - code - d:\transformer\graphify\tests\test_languages.py
+- [[test_php_config_helper_target_matches_first_segment()]] - code - d:\transformer\graphify\tests\test_languages.py
+- [[test_php_container_bind_links_contract_to_implementation()]] - code - d:\transformer\graphify\tests\test_languages.py
+- [[test_php_event_listener_links_event_to_listener()]] - code - d:\transformer\graphify\tests\test_languages.py
+- [[test_php_finds_class()]] - code - d:\transformer\graphify\tests\test_languages.py
+- [[test_php_finds_config_helper_call()]] - code - d:\transformer\graphify\tests\test_languages.py
+- [[test_php_finds_container_bind()]] - code - d:\transformer\graphify\tests\test_languages.py
+- [[test_php_finds_event_listeners()]] - code - d:\transformer\graphify\tests\test_languages.py
+- [[test_php_finds_function()]] - code - d:\transformer\graphify\tests\test_languages.py
+- [[test_php_finds_imports()]] - code - d:\transformer\graphify\tests\test_languages.py
+- [[test_php_finds_methods()]] - code - d:\transformer\graphify\tests\test_languages.py
+- [[test_php_finds_static_property_access()]] - code - d:\transformer\graphify\tests\test_languages.py
+- [[test_php_no_error()]] - code - d:\transformer\graphify\tests\test_languages.py
+- [[test_php_static_prop_target_is_holding_class()]] - code - d:\transformer\graphify\tests\test_languages.py
+- [[test_ruby_finds_class()]] - code - d:\transformer\graphify\tests\test_languages.py
+- [[test_ruby_finds_function()]] - code - d:\transformer\graphify\tests\test_languages.py
+- [[test_ruby_finds_methods()]] - code - d:\transformer\graphify\tests\test_languages.py
+- [[test_ruby_no_error()]] - code - d:\transformer\graphify\tests\test_languages.py
+- [[test_rust_calls_are_extracted()]] - code - d:\transformer\graphify\tests\test_multilang.py
+- [[test_rust_emits_calls()]] - code - d:\transformer\graphify\tests\test_multilang.py
+- [[test_rust_finds_function()]] - code - d:\transformer\graphify\tests\test_multilang.py
+- [[test_rust_finds_impl_methods()]] - code - d:\transformer\graphify\tests\test_multilang.py
+- [[test_rust_finds_struct()]] - code - d:\transformer\graphify\tests\test_multilang.py
+- [[test_rust_no_dangling_edges()]] - code - d:\transformer\graphify\tests\test_multilang.py
+- [[test_scala_finds_class()]] - code - d:\transformer\graphify\tests\test_languages.py
+- [[test_scala_finds_methods()]] - code - d:\transformer\graphify\tests\test_languages.py
+- [[test_scala_finds_object()]] - code - d:\transformer\graphify\tests\test_languages.py
+- [[test_scala_no_error()]] - code - d:\transformer\graphify\tests\test_languages.py
+- [[test_swift_conformance_edge()]] - code - d:\transformer\graphify\tests\test_languages.py
+- [[test_swift_emits_calls()]] - code - d:\transformer\graphify\tests\test_languages.py
+- [[test_swift_enum_cases_have_case_of_edge()]] - code - d:\transformer\graphify\tests\test_languages.py
+- [[test_swift_extension_conformance_edge()]] - code - d:\transformer\graphify\tests\test_languages.py
+- [[test_swift_extension_does_not_duplicate_type_node()]] - code - d:\transformer\graphify\tests\test_languages.py
+- [[test_swift_extension_methods_attach_to_type()]] - code - d:\transformer\graphify\tests\test_languages.py
+- [[test_swift_finds_actor()]] - code - d:\transformer\graphify\tests\test_languages.py
+- [[test_swift_finds_class()]] - code - d:\transformer\graphify\tests\test_languages.py
+- [[test_swift_finds_deinit()]] - code - d:\transformer\graphify\tests\test_languages.py
+- [[test_swift_finds_enum()]] - code - d:\transformer\graphify\tests\test_languages.py
+- [[test_swift_finds_enum_cases()]] - code - d:\transformer\graphify\tests\test_languages.py
+- [[test_swift_finds_enum_methods()]] - code - d:\transformer\graphify\tests\test_languages.py
+- [[test_swift_finds_function()]] - code - d:\transformer\graphify\tests\test_languages.py
+- [[test_swift_finds_imports()]] - code - d:\transformer\graphify\tests\test_languages.py
+- [[test_swift_finds_methods()]] - code - d:\transformer\graphify\tests\test_languages.py
+- [[test_swift_finds_protocol()]] - code - d:\transformer\graphify\tests\test_languages.py
+- [[test_swift_finds_struct()]] - code - d:\transformer\graphify\tests\test_languages.py
+- [[test_swift_finds_subscript()]] - code - d:\transformer\graphify\tests\test_languages.py
+- [[test_swift_no_dangling_edges()]] - code - d:\transformer\graphify\tests\test_languages.py
+- [[test_swift_no_error()]] - code - d:\transformer\graphify\tests\test_languages.py
+- [[test_ts_calls_are_extracted()]] - code - d:\transformer\graphify\tests\test_multilang.py
+- [[test_ts_emits_calls()]] - code - d:\transformer\graphify\tests\test_multilang.py
+- [[test_ts_finds_class()]] - code - d:\transformer\graphify\tests\test_multilang.py
+- [[test_ts_finds_function()]] - code - d:\transformer\graphify\tests\test_multilang.py
+- [[test_ts_finds_methods()]] - code - d:\transformer\graphify\tests\test_multilang.py
+- [[test_ts_no_dangling_edges()]] - code - d:\transformer\graphify\tests\test_multilang.py
+
+## Live Query (requires Dataview plugin)
+
+```dataview
+TABLE source_file, type FROM #community/Graphify_Extract_/_Multi-Language_Parsers
+SORT file.name ASC
+```
+
+## Connections to other communities
+- 25 edges to [[_COMMUNITY_Thesis Debug + Cross-File Analysis]]
+- 18 edges to [[_COMMUNITY_Graphify Analyze Module]]
+- 10 edges to [[_COMMUNITY_Thesis Word Conversion + Frontend API]]
+- 3 edges to [[_COMMUNITY_Graphify Cache Management]]
+- 3 edges to [[_COMMUNITY_Sample Fixtures + Serve]]
+
+## Top bridge nodes
+- [[_extract_generic()]] - degree 19, connects to 4 communities
+- [[extract()]] - degree 15, connects to 4 communities
+- [[extract_dart()]] - degree 6, connects to 3 communities
+- [[extract.py]] - degree 50, connects to 2 communities
+- [[extract_julia()]] - degree 14, connects to 2 communities

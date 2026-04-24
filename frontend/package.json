@@ -19,6 +19,7 @@
   "dependencies": {
     "@element-plus/icons-vue": "^2.3.2",
     "@rolldown/binding-win32-x64-msvc": "^1.0.0-rc.12",
+    "@sentry/vue": "^10.50.0",
     "@vueuse/core": "^14.2.1",
     "axios": "^1.13.6",
     "echarts": "^6.0.0",

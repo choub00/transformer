@@ -1,5 +1,5 @@
 <template>
-  <div class="trade-panel glass-card">
+  <div class="trade-panel glass-card module-shell module-shell--gold">
     <!-- ══════════════════════════════════════════════════════════════════════════
          标题栏
          ══════════════════════════════════════════════════════════════════════════ -->
@@ -20,7 +20,7 @@
     <!-- ══════════════════════════════════════════════════════════════════════════
          AI 信心评分区
          ══════════════════════════════════════════════════════════════════════════ -->
-    <div class="ai-confidence-section">
+    <div class="ai-confidence-section data-panel">
       <div class="confidence-header">
         <span class="section-label">&#63720; AI 信心评分</span>
         <span class="confidence-value" :class="confidenceClass">
@@ -63,7 +63,7 @@
          ══════════════════════════════════════════════════════════════════════════ -->
     <div class="trade-form">
       <!-- 持仓信息 -->
-      <div class="position-info" v-if="currentPosition">
+      <div class="position-info data-panel" v-if="currentPosition">
         <div class="position-row">
           <span class="pos-label">持仓数量</span>
           <span class="pos-value">{{ currentPosition.quantity }} 股</span>
@@ -127,7 +127,7 @@
       <!-- ══════════════════════════════════════════════════════════════════════════
            成本预览（0.0015 手续费）
            ══════════════════════════════════════════════════════════════════════════ -->
-      <div class="cost-preview" v-if="quantity > 0">
+      <div class="cost-preview data-panel" v-if="quantity > 0">
         <div class="cost-row">
           <span class="cost-label">{{ side === 'buy' ? '买入' : '卖出' }}金额</span>
           <span class="cost-value">${{ formatNumber(tradeAmount) }}</span>

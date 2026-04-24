@@ -19,9 +19,12 @@ import 'element-plus/theme-chalk/el-table-column.css'
 import 'element-plus/theme-chalk/el-table.css'
 import 'element-plus/theme-chalk/dark/css-vars.css'
 import App from './App.vue'
+import { initSentry } from './lib/sentry'
 import router from './router'
 
 const app = createApp(App)
+initSentry(app, router)
+
 app.use(createPinia())
 app.use(router)
 app.use(ElConfigProvider)

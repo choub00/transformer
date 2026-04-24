@@ -497,4 +497,78 @@ onUnmounted(() => {
 .status-online {
   color: var(--accent-green);
 }
+
+@media (max-width: 768px) {
+  .header-content {
+    height: auto;
+    min-height: 64px;
+    padding: 10px 14px;
+    gap: 12px;
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .logo {
+    min-width: 0;
+  }
+
+  .logo-text {
+    font-size: 17px;
+  }
+
+  .nav-links {
+    order: 3;
+    width: 100%;
+    overflow-x: auto;
+    padding-bottom: 2px;
+    scrollbar-width: none;
+  }
+
+  .nav-links::-webkit-scrollbar {
+    display: none;
+  }
+
+  .nav-item {
+    flex: 0 0 auto;
+    padding: 8px 12px;
+    border-radius: 10px;
+  }
+
+  .system-status {
+    margin-left: auto;
+  }
+
+  .status-text {
+    display: none;
+  }
+
+  .status-indicator {
+    width: 34px;
+    height: 34px;
+    padding: 0;
+    justify-content: center;
+  }
+
+  .app-main {
+    padding: 16px 12px 24px;
+    min-height: auto;
+  }
+
+  .app-footer {
+    position: static;
+  }
+
+  .footer-content {
+    height: auto;
+    min-height: 44px;
+    justify-content: flex-start;
+    gap: 18px;
+    overflow-x: auto;
+    padding: 8px 14px;
+  }
+
+  .footer-item {
+    flex: 0 0 auto;
+  }
+}
 </style>

@@ -12,7 +12,7 @@
       <!-- ══════════════════════════════════════════════════════════════════════════
            股票选择器
            ══════════════════════════════════════════════════════════════════════════ -->
-      <div class="stock-selector glass-card">
+      <div class="stock-selector glass-card module-shell module-shell--cyan">
         <div class="selector-header">
           <div class="selector-copy">
             <div class="selector-kicker">选择股票</div>
@@ -87,7 +87,7 @@
            ══════════════════════════════════════════════════════════════════════════ -->
       <section class="analysis-charts">
         <!-- K线 + 预测图 -->
-        <div class="chart-card glass-card">
+        <div class="chart-card glass-card module-shell module-shell--green">
           <div class="chart-header">
             <h3>K线走势与 AI 预测</h3>
             <div class="chart-legend">
@@ -108,7 +108,7 @@
 
         <!-- 技术指标 + AI 评分 -->
         <div class="right-panels">
-          <div class="chart-card glass-card">
+          <div class="chart-card glass-card module-shell module-shell--gold">
             <div class="chart-header">
               <h3>技术指标</h3>
             </div>
@@ -124,7 +124,7 @@
           </div>
 
           <!-- AI 预测评分卡 -->
-          <div class="chart-card glass-card ai-card">
+          <div class="chart-card glass-card module-shell module-shell--cyan ai-card">
             <div class="chart-header">
               <h3>&#63720; AI 预测评分</h3>
               <span class="confidence-badge" :class="predictionData.confidence >= 70 ? 'high' : predictionData.confidence >= 40 ? 'medium' : 'low'">
@@ -171,7 +171,7 @@
       <!-- ══════════════════════════════════════════════════════════════════════════
            AI 策略解读
            ══════════════════════════════════════════════════════════════════════════ -->
-      <section class="ai-analysis glass-card">
+      <section class="ai-analysis glass-card module-shell module-shell--cyan">
         <div class="analysis-header">
           <div class="analysis-title">
             <span class="ai-icon">&#63720;</span>
@@ -202,14 +202,14 @@
            持仓分析：月度热力图 + 资产配置饼图
            ══════════════════════════════════════════════════════════════════════════ -->
       <section ref="portfolioSectionRef" class="portfolio-analysis">
-        <div class="analysis-card glass-card">
+        <div class="analysis-card glass-card module-shell module-shell--green">
           <div class="chart-header">
             <h3>&#128199; 月度收益热力图</h3>
           </div>
           <div ref="heatmapRef" class="heatmap-chart"></div>
         </div>
 
-        <div class="analysis-card glass-card">
+        <div class="analysis-card glass-card module-shell module-shell--gold">
           <div class="chart-header">
             <h3>&#11088; 资产配置</h3>
           </div>
@@ -227,7 +227,7 @@
       <!-- ══════════════════════════════════════════════════════════════════════════
            特征贡献
            ══════════════════════════════════════════════════════════════════════════ -->
-      <section ref="contributionSectionRef" class="feature-contribution glass-card">
+      <section ref="contributionSectionRef" class="feature-contribution glass-card module-shell module-shell--cyan">
         <div class="analysis-header">
           <div class="analysis-title">
             <span class="ai-icon">&#128202;</span>
@@ -263,7 +263,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
 import ElMessage from 'element-plus/es/components/message/index'
-import type { ECharts, EChartsOption } from 'echarts/core'
+import type { ECharts, EChartsCoreOption } from 'echarts/core'
 import { api, apiMarket, apiDashboard, apiAccount, cancelRequest } from '../api'
 import type { AccountBalance, ForecastResponse, KLinePoint, Position } from '../types/api'
 import { buildTechnicalIndicators } from '../utils/technicals'
@@ -556,14 +556,14 @@ const initKlineChart = async () => {
     return
   }
 
-  const { dates, kData, predDates, predValues, lastClose } = forecastToChartSeries(fc)
+  const { dates, kData, predDates, predValues } = forecastToChartSeries(fc)
   const histTail = Math.min(20, dates.length)
   const histDates = dates.slice(-histTail)
   const histCloses = kData.slice(-histTail).map((row) => row[1])
   const xAxisLower = [...histDates, ...predDates]
   const lineDataLower: (number | null)[] = [...histCloses, ...predValues]
 
-  const option: EChartsOption = {
+  const option: EChartsCoreOption = {
     backgroundColor: 'transparent',
     grid: [
       { top: 20, left: 60, right: 20, height: '55%' },
@@ -685,7 +685,7 @@ const initContributionChart = async () => {
   if (contributionChart) contributionChart.dispose()
   contributionChart = echarts.init(contributionChartRef.value)
 
-  const option: EChartsOption = {
+  const option: EChartsCoreOption = {
     backgroundColor: 'transparent',
     grid: { left: 120, right: 80, top: 10, bottom: 20 },
     tooltip: { trigger: 'axis', axisPointer: 'shadow' },
@@ -741,7 +741,7 @@ const initHeatmapChart = async () => {
     }
   }
 
-  const option: EChartsOption = {
+  const option: EChartsCoreOption = {
     backgroundColor: 'transparent',
     tooltip: {
       formatter: (p: any) => `第 ${p.data[0] + 1} 天，第 ${p.data[1] + 1} 周<br/>收益率: ${p.data[2].toFixed(2)}%`,
@@ -809,7 +809,7 @@ const initPieChart = async () => {
     return
   }
 
-  const option: EChartsOption = {
+  const option: EChartsCoreOption = {
     backgroundColor: 'transparent',
     tooltip: {
       trigger: 'item',

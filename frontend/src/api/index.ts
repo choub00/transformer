@@ -7,6 +7,7 @@
 
 import axios, { type AxiosInstance, type AxiosError, type CancelTokenSource } from 'axios'
 import ElNotification from 'element-plus/es/components/notification/index'
+import { captureApiError, syncSentryUserContext } from '../lib/sentry'
 import type {
   AccountBalance, AccountConfig, KLineResponse, TickerListResponse,
   PredictionsResponse, OrderRequest, OrderResponse, DelayedOrderRequest,
@@ -25,29 +26,43 @@ export const api: AxiosInstance = axios.create({
   headers: { 'Content-Type': 'application/json' },
 })
 
+const NOTIFICATION_DEDUPE_MS = 3500
+const lastErrorNotificationAt = new Map<string, number>()
+
 // ─────────────────────────────────────────────────────────────────────────────
 // 全局响应拦截器（消灭 500 → 中文友好提示）
 // ─────────────────────────────────────────────────────────────────────────────
 
 api.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    syncSentryUserContext(response.data)
+    return response
+  },
   (error: AxiosError<ApiError>) => {
     if (axios.isCancel(error)) {
       return Promise.reject(error) // AbortController 取消，不弹窗
     }
 
+    captureApiError(error)
+
     const code = (error.response?.data as any)?.code || 'UNKNOWN'
     const detail = (error.response?.data as any)?.detail || error.message || '未知错误'
     const errorMsg = `[${code}] ${detail}`
 
-    // 只在业务错误（非取消）时弹窗
-    ElNotification({
-      title: '请求失败',
-      message: errorMsg,
-      type: 'error',
-      duration: 4000,
-      position: 'top-right',
-    })
+    const now = Date.now()
+    const notificationKey = `${code}:${detail}`
+    const lastShownAt = lastErrorNotificationAt.get(notificationKey) || 0
+
+    if (now - lastShownAt > NOTIFICATION_DEDUPE_MS) {
+      lastErrorNotificationAt.set(notificationKey, now)
+      ElNotification({
+        title: '请求失败',
+        message: errorMsg,
+        type: 'error',
+        duration: 3500,
+        position: 'top-right',
+      })
+    }
 
     return Promise.reject(error)
   },

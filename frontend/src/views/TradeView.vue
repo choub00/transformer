@@ -1,9 +1,9 @@
-<template>
+﻿<template>
   <div class="trade-view">
     <!-- ══════════════════════════════════════════════════════════════════════════
          顶部股票选择栏
          ══════════════════════════════════════════════════════════════════════════ -->
-    <div class="stock-selector glass-card">
+    <div class="stock-selector glass-card module-shell module-shell--cyan">
       <div class="selector-header">
         <div class="selector-copy">
           <div class="selector-kicker">选择股票</div>
@@ -76,7 +76,7 @@
     <!-- ══════════════════════════════════════════════════════════════════════════
          左侧 K 线图区
          ══════════════════════════════════════════════════════════════════════════ -->
-    <section class="chart-section glass-card">
+    <section class="chart-section glass-card module-shell module-shell--green">
       <div class="chart-header">
         <div class="ticker-info">
           <span class="ticker-symbol">{{ selectedTicker }}</span>
@@ -128,7 +128,7 @@
     <!-- ══════════════════════════════════════════════════════════════════════════
          右侧交易面板
          ══════════════════════════════════════════════════════════════════════════ -->
-    <section class="trade-panel glass-card">
+    <section class="trade-panel glass-card module-shell module-shell--gold">
       <!-- 第一层：市场与 AI 结论 -->
       <div class="tier-label">AI 决策</div>
 
@@ -164,7 +164,7 @@
       <div class="tier-label">仓位</div>
 
       <!-- 账户概览 -->
-      <div class="account-overview">
+      <div class="account-overview data-panel">
         <div class="account-header">
           <span class="account-title">账户概览</span>
           <button class="btn btn-ghost btn-sm" @click="fetchAccount">
@@ -199,7 +199,7 @@
       </div>
 
       <!-- 仓位建议 -->
-      <div class="position-advice">
+      <div class="position-advice data-panel">
         <div class="advice-content">
           <div class="advice-item">
             <span class="advice-label">建议仓位</span>
@@ -269,7 +269,7 @@
     <!-- ══════════════════════════════════════════════════════════════════════════
          持仓列表
          ══════════════════════════════════════════════════════════════════════════ -->
-    <section class="positions-section glass-card">
+    <section class="positions-section glass-card module-shell module-shell--cyan">
       <div class="section-header">
         <div class="section-title">
           <span class="title-icon">&#128203;</span>
@@ -278,7 +278,7 @@
         <span class="positions-count">{{ account.positions?.length || 0 }} 只</span>
       </div>
 
-      <div class="positions-table" v-if="account.positions?.length > 0">
+      <div class="positions-table data-panel" v-if="account.positions?.length > 0">
         <table class="positions-table-el">
           <thead>
             <tr>
@@ -455,7 +455,7 @@
 import { ref, reactive, computed, onMounted, onUnmounted, watch, nextTick } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import ElMessage from 'element-plus/es/components/message/index'
-import type { ECharts, EChartsOption } from 'echarts/core'
+import type { ECharts, EChartsCoreOption } from 'echarts/core'
 import gsap from 'gsap'
 import { api, cancelRequest, getCancelToken, apiMarket } from '../api'
 import type { AccountBalance, Position } from '../types/api'
@@ -523,10 +523,7 @@ const periods = [
   { label: '2年', value: '2y' },
 ]
 
-const tradeSide = ref<'buy' | 'sell'>('buy')
 const tradePrice = ref(178.50)
-const tradeQuantity = ref(10)
-const isSubmitting = ref(false)
 const isLoading = ref(false)
 const chartStatus = ref('')
 const detailChartStatus = ref('')
@@ -627,28 +624,6 @@ function saveRecentTicker(ticker: string) {
   }
 }
 
-async function refreshAiPanel(ticker: string) {
-  try {
-    const res = await api.get<{ predictions: Array<{ ticker: string; score: number; confidence: number; direction: string }> }>(
-      '/dashboard/predictions',
-      { params: { top_n: 64 } },
-    )
-    const row = res.data?.predictions?.find((p) => String(p.ticker).toUpperCase() === ticker.toUpperCase())
-    if (row) {
-      aiScore.value = row.score
-      aiConfidence.value = row.confidence
-      const d = String(row.direction || '').toLowerCase()
-      if (d === 'bullish' || d === 'bearish' || d === 'neutral') {
-        aiDirection.value = d
-      }
-      const a = Math.abs(row.score)
-      aiRiskLevel.value = a < 0.035 ? 'low' : a < 0.07 ? 'medium' : 'high'
-    }
-  } catch {
-    /* 保留当前展示 */
-  }
-}
-
 const autoTrading = ref({ enabled: false, interval: 300, top_n: 2 })
 const aiConfidence = ref(72)
 const aiScore = ref(0.0834)
@@ -732,59 +707,8 @@ function selectTickerFromSearch() {
 
 const klineChartRef = ref<HTMLElement | null>(null)
 let klineChart: ECharts | null = null
-let gsapAssetsTween: gsap.core.Tween | null = null
 
 // ─── 计算属性 ────────────────────────────────────────────────────────────────
-const validationMessage = ref('')
-
-const canSubmit = computed(() => {
-  const qty = tradeQuantity.value
-  const price = tradePrice.value
-
-  if (qty <= 0 || price <= 0) {
-    validationMessage.value = '请输入有效的交易价格和数量'
-    return false
-  }
-
-  const amount = qty * price
-  const fee = amount * FEE_RATE
-  const total = tradeSide.value === 'buy' ? amount + fee : amount - fee
-
-  if (tradeSide.value === 'buy') {
-    if (total > displayCash.value) {
-      validationMessage.value = `可用资金不足 (需要 $${formatNumber(total)}, 可用 $${formatNumber(displayCash.value)})`
-      return false
-    }
-  } else {
-    const pos = account.positions?.find((p: any) => p.ticker === selectedTicker.value)
-    if (!pos || pos.quantity < qty) {
-      validationMessage.value = `持仓不足 (可卖 ${pos?.quantity || 0} 股)`
-      return false
-    }
-  }
-
-  validationMessage.value = ''
-  return true
-})
-
-const maxTradeHint = computed(() => {
-  const price = tradePrice.value || currentPrice.value
-  if (tradeSide.value === 'buy') {
-    const maxShares = Math.floor((displayCash.value * 0.2) / (price * (1 + FEE_RATE)))
-    return `最大可买: ${maxShares} 股`
-  } else {
-    const pos = account.positions?.find((p: any) => p.ticker === selectedTicker.value)
-    return `最大可卖: ${pos?.quantity || 0} 股`
-  }
-})
-
-const tradePreview = computed(() => {
-  const amount = tradeQuantity.value * tradePrice.value
-  const fee = amount * FEE_RATE
-  const total = tradeSide.value === 'buy' ? amount + fee : amount - fee
-  return { amount, fee, total }
-})
-
 // ─── 格式化 ──────────────────────────────────────────────────────────────────
 const formatNumber = (num: number) => fmtNum(num, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 
@@ -964,7 +888,7 @@ async function initKlineChartSafe(ticker: string, revision: number) {
 
   const xLower = [...histDates, ...predDates]
 
-  const option: EChartsOption = {
+  const option: EChartsCoreOption = {
     backgroundColor: '#0d1117',
     grid: [
       { top: 24, left: 56, right: 16, bottom: 180 },
@@ -1093,6 +1017,7 @@ async function initKlineChartSafe(ticker: string, revision: number) {
 
 async function onTradeSuccess() {
   await fetchAccount()
+  updatePositionAdvice()
 }
 
 // ─── GSAP 数字动画 ────────────────────────────────────────────────────────────
@@ -1106,6 +1031,21 @@ function gsapAnimateValue(targetRef: typeof displayTotalAssets, target: number) 
   })
 }
 
+function syncDisplayedAccountValues(useAnimation = true) {
+  if (useAnimation) {
+    gsapAnimateValue(displayCash, account.cash)
+    gsapAnimateValue(displayPortfolioValue, account.portfolio_value)
+    gsapAnimateValue(displayTotalAssets, account.total_assets)
+    gsapAnimateValue(displayPnl, account.total_pnl)
+    return
+  }
+
+  displayCash.value = account.cash
+  displayPortfolioValue.value = account.portfolio_value
+  displayTotalAssets.value = account.total_assets
+  displayPnl.value = account.total_pnl
+}
+
 // ─── 离线降级：API 不可用时生成占位 K 线（带趋势起伏）───────────────────────────────────────
 const generateKlineData = (_ticker: string, basePrice: number) => {
   const dates = Array.from({ length: 30 }, (_, index) => {
@@ -1116,7 +1056,7 @@ const generateKlineData = (_ticker: string, basePrice: number) => {
   const safeBase = Math.max(basePrice, 1)
   // 生成带趋势起伏的模拟 K 线数据（避免固定价格）
   let price = safeBase * 0.9
-  const data = dates.map((_, index) => {
+  const data = dates.map(() => {
     const change = (Math.random() - 0.48) * 0.06  // 轻微上涨偏置
     price = Math.max(price * (1 + change), 1.0)
     const dayVolatility = 0.02 + Math.random() * 0.03
@@ -1129,200 +1069,6 @@ const generateKlineData = (_ticker: string, basePrice: number) => {
   return { dates, data }
 }
 
-// ─── K 线图：优先 GET /dashboard/forecast/{ticker} ───────────────────────────
-const initKlineChart = async () => {
-  if (!klineChartRef.value) return
-  const { echarts } = await loadTradeEcharts()
-
-  if (klineChart) {
-    klineChart.dispose()
-  }
-  klineChart = echarts.init(klineChartRef.value)
-
-  const stock = stockList.value.find(s => s.ticker === selectedTicker.value)
-  const basePrice = stock?.basePrice || 150
-
-  let dates: string[] = []
-  let data: number[][] = []
-  let predDates: string[] = []
-  let lineDataLower: number[] = []
-  let histDates: string[] = []
-  chartStatus.value = ''
-
-  // 优先使用 Alpha Vantage 实时 K 线
-  try {
-    const kRes = await apiMarket.kline(selectedTicker.value)
-    if (kRes.data && kRes.data.klines && kRes.data.klines.length > 0) {
-      const klines = kRes.data.klines
-      dates = klines.map((k) => k.date)
-      data = klines.map((k) => [k.open, k.close, k.low, k.high])
-    } else {
-      throw new Error('No kline data')
-    }
-  } catch {
-    // 降级：使用 Alpha-Transformer 预测接口
-    try {
-      const res = await apiMarket.forecast(selectedTicker.value)
-      const { dates: d, kData, predDates: pd, predValues } = forecastToChartSeries(res.data)
-      dates = d
-      data = kData
-      predDates = pd
-      const histTail = Math.min(20, dates.length)
-      histDates = dates.slice(-histTail)
-      const histCloses = kData.slice(-histTail).map((row) => row[1])
-      lineDataLower = [...histCloses, ...predValues]
-      chartStatus.value = '使用 Alpha-Transformer 预测数据'
-    } catch {
-      const gen = generateKlineData(selectedTicker.value, basePrice)
-      dates = gen.dates
-      data = gen.data
-      chartStatus.value = '实时行情不可用，当前仅显示静态占位价格。'
-      const lastClose = data[data.length - 1][1]
-      const trend = (Math.random() - 0.4) * 0.02
-      const predictions: { date: string; value: number }[] = Array.from({ length: 5 }, (_, index) => {
-        const date = new Date()
-        date.setDate(date.getDate() + index + 1)
-        const predictedPrice = lastClose * (1 + trend * (index + 1) + (Math.random() - 0.5) * 0.01)
-        return {
-          date: date.toISOString().split('T')[0],
-          value: parseFloat(Math.max(predictedPrice, 1).toFixed(2)),
-        }
-      })
-      histDates = dates.slice(-20)
-      const histCloses = data.slice(-20).map((d) => d[1])
-      predDates = predictions.map((p) => p.date)
-      lineDataLower = [...histCloses, ...predictions.map((p) => p.value)]
-    }
-  }
-
-  const xLower = [...histDates, ...predDates]
-
-  const option: EChartsOption = {
-    backgroundColor: '#0d1117',
-    grid: [
-      { top: 24, left: 56, right: 16, bottom: 180 },
-      { left: 56, right: 16, top: '68%', bottom: 36 },
-    ],
-    dataZoom: [
-      { type: 'inside', xAxisIndex: [0, 1], start: 55, end: 100 },
-      { type: 'slider', xAxisIndex: [0, 1], bottom: 4, height: 18, borderColor: '#30363d', fillerColor: 'rgba(0,209,255,0.15)', textStyle: { color: '#8b949e' } },
-    ],
-    tooltip: {
-      trigger: 'axis',
-      axisPointer: { type: 'cross', crossStyle: { color: '#484f58' } },
-      backgroundColor: 'rgba(22,27,34,0.95)',
-      borderColor: 'rgba(0,209,255,0.3)',
-      textStyle: { color: '#F0F6FC' },
-      formatter: (params: any) => {
-        const k = params.find((p: any) => p.seriesName === 'K线')
-        const p = params.find((p: any) => p.seriesName === 'AI 预测')
-        if (k) {
-          const [o, c, l, h] = k.value
-          return `<div style="font-size:12px">
-            <div style="color:#8B949E;margin-bottom:4px">${k.axisValue}</div>
-            <div>开盘: $${o.toFixed(2)} 收盘: $${c.toFixed(2)}</div>
-            <div>最高: $${h.toFixed(2)} 最低: $${l.toFixed(2)}</div>
-          </div>`
-        }
-        if (p) {
-          return `<div style="font-size:12px;color:#00D1FF">
-            AI 预测 ${p.axisValue}: $${p.value?.toFixed(2) || '—'}
-          </div>`
-        }
-        return ''
-      },
-    },
-    xAxis: [
-      {
-        type: 'category',
-        data: dates,
-        gridIndex: 0,
-        axisLine: { lineStyle: { color: 'rgba(255,255,255,0.08)' } },
-        axisLabel: { show: false },
-      },
-      {
-        type: 'category',
-        data: xLower,
-        gridIndex: 1,
-        axisLine: { lineStyle: { color: 'rgba(255,255,255,0.08)' } },
-        axisLabel: { color: '#6E7681', fontSize: 10 },
-      },
-    ],
-    yAxis: [
-      {
-        scale: true,
-        gridIndex: 0,
-        axisLine: { lineStyle: { color: 'rgba(255,255,255,0.08)' } },
-        splitLine: { lineStyle: { color: 'rgba(255,255,255,0.04)' } },
-        axisLabel: { color: '#6E7681', formatter: '${value}' },
-      },
-      {
-        scale: true,
-        gridIndex: 1,
-        axisLine: { show: false },
-        splitLine: { show: false },
-        axisLabel: { show: false },
-      },
-    ],
-    series: [
-      {
-        name: 'K线',
-        type: 'candlestick',
-        data: data,
-        xAxisIndex: 0,
-        yAxisIndex: 0,
-        itemStyle: {
-          color: KLIRE_UP_COLOR,
-          color0: KLIRE_DOWN_COLOR,
-          borderColor: KLIRE_UP_BORDER,
-          borderColor0: KLIRE_DOWN_BORDER,
-        },
-      },
-      {
-        name: 'AI 预测',
-        type: 'line',
-        data: lineDataLower,
-        xAxisIndex: 1,
-        yAxisIndex: 1,
-        smooth: true,
-        symbol: 'circle',
-        symbolSize: 6,
-        lineStyle: { width: 2, color: '#00D1FF', type: 'dashed' },
-        itemStyle: {
-          color: '#00D1FF',
-          borderColor: '#fff',
-          borderWidth: 1,
-        },
-        areaStyle: {
-          color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-            { offset: 0, color: 'rgba(0,209,255,0.3)' },
-            { offset: 1, color: 'rgba(0,209,255,0)' },
-          ]),
-        },
-        markArea:
-          histDates.length && predDates.length
-            ? {
-                silent: true,
-                data: [[
-                  { xAxis: histDates[histDates.length - 1] },
-                  { xAxis: predDates[predDates.length - 1] },
-                ]],
-                itemStyle: { color: 'rgba(0,209,255,0.08)' },
-                label: {
-                  show: true,
-                  position: 'top',
-                  color: '#00D1FF',
-                  fontSize: 10,
-                  formatter: 'AQM 预测区',
-                },
-              }
-            : undefined,
-      },
-    ],
-  }
-
-  klineChart.setOption(option)
-}
 
 // ─── 获取账户数据 ────────────────────────────────────────────────────────────
 async function fetchAccount() {
@@ -1348,6 +1094,7 @@ async function fetchAccount() {
     account.equity_curve = Array.isArray(data.equity_curve) ? data.equity_curve : []
     account.updated_at = data.updated_at ?? ''
     account.positions = Array.isArray(data.positions) ? data.positions.map((position) => ({ ...position })) : []
+    syncDisplayedAccountValues()
     mergeHeldTickersIntoList()
     syncPricesFromStockList()
   } catch {
@@ -1530,7 +1277,7 @@ const initTimelineChart = async () => {
   })
   detailChartStatus.value = '轨迹基于当前持仓盈亏做平滑回溯，用于说明持仓状态，不再随机生成。'
 
-  const option: EChartsOption = {
+  const option: EChartsCoreOption = {
     backgroundColor: 'transparent',
     tooltip: {
       trigger: 'axis',
@@ -1576,42 +1323,6 @@ const initTimelineChart = async () => {
   timelineChart.setOption(option)
 }
 
-// ─── 选择股票 ────────────────────────────────────────────────────────────────
-const selectTicker = (ticker: string) => {
-  // AbortController 取消旧请求
-  cancelRequest(`kline-${selectedTicker.value}`)
-
-  selectedTicker.value = ticker
-
-  const stock = stockList.value.find(s => s.ticker === ticker)
-  if (stock) {
-    selectedTickerName.value = stock.name
-    currentPrice.value = stock.price
-    priceChange.value = stock.change
-    tradePrice.value = stock.price
-  }
-
-  const pos = account.positions?.find((p: any) => p.ticker === ticker)
-  if (pos) {
-    currentPrice.value = pos.current_price
-    tradePrice.value = pos.current_price
-    priceChange.value = ((pos.current_price / pos.entry_price) - 1) * 100
-  }
-
-  // GSAP 动画更新价格
-  if (priceValueRef.value) {
-    gsap.fromTo(priceValueRef.value,
-      { scale: 1.1, color: '#00D1FF' },
-      { scale: 1, duration: 0.4, ease: 'power2.out', color: '#F0F6FC' }
-    )
-  }
-
-  void refreshAiPanelSafe(ticker, ++tickerSelectionRevision)
-  updatePositionAdvice()
-  void nextTick(() => {
-    void initKlineChartSafe(ticker, tickerSelectionRevision)
-  })
-}
 
 // ─── 更新仓位建议 ────────────────────────────────────────────────────────────
 const updatePositionAdvice = () => {
@@ -1627,19 +1338,6 @@ const updatePositionAdvice = () => {
   }
 }
 
-// ─── 快捷数量 ──────────────────────────────────────────────────────────────
-const setQuantity = (percent: number) => {
-  const price = tradePrice.value || currentPrice.value
-  if (tradeSide.value === 'buy') {
-    const maxShares = Math.floor((displayCash.value * percent / 100) / (price * (1 + FEE_RATE)))
-    tradeQuantity.value = maxShares
-  } else {
-    const pos = account.positions?.find((p: any) => p.ticker === selectedTicker.value)
-    if (pos) {
-      tradeQuantity.value = Math.floor(pos.quantity * percent / 100)
-    }
-  }
-}
 
 // ─── 切换时间周期 ───────────────────────────────────────────────────────────
 const changePeriod = (period: string) => {
@@ -1658,71 +1356,6 @@ const showToast = (message: string, type: 'success' | 'error' = 'success') => {
   ElMessage.error(message)
 }
 
-// ─── 提交订单 ───────────────────────────────────────────────────────────────
-const submitOrder = async () => {
-  if (!canSubmit.value) return
-
-  isSubmitting.value = true
-  const ticker = selectedTicker.value
-  const side = tradeSide.value
-  const quantity = tradeQuantity.value
-  const price = tradePrice.value
-  const amount = quantity * price
-  const fee = amount * FEE_RATE
-
-  try {
-    await api.post('/trade/order', { ticker, side, quantity, price })
-    showToast(`${side === 'buy' ? '买入' : '卖出'}成功！ ${ticker} × ${quantity}股`)
-  } catch {
-    showToast('本地模拟交易成功')
-  }
-
-  // 乐观更新
-  if (side === 'buy') {
-    displayCash.value -= (amount + fee)
-    displayPortfolioValue.value += amount
-    account.cash -= (amount + fee)
-    account.portfolio_value += amount
-    account.total_assets = displayCash.value + displayPortfolioValue.value
-    gsapAnimateValue(displayTotalAssets, account.total_assets)
-    gsapAnimateValue(displayCash, account.cash)
-    gsapAnimateValue(displayPortfolioValue, account.portfolio_value)
-
-    const pos = account.positions?.find((p: any) => p.ticker === ticker)
-    if (pos) {
-      pos.quantity += quantity
-      pos.market_value += amount
-      pos.current_price = price
-    } else {
-      account.positions.push({
-        ticker, quantity, entry_price: price, current_price: price,
-        market_value: amount, unrealized_pnl: 0, unrealized_pnl_pct: 0, ai_advice: '持有',
-      })
-    }
-  } else {
-    displayCash.value += (amount - fee)
-    displayPortfolioValue.value -= amount
-    account.cash += (amount - fee)
-    account.portfolio_value -= amount
-    account.total_assets = displayCash.value + displayPortfolioValue.value
-    gsapAnimateValue(displayTotalAssets, account.total_assets)
-    gsapAnimateValue(displayCash, account.cash)
-    gsapAnimateValue(displayPortfolioValue, account.portfolio_value)
-
-    const pos = account.positions?.find((p: any) => p.ticker === ticker)
-    if (pos) {
-      pos.quantity -= quantity
-      pos.market_value -= amount
-      if (pos.quantity <= 0) {
-        account.positions = account.positions.filter((p: any) => p.ticker !== ticker)
-      }
-    }
-  }
-
-  updatePositionAdvice()
-  tradeQuantity.value = 0
-  isSubmitting.value = false
-}
 
 // ─── 平仓 ───────────────────────────────────────────────────────────────────
 const closePosition = async (ticker: string) => {
@@ -1753,15 +1386,18 @@ const closePosition = async (ticker: string) => {
 
 // ─── 切换自动交易 ──────────────────────────────────────────────────────────
 const toggleAutoTrading = async () => {
-  autoTrading.value.enabled = !autoTrading.value.enabled
+  const nextEnabled = !autoTrading.value.enabled
   try {
-    if (autoTrading.value.enabled) {
+    if (nextEnabled) {
       await api.post('/auto/start')
     } else {
       await api.post('/auto/stop')
     }
-  } catch {}
-  showToast(autoTrading.value.enabled ? 'AI 自动交易已启动' : 'AI 自动交易已停止')
+    autoTrading.value.enabled = nextEnabled
+    showToast(nextEnabled ? 'AI 自动交易已启动' : 'AI 自动交易已停止')
+  } catch {
+    showToast(nextEnabled ? 'AI 自动交易启动失败' : 'AI 自动交易停止失败', 'error')
+  }
 }
 
 // ─── 行情同步：定期从 /dashboard/tickers 拉取（与 watchlist 单一数据源一致）──────
@@ -1839,7 +1475,6 @@ const handleResize = () => {
 }
 
 // ─── 监听 ───────────────────────────────────────────────────────────────────
-watch(tradeSide, () => { tradeQuantity.value = 0 })
 watch(tradePrice, () => { updatePositionAdvice() })
 
 watch(
@@ -1894,7 +1529,6 @@ onUnmounted(() => {
   timelineChart?.dispose()
   if (priceUpdateInterval) clearInterval(priceUpdateInterval)
   if (forecastRefreshInterval) clearInterval(forecastRefreshInterval)
-  if (gsapAssetsTween) gsapAssetsTween.kill()
 })
 </script>
 
@@ -2838,6 +2472,71 @@ onUnmounted(() => {
   }
 }
 
+@media (max-width: 640px) {
+  .trade-view {
+    gap: 16px;
+    padding-bottom: 16px;
+  }
+
+  .stock-selector,
+  .chart-section,
+  .trade-panel,
+  .positions-section {
+    min-width: 0;
+    padding: 16px;
+    border-radius: 14px;
+  }
+
+  .selector-header,
+  .chart-header,
+  .section-header {
+    align-items: flex-start;
+    gap: 12px;
+    flex-direction: column;
+  }
+
+  .ticker-search-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .ticker-price-wrap {
+    align-items: flex-start;
+  }
+
+  .price-value {
+    font-size: 24px;
+  }
+
+  .chart-container {
+    overflow-x: auto;
+    padding-bottom: 6px;
+  }
+
+  .kline-chart {
+    min-width: 720px;
+  }
+
+  .prediction-legend,
+  .chart-periods,
+  .ai-tags-scroll {
+    overflow-x: auto;
+    padding-bottom: 4px;
+  }
+
+  .prediction-legend {
+    gap: 14px;
+  }
+
+  .period-btn {
+    flex: 0 0 auto;
+  }
+
+  .account-stats {
+    grid-template-columns: 1fr;
+  }
+}
+
 .section-header {
   display: flex;
   justify-content: space-between;
@@ -3193,3 +2892,5 @@ onUnmounted(() => {
 .text-accent-red { color: var(--accent-red); }
 .text-accent-gold { color: var(--accent-gold); }
 </style>
+
+

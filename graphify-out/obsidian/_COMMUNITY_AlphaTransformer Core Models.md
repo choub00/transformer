@@ -1,0 +1,229 @@
+---
+type: community
+cohesion: 0.02
+members: 192
+---
+
+# AlphaTransformer Core Models
+
+**Cohesion:** 0.02 - loosely connected
+**Members:** 192 nodes
+
+## Members
+- [[.__getitem__()]] - code - d:\transformer\data\loader.py
+- [[.__init__()_30]] - code - d:\transformer\Stock Forecast\models\alpha_transformer.py
+- [[.__init__()_31]] - code - d:\transformer\models\alpha_transformer.py
+- [[.__init__()_29]] - code - d:\transformer\models\alpha_transformer.py
+- [[.__init__()_32]] - code - d:\transformer\models\alpha_transformer.py
+- [[.__init__()_25]] - code - d:\transformer\models\alpha_transformer.py
+- [[.__init__()_26]] - code - d:\transformer\models\alpha_transformer.py
+- [[.__init__()_27]] - code - d:\transformer\models\alpha_transformer.py
+- [[.__init__()_28]] - code - d:\transformer\models\alpha_transformer.py
+- [[.__init__()_3]] - code - d:\transformer\evaluation\backtest.py
+- [[.__init__()_48]] - code - d:\transformer\Stock Forecast\models\cross_asset_attention.py
+- [[.__init__()_1]] - code - d:\transformer\data\loader.py
+- [[.__init__()_2]] - code - d:\transformer\data\loader.py
+- [[.__init__()_61]] - code - d:\transformer\utils\normalization.py
+- [[.__init__()_60]] - code - d:\transformer\utils\normalization.py
+- [[.__init__()_62]] - code - d:\transformer\utils\normalization.py
+- [[.__init__()_49]] - code - d:\transformer\Stock Forecast\models\patch_embedding.py
+- [[.__init__()_50]] - code - d:\transformer\Stock Forecast\models\patch_embedding.py
+- [[.__init__()]] - code - d:\transformer\api\predictor.py
+- [[.__init__()_51]] - code - d:\transformer\Stock Forecast\models\temporal_encoder.py
+- [[.__init__()_59]] - code - d:\transformer\trainer\trainer.py
+- [[.__init__()_58]] - code - d:\transformer\trainer\trainer.py
+- [[.__init__()_57]] - code - d:\transformer\trainer\trainer.py
+- [[.__len__()]] - code - d:\transformer\data\loader.py
+- [[.__str__()]] - code - d:\transformer\api\predictor.py
+- [[._build_causal_mask()]] - code - d:\transformer\models\alpha_transformer.py
+- [[._build_causal_mask()_1]] - code - d:\transformer\models\alpha_transformer.py
+- [[._build_scheduler()_1]] - code - d:\transformer\trainer\trainer.py
+- [[._compute_benchmark_return()]] - code - d:\transformer\evaluation\backtest.py
+- [[._compute_metrics()]] - code - d:\transformer\evaluation\backtest.py
+- [[._compute_portfolio_return()]] - code - d:\transformer\evaluation\backtest.py
+- [[._compute_rolling_stats()]] - code - d:\transformer\utils\normalization.py
+- [[._compute_target_positions()]] - code - d:\transformer\evaluation\backtest.py
+- [[._generate_causal_mask()]] - code - d:\transformer\Stock Forecast\models\temporal_encoder.py
+- [[._generate_pos_emb()]] - code - d:\transformer\models\alpha_transformer.py
+- [[._init_attn_params()]] - code - d:\transformer\Stock Forecast\models\cross_asset_attention.py
+- [[._init_attn_params()_1]] - code - d:\transformer\Stock Forecast\models\temporal_encoder.py
+- [[._reset()]] - code - d:\transformer\evaluation\backtest.py
+- [[.create_dataloaders()]] - code - d:\transformer\data\loader.py
+- [[.evaluate()]] - code - d:\transformer\trainer\trainer.py
+- [[.fit()_1]] - code - d:\transformer\utils\normalization.py
+- [[.fit_transform()]] - code - d:\transformer\utils\normalization.py
+- [[.fit_transform()_1]] - code - d:\transformer\utils\normalization.py
+- [[.fit_transform_panel()]] - code - d:\transformer\utils\normalization.py
+- [[.forward()_17]] - code - d:\transformer\models\alpha_transformer_2026.py
+- [[.forward()_6]] - code - d:\transformer\Stock Forecast\models\alpha_transformer.py
+- [[.forward()_7]] - code - d:\transformer\models\alpha_transformer.py
+- [[.forward()_5]] - code - d:\transformer\models\alpha_transformer.py
+- [[.forward()_8]] - code - d:\transformer\models\alpha_transformer.py
+- [[.forward()_1]] - code - d:\transformer\models\alpha_transformer.py
+- [[.forward()_2]] - code - d:\transformer\models\alpha_transformer.py
+- [[.forward()_3]] - code - d:\transformer\models\alpha_transformer.py
+- [[.forward()_4]] - code - d:\transformer\models\alpha_transformer.py
+- [[.forward()_18]] - code - d:\transformer\Stock Forecast\models\cross_asset_attention.py
+- [[.forward()_19]] - code - d:\transformer\Stock Forecast\models\patch_embedding.py
+- [[.forward()_20]] - code - d:\transformer\Stock Forecast\models\patch_embedding.py
+- [[.forward()_21]] - code - d:\transformer\Stock Forecast\models\temporal_encoder.py
+- [[.forward()_23]] - code - d:\transformer\trainer\trainer.py
+- [[.forward()_22]] - code - d:\transformer\trainer\trainer.py
+- [[.get_equity_curves()]] - code - d:\transformer\evaluation\backtest.py
+- [[.get_status()]] - code - d:\transformer\api\predictor.py
+- [[.get_trade_log()_1]] - code - d:\transformer\evaluation\backtest.py
+- [[.inverse_transform()]] - code - d:\transformer\utils\normalization.py
+- [[.load()]] - code - d:\transformer\api\predictor.py
+- [[.load_checkpoint()]] - code - d:\transformer\Stock Forecast\train\trainer.py
+- [[.log()]] - code - d:\transformer\graphify\tests\fixtures\sample.swift
+- [[.predict()]] - code - d:\transformer\api\predictor.py
+- [[.predict()_2]] - code - d:\transformer\trainer\trainer.py
+- [[.print_summary()]] - code - d:\transformer\evaluation\backtest.py
+- [[.process_raw_data()]] - code - d:\transformer\data\loader.py
+- [[.run()]] - code - d:\transformer\evaluation\backtest.py
+- [[.save_checkpoint()_1]] - code - d:\transformer\trainer\trainer.py
+- [[.split_data()]] - code - d:\transformer\data\loader.py
+- [[.train()]] - code - d:\transformer\trainer\trainer.py
+- [[.train_epoch()]] - code - d:\transformer\trainer\trainer.py
+- [[.transform()]] - code - d:\transformer\utils\normalization.py
+- [[.transform()_1]] - code - d:\transformer\utils\normalization.py
+- [[.transform_panel()]] - code - d:\transformer\utils\normalization.py
+- [[AlphaDataset]] - code - d:\transformer\data\loader.py
+- [[AlphaPredictor - AI 预测器  这是一个模拟的 AI 预测器，用于在没有真实模型的情况下提供预测信号。 在生产环境中应替换为真实的 Alpha]] - rationale - d:\transformer\Stock Forecast\api\predictor.py
+- [[AlphaTransformer]] - code - d:\transformer\Stock Forecast\models\alpha_transformer.py
+- [[AlphaTransformer V2 支持动态资产数的版本      与 V1 的区别：         1. 不硬编码 num_assets，通过 x.s]] - rationale - d:\transformer\models\alpha_transformer.py
+- [[AlphaTransformer 回测引擎 Anti-Churn 版本（方案 C：集合差集替换）  核心原则：   1. 对数收益率累加（单利，禁止复利乘法）]] - rationale - d:\transformer\evaluation\backtest.py
+- [[AlphaTransformer 核心模型 融合 iTransformer  PatchTST  TFT 三大 SOTA 架构  核心设计思想：   - i]] - rationale - d:\transformer\models\alpha_transformer.py
+- [[AlphaTransformer-2026 iTransformer + PatchTST + Spatio-Temporal Hybrid      严]] - rationale - d:\transformer\models\alpha_transformer_2026.py
+- [[AlphaTransformer2026]] - code - d:\transformer\models\alpha_transformer_2026.py
+- [[AlphaTransformer 多资产量化预测模型      数据流         Input B, A, T, F]] - rationale - d:\transformer\models\alpha_transformer.py
+- [[AlphaTransformerTrainer]] - code - d:\transformer\trainer\trainer.py
+- [[AlphaTransformerV2]] - code - d:\transformer\models\alpha_transformer.py
+- [[Args             features  num_samples, num_assets, history_len, num_feature]] - rationale - d:\transformer\data\loader.py
+- [[Args             panel Date, Asset, Feature          Returns]] - rationale - d:\transformer\utils\normalization.py
+- [[Args             querykeyvalue Batch, Seq, d_model             attn_mask]] - rationale - d:\transformer\models\alpha_transformer.py
+- [[Args             window 滚动窗口大小             eps 防止除零的小常数             warmup]] - rationale - d:\transformer\utils\normalization.py
+- [[Args             x             BA, num_patches+1, d_model             asset]] - rationale - d:\transformer\models\alpha_transformer.py
+- [[Args             x             Batch  Assets, History_Len, d_model]] - rationale - d:\transformer\models\alpha_transformer.py
+- [[Args             x             Batch, Assets, d_model   ← 经过时间编码后的资产表示]] - rationale - d:\transformer\models\alpha_transformer.py
+- [[Args             x         Batch, Assets, History_Len, Features_1]] - rationale - d:\transformer\models\alpha_transformer_2026.py
+- [[Args             x         Batch, Assets, History_Len, Features]] - rationale - d:\transformer\models\alpha_transformer.py
+- [[Args             x       Batch, ..., d_input  主输入张量             context Ba]] - rationale - d:\transformer\models\alpha_transformer.py
+- [[Args             x Batch, Assets, History_Len, Features                典型值]] - rationale - d:\transformer\models\alpha_transformer.py
+- [[BacktestConfig]] - code - d:\transformer\configs\__init__.py
+- [[BacktestEngine]] - code - d:\transformer\evaluation\backtest.py
+- [[BacktestMetrics]] - code - d:\transformer\evaluation\backtest.py
+- [[CrossAssetAttention]] - code - d:\transformer\models\alpha_transformer.py
+- [[CrossAssetAttention_1]] - code - d:\transformer\Stock Forecast\models\cross_asset_attention.py
+- [[DataConfig]] - code - d:\transformer\configs\__init__.py
+- [[DataProcessor]] - code - d:\transformer\data\loader.py
+- [[Dataset]] - code
+- [[DynamicCrossAssetAttention]] - code - d:\transformer\models\alpha_transformer.py
+- [[GRN 带上下文（Context）的门控残差网络      公式         GRN(x, context) = LayerNorm(x + GLU(F]] - rationale - d:\transformer\models\alpha_transformer.py
+- [[Gated Residual Network (GRN) with GLU-style gating.     Automatically learns to]] - rationale - d:\transformer\Stock Forecast\models\patch_embedding.py
+- [[GatedResidualNetwork]] - code - d:\transformer\models\alpha_transformer.py
+- [[GatedResidualNetwork_2]] - code - d:\transformer\Stock Forecast\models\patch_embedding.py
+- [[HuberLoss]] - code - d:\transformer\trainer\trainer.py
+- [[InferenceError]] - code - d:\transformer\api\predictor.py
+- [[Mixed Huber Loss 结合 MSE 和 MAE 的优点      当 error = delta 时使用 MSE（平滑梯度）]] - rationale - d:\transformer\trainer\trainer.py
+- [[MixedHuberLoss]] - code - d:\transformer\trainer\trainer.py
+- [[ModelConfig]] - code - d:\transformer\configs\__init__.py
+- [[ModelRegistry]] - code - d:\transformer\api\predictor.py
+- [[MultiHeadAttention]] - code - d:\transformer\models\alpha_transformer.py
+- [[PanelNormalizer]] - code - d:\transformer\utils\normalization.py
+- [[PatchEmbedding]] - code - d:\transformer\Stock Forecast\models\patch_embedding.py
+- [[PatchTST 编码器：对 Assets, Patches, d_patch 在时间维度做 Self-Attention      维度流转（以单个资产为]] - rationale - d:\transformer\models\alpha_transformer.py
+- [[PatchTSTEncoder]] - code - d:\transformer\models\alpha_transformer.py
+- [[PyTorch 版本的滚动归一化（用于模型输入）      适用场景：在 DataLoader 中对 batch 数据做归一化      Args]] - rationale - d:\transformer\utils\normalization.py
+- [[RollingNormalizer]] - code - d:\transformer\utils\normalization.py
+- [[SystemConfig]] - code - d:\transformer\configs\__init__.py
+- [[TemporalAttentionBlock]] - code - d:\transformer\models\alpha_transformer.py
+- [[TemporalEncoder_1]] - code - d:\transformer\Stock Forecast\models\temporal_encoder.py
+- [[TrainingConfig]] - code - d:\transformer\configs\__init__.py
+- [[ZScoreNormalizer]] - code - d:\transformer\utils\normalization.py
+- [[__getattr__()]] - code - d:\transformer\graphify\graphify\__init__.py
+- [[__init__.py_1]] - code - d:\transformer\configs\__init__.py
+- [[__init__.py_4]] - code - d:\transformer\graphify\graphify\__init__.py
+- [[alpha_transformer.py]] - code - d:\transformer\models\alpha_transformer.py
+- [[alpha_transformer.py_1]] - code - d:\transformer\Stock Forecast\models\alpha_transformer.py
+- [[backtest.py]] - code - d:\transformer\evaluation\backtest.py
+- [[build_dataloaders()]] - code - d:\transformer\data\loader.py
+- [[create_synthetic_data()]] - code - d:\transformer\data\loader.py
+- [[cross_asset_attention.py]] - code - d:\transformer\Stock Forecast\models\cross_asset_attention.py
+- [[get_registry()]] - code - d:\transformer\api\predictor.py
+- [[global_exception_handler()]] - code - d:\transformer\api\server.py
+- [[graphify - extract · build · cluster · analyze · report.]] - rationale - d:\transformer\graphify\graphify\__init__.py
+- [[health_check()]] - code - d:\transformer\api\server.py
+- [[is_loaded()]] - code - d:\transformer\api\predictor.py
+- [[load_predictor()]] - code - d:\transformer\api\server.py
+- [[loader.py]] - code - d:\transformer\data\loader.py
+- [[normalization.py]] - code - d:\transformer\utils\normalization.py
+- [[num_patches()]] - code - d:\transformer\configs\__init__.py
+- [[patch_embedding.py]] - code - d:\transformer\Stock Forecast\models\patch_embedding.py
+- [[predictor.py]] - code - d:\transformer\api\predictor.py
+- [[predictor_status()]] - code - d:\transformer\api\server.py
+- [[root()]] - code - d:\transformer\Stock Forecast\api\server.py
+- [[run_backtest_from_predictions()]] - code - d:\transformer\trainer\trainer.py
+- [[server.py]] - code - d:\transformer\api\server.py
+- [[server.py_1]] - code - d:\transformer\Stock Forecast\api\server.py
+- [[shutdown_event()]] - code - d:\transformer\Stock Forecast\api\server.py
+- [[startup_event()]] - code - d:\transformer\Stock Forecast\api\server.py
+- [[temporal_encoder.py]] - code - d:\transformer\Stock Forecast\models\temporal_encoder.py
+- [[torch_rolling_normalize()]] - code - d:\transformer\utils\normalization.py
+- [[trainer.py_1]] - code - d:\transformer\trainer\trainer.py
+- [[一键构建完整数据流水线      Example          price_df = create_synthetic_data()]] - rationale - d:\transformer\data\loader.py
+- [[从模型预测结果运行完整回测的便捷函数      Args         predictions num_samples, num_assets]] - rationale - d:\transformer\trainer\trainer.py
+- [[使用已有参数对数据进行归一化（用于 testval 阶段）         注意：test 阶段也需要用滚动窗口，因为每个时间点的归一化参数可能不同]] - rationale - d:\transformer\utils\normalization.py
+- [[创建 PyTorch DataLoader         注意：shuffle=False（时间序列绝对不打乱！）]] - rationale - d:\transformer\data\loader.py
+- [[加载模型检查点到指定设备         健壮性保证：           - map_location 强制 CPU（防止 CUDA OOM 导致 500]] - rationale - d:\transformer\api\predictor.py
+- [[动态资产数的 Cross-Asset Attention]] - rationale - d:\transformer\models\alpha_transformer.py
+- [[回测引擎      核心逻辑（方案 C - 集合差集替换）：         1. 每日计算预测截面排名         2. 确定今日目标做多 Top2 和做]] - rationale - d:\transformer\evaluation\backtest.py
+- [[处理原始价格数据，生成模型输入          Args             price_df  Date, Asset 收盘价（Raw C]] - rationale - d:\transformer\data\loader.py
+- [[多资产时间序列数据集      数据格式：         features  num_samples, num_assets, history_le]] - rationale - d:\transformer\data\loader.py
+- [[多资产面板数据的滚动归一化      数据格式：Date, Asset, Features     对每个 Asset × Feature 组合独立做]] - rationale - d:\transformer\utils\normalization.py
+- [[完整训练循环          Returns             {'train_loss' ..., 'val_loss' ...}]] - rationale - d:\transformer\trainer\trainer.py
+- [[对数据生成预测          Returns             (predictions, targets) 均为 numpy 数组]] - rationale - d:\transformer\trainer\trainer.py
+- [[执行推理，返回预测数组          Args             features  num_assets, history_len, n]] - rationale - d:\transformer\api\predictor.py
+- [[拟合归一化参数并返回归一化后的数据          Args             x T, ... 时间序列          Retu]] - rationale - d:\transformer\utils\normalization.py
+- [[按时间顺序划分数据集（绝对不打乱！）          Returns             {'train' (X, y), 'val' (X,]] - rationale - d:\transformer\data\loader.py
+- [[推理异常：携带错误码和上下文，不抛出 500]] - rationale - d:\transformer\api\predictor.py
+- [[数据加载与预处理模块（严格 Anti-Leakage）  核心原则：   1. 所有未来数据不得进入当前时间点的特征   2. 目标值使用显式 shif]] - rationale - d:\transformer\data\loader.py
+- [[数据预处理流水线（Anti-Leakage 版本）      处理步骤（严格时序）：         1. 计算对数收益率（shift(-1) 构造）]] - rationale - d:\transformer\data\loader.py
+- [[时间轴单层注意力块：MHSA + GRN + FFN]] - rationale - d:\transformer\models\alpha_transformer.py
+- [[标准化 Multi-Head Attention     支持 Casual Masking（用于时间轴自回归建模）]] - rationale - d:\transformer\models\alpha_transformer.py
+- [[滚动窗口归一化器      公式：         x_normt = (xt - mean(xt-windowt))  (std(xt]] - rationale - d:\transformer\utils\normalization.py
+- [[滚动窗口归一化模块（Anti-Leakage）  核心原则：   1. 禁止使用全局 MeanStd，必须使用滚动窗口   2. 归一化参数（mean]] - rationale - d:\transformer\utils\normalization.py
+- [[生成合成价格数据用于测试      Args         num_dates  交易日数量         num_assets 资产数量]] - rationale - d:\transformer\data\loader.py
+- [[等权基准：每日对所有资产等权做多，计算平均对数收益]] - rationale - d:\transformer\evaluation\backtest.py
+- [[计算所有回测指标          对数收益率安全转换：             总收益 = exp(Σ log_returns) - 1]] - rationale - d:\transformer\evaluation\backtest.py
+- [[计算滚动均值和标准差（纯 numpy，无 pandas 依赖）          使用展开式实现高效的增量计算：             mean_t =]] - rationale - d:\transformer\utils\normalization.py
+- [[计算组合对数收益率（等权分配）          公式：             组合收益 = (1K)  Σ r_long - (1K)  Σ r_s]] - rationale - d:\transformer\evaluation\backtest.py
+- [[训练器模块（AlphaTransformer） 支持：多阶段训练、早停、梯度裁剪、学习率调度、TensorBoard 日志]] - rationale - d:\transformer\trainer\trainer.py
+- [[资产间交叉注意力：iTransformer 的核心创新      维度反转思想：         将 Batch, Assets, Time, Feature]] - rationale - d:\transformer\models\alpha_transformer.py
+- [[轻量级全局归一化（仅用于快速实验，不推荐用于生产）]] - rationale - d:\transformer\utils\normalization.py
+- [[运行完整回测          Args             predictions_df  Date, Asset 每日每资产的预测值（未来3日对]] - rationale - d:\transformer\evaluation\backtest.py
+
+## Live Query (requires Dataview plugin)
+
+```dataview
+TABLE source_file, type FROM #community/AlphaTransformer_Core_Models
+SORT file.name ASC
+```
+
+## Connections to other communities
+- 13 edges to [[_COMMUNITY_Stock Forecast Data + Training Pipeline]]
+- 5 edges to [[_COMMUNITY_Graphify Analyze Module]]
+- 4 edges to [[_COMMUNITY_Trading Account Manager + Auto]]
+- 4 edges to [[_COMMUNITY_Thesis Word Conversion + Frontend API]]
+- 2 edges to [[_COMMUNITY_Stock Forecast API Predictor]]
+- 2 edges to [[_COMMUNITY_Thesis Debug + Cross-File Analysis]]
+- 2 edges to [[_COMMUNITY_AlphaTransformer 2026 Adaptive Layers]]
+- 1 edge to [[_COMMUNITY_HTTPX Auth + Client]]
+- 1 edge to [[_COMMUNITY_Graphify Multi-Lang Test Samples]]
+
+## Top bridge nodes
+- [[AlphaTransformer]] - degree 25, connects to 2 communities
+- [[.load()]] - degree 9, connects to 2 communities
+- [[.log()]] - degree 6, connects to 2 communities
+- [[.fit()_1]] - degree 4, connects to 2 communities
+- [[global_exception_handler()]] - degree 3, connects to 2 communities

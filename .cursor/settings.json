@@ -1,0 +1,28 @@
+{
+  "plugins": {
+    "superpowers": {
+      "enabled": true
+    },
+    "semgrep-plugin": {
+      "enabled": true
+    },
+    "exa": {
+      "enabled": true
+    },
+    "sourcegraph": {
+      "enabled": true
+    },
+    "context7-plugin": {
+      "enabled": true
+    },
+    "huggingface-skills": {
+      "enabled": true
+    },
+    "browse": {
+      "enabled": true
+    },
+    "tavily": {
+      "enabled": true
+    }
+  }
+}

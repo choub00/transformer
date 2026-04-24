@@ -1,0 +1,317 @@
+---
+type: community
+cohesion: 0.02
+members: 266
+---
+
+# Graphify Analyze Module
+
+**Cohesion:** 0.02 - loosely connected
+**Members:** 266 nodes
+
+## Members
+- [[.__init__()_16]] - code - d:\transformer\graphify\worked\httpx\raw\models.py
+- [[.close()_3]] - code - d:\transformer\graphify\worked\httpx\raw\transport.py
+- [[.close()_4]] - code - d:\transformer\graphify\worked\httpx\raw\transport.py
+- [[.items()_1]] - code - d:\transformer\graphify\worked\httpx\raw\models.py
+- [[.items()]] - code - d:\transformer\graphify\worked\httpx\raw\models.py
+- [[AMBIGUOUS edge should score higher than an otherwise identical EXTRACTED edge.]] - rationale - d:\transformer\graphify\tests\test_analyze.py
+- [[AMBIGUOUS edges must have confidence_score = 0.4.]] - rationale - d:\transformer\graphify\tests\test_confidence.py
+- [[Build a NetworkX graph from an extraction dict.      directed=True produces a]] - rationale - d:\transformer\graphify\graphify\build.py
+- [[Build a NetworkX graph from graphify nodeedge dicts.      Preserves original]] - rationale - d:\transformer\graphify\worked\mixed-corpus\raw\cluster.py
+- [[Clustering should not emit ANSI escape codes or other output.      graspologic]] - rationale - d:\transformer\graphify\tests\test_cluster.py
+- [[Code↔paper edge should score higher than code↔code edge.]] - rationale - d:\transformer\graphify\tests\test_analyze.py
+- [[Compare two graph snapshots and return what changed.      Returns         {_1]] - rationale - d:\transformer\graphify\worked\mixed-corpus\raw\analyze.py
+- [[Compare two graph snapshots and return what changed.      Returns         {]] - rationale - d:\transformer\graphify\graphify\analyze.py
+- [[Concept nodes (empty source_file) must not appear in surprises.]] - rationale - d:\transformer\graphify\tests\test_analyze.py
+- [[Context manager to suppress stdoutstderr during library calls.      graspolog]] - rationale - d:\transformer\graphify\graphify\cluster.py
+- [[Cross-file edges between real codedoc entities, ranked by a composite     surp_1]] - rationale - d:\transformer\graphify\worked\mixed-corpus\raw\analyze.py
+- [[Cross-file edges between real codedoc entities, ranked by a composite     surp]] - rationale - d:\transformer\graphify\graphify\analyze.py
+- [[EXTRACTED edges must have confidence_score == 1.0.]] - rationale - d:\transformer\graphify\tests\test_confidence.py
+- [[Edges lacking confidence_score get sensible defaults in to_json.]] - rationale - d:\transformer\graphify\tests\test_confidence.py
+- [[End-to-end pipeline test detect → extract → build → cluster → analyze → report]] - rationale - d:\transformer\graphify\tests\test_pipeline.py
+- [[Escape a string for safe embedding in a Cypher single-quoted literal.]] - rationale - d:\transformer\graphify\graphify\export.py
+- [[Export graph as GraphML - opens in Gephi, yEd, and any GraphML-compatible tool.]] - rationale - d:\transformer\graphify\graphify\export.py
+- [[Export graph as an Obsidian vault - one .md file per node with wikilinks,]] - rationale - d:\transformer\graphify\graphify\export.py
+- [[Export graph as an SVG file using matplotlib + spring layout.      Lightweight]] - rationale - d:\transformer\graphify\graphify\export.py
+- [[Find connections that are genuinely surprising - not obvious from file structure_1]] - rationale - d:\transformer\graphify\worked\mixed-corpus\raw\analyze.py
+- [[Find connections that are genuinely surprising - not obvious from file structure]] - rationale - d:\transformer\graphify\graphify\analyze.py
+- [[For single-source corpora find edges that bridge different communities.     Th_1]] - rationale - d:\transformer\graphify\worked\mixed-corpus\raw\analyze.py
+- [[For single-source corpora find edges that bridge different communities.     Th]] - rationale - d:\transformer\graphify\graphify\analyze.py
+- [[Generate an interactive vis.js HTML visualization of the graph.      Features]] - rationale - d:\transformer\graphify\graphify\export.py
+- [[Generate questions the graph is uniquely positioned to answer.     Based on AM_1]] - rationale - d:\transformer\graphify\worked\mixed-corpus\raw\analyze.py
+- [[Generate questions the graph is uniquely positioned to answer.     Based on AM]] - rationale - d:\transformer\graphify\graphify\analyze.py
+- [[God Nodes Analysis]] - code - d:\transformer\graphify\ARCHITECTURE.md
+- [[Graph analysis god nodes (most connected), surprising connections (cross-commun]] - rationale - d:\transformer\graphify\worked\mixed-corpus\raw\analyze.py
+- [[Graph with one semantically_similar_to edge and one references edge, both cross-]] - rationale - d:\transformer\graphify\tests\test_semantic_similarity.py
+- [[Graphify Analyze Module]] - code - d:\transformer\graphify\ARCHITECTURE.md
+- [[Graphify Build Module]] - code - d:\transformer\graphify\ARCHITECTURE.md
+- [[Graphify Cluster Module]] - code - d:\transformer\graphify\ARCHITECTURE.md
+- [[Graphify Detect Module]] - code - d:\transformer\graphify\ARCHITECTURE.md
+- [[Graphify Export Module]] - code - d:\transformer\graphify\ARCHITECTURE.md
+- [[Graphify Pipeline Architecture]] - code - d:\transformer\graphify\ARCHITECTURE.md
+- [[Graphify Report Module]] - code - d:\transformer\graphify\ARCHITECTURE.md
+- [[Graphify Validate Module]] - code - d:\transformer\graphify\ARCHITECTURE.md
+- [[Helper build a small nx.Graph from nodeedge specs.]] - rationale - d:\transformer\graphify\tests\test_analyze.py
+- [[INFERRED edges must have confidence_score between 0.0 and 1.0.]] - rationale - d:\transformer\graphify\tests\test_confidence.py
+- [[Interactive HTML Graph Export]] - code - d:\transformer\graphify\ARCHITECTURE.md
+- [[Invert communities dict node_id - community_id.]] - rationale - d:\transformer\graphify\worked\mixed-corpus\raw\analyze.py
+- [[Leiden Community Detection]] - code - d:\transformer\graphify\ARCHITECTURE.md
+- [[Leiden community detection on NetworkX graphs. Splits oversized communities. Ret]] - rationale - d:\transformer\graphify\worked\mixed-corpus\raw\cluster.py
+- [[MCP Stdio Server]] - code - d:\transformer\graphify\ARCHITECTURE.md
+- [[Merge multiple extraction results into one graph.]] - rationale - d:\transformer\graphify\worked\mixed-corpus\raw\build.py
+- [[Merge multiple extraction results into one graph.      directed=True produces]] - rationale - d:\transformer\graphify\graphify\build.py
+- [[Mirrors export.safe_name so community hub filenames and report wikilinks always]] - rationale - d:\transformer\graphify\graphify\report.py
+- [[Multi-file graph should find cross-file edges between real entities.]] - rationale - d:\transformer\graphify\tests\test_analyze.py
+- [[NetworkX Graph Data Structure]] - code - d:\transformer\graphify\ARCHITECTURE.md
+- [[Non-semantic edges must not get the semantically similar tag.]] - rationale - d:\transformer\graphify\tests\test_semantic_similarity.py
+- [[Normalize an ID string the same way extract._make_id does.      Used to reconc]] - rationale - d:\transformer\graphify\graphify\build.py
+- [[Obsidian Vault Export]] - code - d:\transformer\graphify\ARCHITECTURE.md
+- [[Push graph directly to a running Neo4j instance via the Python driver.      Re]] - rationale - d:\transformer\graphify\graphify\export.py
+- [[Ratio of actual intra-community edges to maximum possible.]] - rationale - d:\transformer\graphify\graphify\cluster.py
+- [[Ratio of actual intra-community edges to maximum possible._1]] - rationale - d:\transformer\graphify\worked\mixed-corpus\raw\cluster.py
+- [[Re-run AST extraction + build + cluster + report for code files. No LLM needed.]] - rationale - d:\transformer\graphify\graphify\watch.py
+- [[Remove edges whose source or target node is not in the node set.      Returns]] - rationale - d:\transformer\graphify\graphify\export.py
+- [[Remove graphify PreToolUse hook from .codexhooks.json.]] - rationale - d:\transformer\graphify\graphify\__main__.py
+- [[Remove graphify skill + steering file for Kiro.]] - rationale - d:\transformer\graphify\graphify\__main__.py
+- [[Report summary line should include avg confidence for INFERRED edges.]] - rationale - d:\transformer\graphify\tests\test_confidence.py
+- [[Return True if this node is a file-level hub node (e.g. 'client', 'models')]] - rationale - d:\transformer\graphify\worked\mixed-corpus\raw\analyze.py
+- [[Return True if this node is a manually-injected semantic concept node     rathe_1]] - rationale - d:\transformer\graphify\worked\mixed-corpus\raw\analyze.py
+- [[Return True if this node is a manually-injected semantic concept node     rathe]] - rationale - d:\transformer\graphify\graphify\analyze.py
+- [[Return a minimal extraction dict with one edge of each confidence type.]] - rationale - d:\transformer\graphify\tests\test_confidence.py
+- [[Return the first path component - used to detect cross-repo edges._1]] - rationale - d:\transformer\graphify\worked\mixed-corpus\raw\analyze.py
+- [[Return the first path component - used to detect cross-repo edges.]] - rationale - d:\transformer\graphify\graphify\analyze.py
+- [[Return the top_n most-connected real entities - the core abstractions.      Fi_1]] - rationale - d:\transformer\graphify\worked\mixed-corpus\raw\analyze.py
+- [[Return the top_n most-connected real entities - the core abstractions.      Fi]] - rationale - d:\transformer\graphify\graphify\analyze.py
+- [[Run Leiden community detection. Returns {community_id node_ids}.      Commu_1]] - rationale - d:\transformer\graphify\worked\mixed-corpus\raw\cluster.py
+- [[Run Leiden community detection. Returns {community_id node_ids}.      Commu]] - rationale - d:\transformer\graphify\graphify\cluster.py
+- [[Run a second Leiden pass on a community subgraph to split it further.]] - rationale - d:\transformer\graphify\graphify\cluster.py
+- [[Run a second Leiden pass on a community subgraph to split it further._1]] - rationale - d:\transformer\graphify\worked\mixed-corpus\raw\cluster.py
+- [[Run community detection. Returns {node_id community_id}.      Tries Leiden (g]] - rationale - d:\transformer\graphify\graphify\cluster.py
+- [[Run the full pipeline on the fixtures directory. Returns a dict of outputs.]] - rationale - d:\transformer\graphify\tests\test_pipeline.py
+- [[Same as above but for stderr — ANSI codes can go to either stream.]] - rationale - d:\transformer\graphify\tests\test_cluster.py
+- [[Score how surprising a cross-file edge is. Returns (score, reasons)._1]] - rationale - d:\transformer\graphify\worked\mixed-corpus\raw\analyze.py
+- [[Score how surprising a cross-file edge is. Returns (score, reasons).]] - rationale - d:\transformer\graphify\graphify\analyze.py
+- [[Second run on unchanged corpus should produce identical nodeedge counts.]] - rationale - d:\transformer\graphify\tests\test_pipeline.py
+- [[Single-file graph should return cross-community edges, not empty list.]] - rationale - d:\transformer\graphify\tests\test_analyze.py
+- [[Store hyperedges in the graph's metadata dict.]] - rationale - d:\transformer\graphify\graphify\export.py
+- [[Surprising connections section shows confidence score next to INFERRED edges.]] - rationale - d:\transformer\graphify\tests\test_confidence.py
+- [[Tests for analyze.py.]] - rationale - d:\transformer\graphify\tests\test_analyze.py
+- [[Tests for confidence_score on edges.]] - rationale - d:\transformer\graphify\tests\test_confidence.py
+- [[Tests for hyperedge support in graphify.]] - rationale - d:\transformer\graphify\tests\test_hypergraph.py
+- [[Tests for semantically_similar_to edge support.]] - rationale - d:\transformer\graphify\tests\test_semantic_similarity.py
+- [[Two nodes in separate files connected by a semantically_similar_to edge.]] - rationale - d:\transformer\graphify\tests\test_semantic_similarity.py
+- [[Write graph.json then reload it - hyperedges must survive.]] - rationale - d:\transformer\graphify\tests\test_hypergraph.py
+- [[_cross_community_surprises()]] - code - d:\transformer\graphify\worked\mixed-corpus\raw\analyze.py
+- [[_cross_file_surprises()]] - code - d:\transformer\graphify\worked\mixed-corpus\raw\analyze.py
+- [[_cypher_escape()]] - code - d:\transformer\graphify\graphify\export.py
+- [[_file_category()]] - code - d:\transformer\graphify\worked\mixed-corpus\raw\analyze.py
+- [[_html_script()]] - code - d:\transformer\graphify\graphify\export.py
+- [[_html_styles()]] - code - d:\transformer\graphify\graphify\export.py
+- [[_hyperedge_script()]] - code - d:\transformer\graphify\graphify\export.py
+- [[_is_concept_node()]] - code - d:\transformer\graphify\worked\mixed-corpus\raw\analyze.py
+- [[_is_file_node()]] - code - d:\transformer\graphify\worked\mixed-corpus\raw\analyze.py
+- [[_kiro_uninstall()]] - code - d:\transformer\graphify\graphify\__main__.py
+- [[_make_extraction()]] - code - d:\transformer\graphify\tests\test_confidence.py
+- [[_make_extraction_with_semantic_edge()]] - code - d:\transformer\graphify\tests\test_semantic_similarity.py
+- [[_make_graph_with_semantic_edge()]] - code - d:\transformer\graphify\tests\test_semantic_similarity.py
+- [[_make_report()]] - code - d:\transformer\graphify\tests\test_hypergraph.py
+- [[_make_report_with_semantic_surprise()]] - code - d:\transformer\graphify\tests\test_semantic_similarity.py
+- [[_make_simple_graph()]] - code - d:\transformer\graphify\tests\test_analyze.py
+- [[_make_two_edge_graph()]] - code - d:\transformer\graphify\tests\test_semantic_similarity.py
+- [[_node_community_map()]] - code - d:\transformer\graphify\worked\mixed-corpus\raw\analyze.py
+- [[_normalize_id()]] - code - d:\transformer\graphify\graphify\build.py
+- [[_partition()]] - code - d:\transformer\graphify\graphify\cluster.py
+- [[_rebuild_code()]] - code - d:\transformer\graphify\graphify\watch.py
+- [[_safe_community_name()]] - code - d:\transformer\graphify\graphify\report.py
+- [[_split_community()]] - code - d:\transformer\graphify\worked\mixed-corpus\raw\cluster.py
+- [[_strip_diacritics()]] - code - d:\transformer\graphify\graphify\export.py
+- [[_suppress_output()]] - code - d:\transformer\graphify\graphify\cluster.py
+- [[_surprise_score()]] - code - d:\transformer\graphify\worked\mixed-corpus\raw\analyze.py
+- [[_top_level_dir()]] - code - d:\transformer\graphify\worked\mixed-corpus\raw\analyze.py
+- [[_uninstall_codex_hook()]] - code - d:\transformer\graphify\graphify\__main__.py
+- [[academic_rewrite()_2]] - code - d:\transformer\thesis\debug_rewrite.py
+- [[analyze.py]] - code - d:\transformer\graphify\graphify\analyze.py
+- [[analyze.py_1]] - code - d:\transformer\graphify\worked\mixed-corpus\raw\analyze.py
+- [[analyze_document()]] - code - d:\transformer\analyze_paper_format.py
+- [[analyze_paper_format.py]] - code - d:\transformer\analyze_paper_format.py
+- [[analyze_paragraph_format()]] - code - d:\transformer\analyze_paper_format.py
+- [[attach_hyperedges()]] - code - d:\transformer\graphify\graphify\export.py
+- [[build()]] - code - d:\transformer\graphify\worked\mixed-corpus\raw\build.py
+- [[build.py]] - code - d:\transformer\graphify\graphify\build.py
+- [[build.py_1]] - code - d:\transformer\graphify\worked\mixed-corpus\raw\build.py
+- [[build_from_json()]] - code - d:\transformer\graphify\worked\mixed-corpus\raw\build.py
+- [[build_graph()]] - code - d:\transformer\graphify\worked\mixed-corpus\raw\cluster.py
+- [[cluster()]] - code - d:\transformer\graphify\worked\mixed-corpus\raw\cluster.py
+- [[cluster.py]] - code - d:\transformer\graphify\graphify\cluster.py
+- [[cluster.py_1]] - code - d:\transformer\graphify\worked\mixed-corpus\raw\cluster.py
+- [[cohesion_score()]] - code - d:\transformer\graphify\worked\mixed-corpus\raw\cluster.py
+- [[confidence_score survives build_from_json → to_json → JSON parse round-trip.]] - rationale - d:\transformer\graphify\tests\test_confidence.py
+- [[debug_rewrite.py]] - code - d:\transformer\thesis\debug_rewrite.py
+- [[export.py]] - code - d:\transformer\graphify\graphify\export.py
+- [[generate()]] - code - d:\transformer\graphify\graphify\report.py
+- [[get_all_text()_5]] - code - d:\transformer\thesis\debug_rewrite.py
+- [[god_nodes()]] - code - d:\transformer\graphify\worked\mixed-corpus\raw\analyze.py
+- [[graph_diff()]] - code - d:\transformer\graphify\worked\mixed-corpus\raw\analyze.py
+- [[load_extraction()]] - code - d:\transformer\graphify\tests\test_build.py
+- [[main()]] - code - d:\transformer\Stock Forecast\main.py
+- [[main.py]] - code - d:\transformer\Stock Forecast\main.py
+- [[make_graph()]] - code - d:\transformer\graphify\tests\test_analyze.py
+- [[make_graph()_1]] - code - d:\transformer\graphify\tests\test_cluster.py
+- [[make_graph()_2]] - code - d:\transformer\graphify\tests\test_export.py
+- [[make_inputs()]] - code - d:\transformer\graphify\tests\test_report.py
+- [[manifest.py]] - code - d:\transformer\graphify\graphify\manifest.py
+- [[prune_dangling_edges()]] - code - d:\transformer\graphify\graphify\export.py
+- [[push_to_neo4j()]] - code - d:\transformer\graphify\graphify\export.py
+- [[report.py]] - code - d:\transformer\graphify\graphify\report.py
+- [[run_pipeline()]] - code - d:\transformer\graphify\tests\test_pipeline.py
+- [[score_all()]] - code - d:\transformer\graphify\worked\mixed-corpus\raw\cluster.py
+- [[set_seed()]] - code - d:\transformer\Stock Forecast\main.py
+- [[str]] - code
+- [[suggest_questions()]] - code - d:\transformer\graphify\worked\mixed-corpus\raw\analyze.py
+- [[surprising_connections()]] - code - d:\transformer\graphify\worked\mixed-corpus\raw\analyze.py
+- [[test_ambiguous_edge_preserved()]] - code - d:\transformer\graphify\tests\test_build.py
+- [[test_ambiguous_edges_score_at_most_04()]] - code - d:\transformer\graphify\tests\test_confidence.py
+- [[test_analyze.py]] - code - d:\transformer\graphify\tests\test_analyze.py
+- [[test_attach_hyperedges_adds_new()]] - code - d:\transformer\graphify\tests\test_hypergraph.py
+- [[test_attach_hyperedges_deduplicates()]] - code - d:\transformer\graphify\tests\test_hypergraph.py
+- [[test_attach_hyperedges_multiple_different_ids()]] - code - d:\transformer\graphify\tests\test_hypergraph.py
+- [[test_attach_hyperedges_skips_entry_without_id()]] - code - d:\transformer\graphify\tests\test_hypergraph.py
+- [[test_build.py]] - code - d:\transformer\graphify\tests\test_build.py
+- [[test_build_from_json_edge_count()]] - code - d:\transformer\graphify\tests\test_build.py
+- [[test_build_from_json_missing_hyperedges_key()]] - code - d:\transformer\graphify\tests\test_hypergraph.py
+- [[test_build_from_json_no_hyperedges()]] - code - d:\transformer\graphify\tests\test_hypergraph.py
+- [[test_build_from_json_node_count()]] - code - d:\transformer\graphify\tests\test_build.py
+- [[test_build_from_json_stores_hyperedges()]] - code - d:\transformer\graphify\tests\test_hypergraph.py
+- [[test_build_merges_multiple_extractions()]] - code - d:\transformer\graphify\tests\test_build.py
+- [[test_cluster.py]] - code - d:\transformer\graphify\tests\test_cluster.py
+- [[test_cluster_covers_all_nodes()]] - code - d:\transformer\graphify\tests\test_cluster.py
+- [[test_cluster_does_not_write_to_stderr()]] - code - d:\transformer\graphify\tests\test_cluster.py
+- [[test_cluster_does_not_write_to_stdout()]] - code - d:\transformer\graphify\tests\test_cluster.py
+- [[test_cluster_returns_dict()]] - code - d:\transformer\graphify\tests\test_cluster.py
+- [[test_cohesion_score_complete_graph()]] - code - d:\transformer\graphify\tests\test_cluster.py
+- [[test_cohesion_score_disconnected()]] - code - d:\transformer\graphify\tests\test_cluster.py
+- [[test_cohesion_score_range()]] - code - d:\transformer\graphify\tests\test_cluster.py
+- [[test_cohesion_score_single_node()]] - code - d:\transformer\graphify\tests\test_cluster.py
+- [[test_confidence.py]] - code - d:\transformer\graphify\tests\test_confidence.py
+- [[test_confidence_score_round_trip()]] - code - d:\transformer\graphify\tests\test_confidence.py
+- [[test_edges_have_confidence()]] - code - d:\transformer\graphify\tests\test_build.py
+- [[test_export.py]] - code - d:\transformer\graphify\tests\test_export.py
+- [[test_extracted_edges_have_score_1()]] - code - d:\transformer\graphify\tests\test_confidence.py
+- [[test_file_category()]] - code - d:\transformer\graphify\tests\test_analyze.py
+- [[test_god_nodes_have_required_keys()]] - code - d:\transformer\graphify\tests\test_analyze.py
+- [[test_god_nodes_returns_list()]] - code - d:\transformer\graphify\tests\test_analyze.py
+- [[test_god_nodes_sorted_by_degree()]] - code - d:\transformer\graphify\tests\test_analyze.py
+- [[test_graph_diff_empty_diff()]] - code - d:\transformer\graphify\tests\test_analyze.py
+- [[test_graph_diff_new_edges()]] - code - d:\transformer\graphify\tests\test_analyze.py
+- [[test_graph_diff_new_nodes()]] - code - d:\transformer\graphify\tests\test_analyze.py
+- [[test_graph_diff_removed_nodes()]] - code - d:\transformer\graphify\tests\test_analyze.py
+- [[test_hyperedges_roundtrip_via_json_file()]] - code - d:\transformer\graphify\tests\test_hypergraph.py
+- [[test_hypergraph.py]] - code - d:\transformer\graphify\tests\test_hypergraph.py
+- [[test_inferred_edges_score_in_range()]] - code - d:\transformer\graphify\tests\test_confidence.py
+- [[test_is_concept_node_empty_source()]] - code - d:\transformer\graphify\tests\test_analyze.py
+- [[test_is_concept_node_real_file()]] - code - d:\transformer\graphify\tests\test_analyze.py
+- [[test_nodes_have_label()]] - code - d:\transformer\graphify\tests\test_build.py
+- [[test_pipeline.py]] - code - d:\transformer\graphify\tests\test_pipeline.py
+- [[test_pipeline_all_nodes_have_community()]] - code - d:\transformer\graphify\tests\test_pipeline.py
+- [[test_pipeline_detection_finds_code_and_docs()]] - code - d:\transformer\graphify\tests\test_pipeline.py
+- [[test_pipeline_extraction_confidence_labels()]] - code - d:\transformer\graphify\tests\test_pipeline.py
+- [[test_pipeline_graph_has_edges()]] - code - d:\transformer\graphify\tests\test_pipeline.py
+- [[test_pipeline_incremental_update()]] - code - d:\transformer\graphify\tests\test_pipeline.py
+- [[test_pipeline_no_self_loops()]] - code - d:\transformer\graphify\tests\test_pipeline.py
+- [[test_pipeline_report_mentions_top_god_node()]] - code - d:\transformer\graphify\tests\test_pipeline.py
+- [[test_pipeline_runs_end_to_end()]] - code - d:\transformer\graphify\tests\test_pipeline.py
+- [[test_report.py]] - code - d:\transformer\graphify\tests\test_report.py
+- [[test_report_contains_ambiguous_section()]] - code - d:\transformer\graphify\tests\test_report.py
+- [[test_report_contains_communities()]] - code - d:\transformer\graphify\tests\test_report.py
+- [[test_report_contains_corpus_check()]] - code - d:\transformer\graphify\tests\test_report.py
+- [[test_report_contains_god_nodes()]] - code - d:\transformer\graphify\tests\test_report.py
+- [[test_report_contains_header()]] - code - d:\transformer\graphify\tests\test_report.py
+- [[test_report_contains_surprising_connections()]] - code - d:\transformer\graphify\tests\test_report.py
+- [[test_report_includes_hyperedge_node_list()]] - code - d:\transformer\graphify\tests\test_hypergraph.py
+- [[test_report_includes_hyperedges_section()]] - code - d:\transformer\graphify\tests\test_hypergraph.py
+- [[test_report_inferred_tag_with_score()]] - code - d:\transformer\graphify\tests\test_confidence.py
+- [[test_report_no_semantic_tag_for_other_relations()]] - code - d:\transformer\graphify\tests\test_semantic_similarity.py
+- [[test_report_renders_semantically_similar_tag()]] - code - d:\transformer\graphify\tests\test_semantic_similarity.py
+- [[test_report_semantic_tag_on_correct_line()]] - code - d:\transformer\graphify\tests\test_semantic_similarity.py
+- [[test_report_shows_avg_confidence_for_inferred()]] - code - d:\transformer\graphify\tests\test_confidence.py
+- [[test_report_shows_raw_cohesion_scores()]] - code - d:\transformer\graphify\tests\test_report.py
+- [[test_report_shows_token_cost()]] - code - d:\transformer\graphify\tests\test_report.py
+- [[test_report_skips_hyperedges_section_when_empty()]] - code - d:\transformer\graphify\tests\test_hypergraph.py
+- [[test_report_skips_hyperedges_section_when_key_missing()]] - code - d:\transformer\graphify\tests\test_hypergraph.py
+- [[test_score_all_keys_match_communities()]] - code - d:\transformer\graphify\tests\test_cluster.py
+- [[test_semantic_edge_confidence_score_preserved()]] - code - d:\transformer\graphify\tests\test_semantic_similarity.py
+- [[test_semantic_edge_nodes_present()]] - code - d:\transformer\graphify\tests\test_semantic_similarity.py
+- [[test_semantic_edge_reason_mentions_similarity()]] - code - d:\transformer\graphify\tests\test_semantic_similarity.py
+- [[test_semantic_edge_scores_higher_than_references()]] - code - d:\transformer\graphify\tests\test_semantic_similarity.py
+- [[test_semantic_edge_survives_build_from_json()]] - code - d:\transformer\graphify\tests\test_semantic_similarity.py
+- [[test_semantic_similarity.py]] - code - d:\transformer\graphify\tests\test_semantic_similarity.py
+- [[test_surprising_connections_ambiguous_scores_higher_than_extracted()]] - code - d:\transformer\graphify\tests\test_analyze.py
+- [[test_surprising_connections_cross_source_multi_file()]] - code - d:\transformer\graphify\tests\test_analyze.py
+- [[test_surprising_connections_cross_type_scores_higher()]] - code - d:\transformer\graphify\tests\test_analyze.py
+- [[test_surprising_connections_excludes_concept_nodes()]] - code - d:\transformer\graphify\tests\test_analyze.py
+- [[test_surprising_connections_have_required_keys()]] - code - d:\transformer\graphify\tests\test_analyze.py
+- [[test_surprising_connections_have_why_field()]] - code - d:\transformer\graphify\tests\test_analyze.py
+- [[test_surprising_connections_single_file_uses_community_bridges()]] - code - d:\transformer\graphify\tests\test_analyze.py
+- [[test_to_cypher_contains_merge_statements()]] - code - d:\transformer\graphify\tests\test_export.py
+- [[test_to_cypher_creates_file()]] - code - d:\transformer\graphify\tests\test_export.py
+- [[test_to_graphml_creates_file()]] - code - d:\transformer\graphify\tests\test_export.py
+- [[test_to_graphml_has_community_attribute()]] - code - d:\transformer\graphify\tests\test_export.py
+- [[test_to_graphml_valid_xml()]] - code - d:\transformer\graphify\tests\test_export.py
+- [[test_to_html_contains_legend_with_labels()]] - code - d:\transformer\graphify\tests\test_export.py
+- [[test_to_html_contains_nodes_and_edges()]] - code - d:\transformer\graphify\tests\test_export.py
+- [[test_to_html_contains_search()]] - code - d:\transformer\graphify\tests\test_export.py
+- [[test_to_html_contains_visjs()]] - code - d:\transformer\graphify\tests\test_export.py
+- [[test_to_html_creates_file()]] - code - d:\transformer\graphify\tests\test_export.py
+- [[test_to_json_creates_file()]] - code - d:\transformer\graphify\tests\test_export.py
+- [[test_to_json_defaults_missing_confidence_score()]] - code - d:\transformer\graphify\tests\test_confidence.py
+- [[test_to_json_hyperedges_empty_when_none()]] - code - d:\transformer\graphify\tests\test_hypergraph.py
+- [[test_to_json_includes_hyperedges()]] - code - d:\transformer\graphify\tests\test_hypergraph.py
+- [[test_to_json_nodes_have_community()]] - code - d:\transformer\graphify\tests\test_export.py
+- [[test_to_json_valid_json()]] - code - d:\transformer\graphify\tests\test_export.py
+- [[to_cypher()]] - code - d:\transformer\graphify\graphify\export.py
+- [[to_graphml()]] - code - d:\transformer\graphify\graphify\export.py
+- [[to_html()]] - code - d:\transformer\graphify\graphify\export.py
+- [[to_json()]] - code - d:\transformer\graphify\graphify\export.py
+- [[to_obsidian()]] - code - d:\transformer\graphify\graphify\export.py
+- [[to_svg()]] - code - d:\transformer\graphify\graphify\export.py
+- [[w()_5]] - code - d:\transformer\thesis\debug_rewrite.py
+
+## Live Query (requires Dataview plugin)
+
+```dataview
+TABLE source_file, type FROM #community/Graphify_Analyze_Module
+SORT file.name ASC
+```
+
+## Connections to other communities
+- 42 edges to [[_COMMUNITY_Thesis Debug + Cross-File Analysis]]
+- 27 edges to [[_COMMUNITY_Graphify Hooks + Agents CLI]]
+- 22 edges to [[_COMMUNITY_Thesis Doc Analysis Scripts]]
+- 18 edges to [[_COMMUNITY_Trading Account Manager + Auto]]
+- 18 edges to [[_COMMUNITY_Graphify Extract  Multi-Language Parsers]]
+- 14 edges to [[_COMMUNITY_Graphify File Detection]]
+- 13 edges to [[_COMMUNITY_Sample Fixtures + Serve]]
+- 13 edges to [[_COMMUNITY_Stock Forecast API Predictor]]
+- 12 edges to [[_COMMUNITY_Graphify Ingest + Security]]
+- 12 edges to [[_COMMUNITY_HTTPX Auth + Client]]
+- 9 edges to [[_COMMUNITY_Graphify Benchmark Module]]
+- 9 edges to [[_COMMUNITY_Stock Forecast Data + Training Pipeline]]
+- 8 edges to [[_COMMUNITY_Thesis Word Conversion + Frontend API]]
+- 8 edges to [[_COMMUNITY_Graphify Worked Example API]]
+- 5 edges to [[_COMMUNITY_AlphaTransformer Core Models]]
+- 4 edges to [[_COMMUNITY_Community 31]]
+- 4 edges to [[_COMMUNITY_Graphify Wiki Generator]]
+- 3 edges to [[_COMMUNITY_Graphify Validation]]
+- 3 edges to [[_COMMUNITY_Thesis Figure Drawing Pipeline]]
+- 2 edges to [[_COMMUNITY_Graphify Cache Management]]
+- 1 edge to [[_COMMUNITY_Community 33]]
+- 1 edge to [[_COMMUNITY_Community 30]]
+- 1 edge to [[_COMMUNITY_Thesis Step-3 Rewrite Scripts]]
+
+## Top bridge nodes
+- [[str]] - degree 131, connects to 18 communities
+- [[.items()_1]] - degree 62, connects to 13 communities
+- [[main()]] - degree 46, connects to 6 communities
+- [[_rebuild_code()]] - degree 17, connects to 4 communities
+- [[build_from_json()]] - degree 39, connects to 3 communities

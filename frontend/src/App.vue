@@ -45,11 +45,25 @@
             </router-link>
           </nav>
 
-          <!-- 系统状态 -->
-          <div class="system-status">
-            <div class="status-indicator" :class="{ active: isConnected }">
-              <span class="status-dot"></span>
-              <span class="status-text">{{ connectionText }}</span>
+          <!-- 系统状态 + 用户信息 -->
+          <div class="header-right">
+            <div class="system-status">
+              <div class="status-indicator" :class="{ active: isConnected }">
+                <span class="status-dot"></span>
+                <span class="status-text">{{ connectionText }}</span>
+              </div>
+            </div>
+
+            <!-- 已登录用户 -->
+            <div v-if="authStore.isAuthenticated" class="user-section">
+              <span class="user-name">{{ authStore.user?.username }}</span>
+              <button class="logout-btn" @click="handleLogout" title="退出登录">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                  <polyline points="16 17 21 12 16 7"/>
+                  <line x1="21" y1="12" x2="9" y2="12"/>
+                </svg>
+              </button>
             </div>
           </div>
         </div>
@@ -87,10 +101,12 @@
 
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue'
+import { useRouter } from 'vue-router'
 import ElConfigProvider from 'element-plus/es/components/config-provider/index'
 import zhCn from 'element-plus/es/locale/lang/zh-cn'
 import gsap from 'gsap'
 import { api } from './api'
+import { useAuthStore } from './stores/auth'
 
 // ─── Refs ─────────────────────────────────────────────────────────────────
 const logoIconRef = ref<HTMLElement | null>(null)
@@ -100,6 +116,8 @@ const noiseCanvasRef = ref<HTMLCanvasElement | null>(null)
 const enableNoiseCanvas = false
 
 // ─── State ──────────────────────────────────────────────────────────────
+const router = useRouter()
+const authStore = useAuthStore()
 const isConnected = ref(false)
 const connectionText = ref('连接检查中')
 const currentTime = ref('')
@@ -197,6 +215,12 @@ const checkConnection = async () => {
     isConnected.value = false
     connectionText.value = '后端未连接'
   }
+}
+
+// ─── 退出登录 ──────────────────────────────────────────────────────────
+const handleLogout = () => {
+  authStore.logout()
+  router.push('/login')
 }
 
 // ─── 窗口大小调整 ────────────────────────────────────────────────────
@@ -386,6 +410,51 @@ onUnmounted(() => {
 .system-status {
   display: flex;
   align-items: center;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.user-section {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 12px 6px 14px;
+  border-radius: 20px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-default);
+}
+
+.user-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.logout-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 8px;
+  color: var(--text-secondary);
+  background: transparent;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.logout-btn:hover {
+  color: var(--accent-red, #ef4444);
+  background: rgba(239, 68, 68, 0.1);
 }
 
 .status-indicator {

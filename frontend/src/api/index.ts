@@ -3,11 +3,13 @@
  * - 统一 baseURL: http://localhost:8080
  * - AbortController: 股票切换时自动取消旧请求
  * - 全局错误拦截: 500 → 中文 Toast（永不裸崩）
+ * - JWT 认证: 自动附加 token, 401 自动 refresh
  */
 
 import axios, { type AxiosInstance, type AxiosError, type CancelTokenSource } from 'axios'
 import ElNotification from 'element-plus/es/components/notification/index'
 import { captureApiError, syncSentryUserContext } from '../lib/sentry'
+import { useAuthStore } from '../stores/auth'
 import type {
   AccountBalance, AccountConfig, KLineResponse, TickerListResponse,
   PredictionsResponse, OrderRequest, OrderResponse, DelayedOrderRequest,
@@ -26,21 +28,102 @@ export const api: AxiosInstance = axios.create({
   headers: { 'Content-Type': 'application/json' },
 })
 
-const NOTIFICATION_DEDUPE_MS = 3500
-const lastErrorNotificationAt = new Map<string, number>()
+// 避免循环依赖：在模块级别获取 store
+function getAuthStore() {
+  try {
+    return useAuthStore()
+  } catch {
+    return null
+  }
+}
 
 // ─────────────────────────────────────────────────────────────────────────────
-// 全局响应拦截器（消灭 500 → 中文友好提示）
+// 请求拦截器：自动附加 JWT
+// ─────────────────────────────────────────────────────────────────────────────
+
+api.interceptors.request.use(
+  (config) => {
+    const authStore = getAuthStore()
+    if (authStore?.token) {
+      config.headers.Authorization = `Bearer ${authStore.token}`
+    }
+    return config
+  },
+  (error) => Promise.reject(error),
+)
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 401 自动 refresh 机制
+// ─────────────────────────────────────────────────────────────────────────────
+
+const NOTIFICATION_DEDUPE_MS = 3500
+const lastErrorNotificationAt = new Map<string, number>()
+let isRefreshing = false
+let refreshSubscribers: Array<(token: string) => void> = []
+
+function subscribeTokenRefresh(callback: (token: string) => void) {
+  refreshSubscribers.push(callback)
+}
+
+function onTokenRefreshed(newToken: string) {
+  refreshSubscribers.forEach((cb) => cb(newToken))
+  refreshSubscribers = []
+}
+
+async function handleUnauthorized(): Promise<string | null> {
+  const authStore = getAuthStore()
+  if (!authStore?.refreshToken) return null
+
+  if (isRefreshing) {
+    return new Promise((resolve) => {
+      subscribeTokenRefresh((token) => resolve(token))
+    })
+  }
+
+  isRefreshing = true
+  try {
+    const res = await api.post('/auth/refresh', { refresh_token: authStore.refreshToken })
+    const { access_token, refresh_token } = res.data
+    authStore.token = access_token
+    authStore.refreshToken = refresh_token
+    localStorage.setItem('at_access_token', access_token)
+    localStorage.setItem('at_refresh_token', refresh_token)
+    onTokenRefreshed(access_token)
+    return access_token
+  } catch {
+    authStore.logout()
+    window.location.href = '/login'
+    return null
+  } finally {
+    isRefreshing = false
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 响应拦截器：消灭 500 + 401 自动 refresh
 // ─────────────────────────────────────────────────────────────────────────────
 
 api.interceptors.response.use(
-  (response) => {
+  async (response) => {
     syncSentryUserContext(response.data)
     return response
   },
-  (error: AxiosError<ApiError>) => {
+  async (error: AxiosError<ApiError>) => {
     if (axios.isCancel(error)) {
-      return Promise.reject(error) // AbortController 取消，不弹窗
+      return Promise.reject(error)
+    }
+
+    const originalRequest = error.config
+
+    // 401: 尝试 refresh token（避免循环）
+    if (error.response?.status === 401 && originalRequest && !(originalRequest.headers as any)['X-Retry']) {
+      const newToken = await handleUnauthorized()
+      if (newToken) {
+        ;(originalRequest.headers as any)['Authorization'] = `Bearer ${newToken}`
+        ;(originalRequest.headers as any)['X-Retry'] = 'true'
+        return api(originalRequest)
+      }
+      return Promise.reject(error)
     }
 
     captureApiError(error)
@@ -83,7 +166,7 @@ export function cancelRequest(key: string) {
 }
 
 export function getCancelToken(key: string): CancelTokenSource {
-  cancelRequest(key) // 取消旧请求
+  cancelRequest(key)
   const src = axios.CancelToken.source()
   _sources.set(key, src)
   return src
@@ -204,4 +287,4 @@ export const apiDashboard = {
 // 快捷导出（向后兼容）
 // ─────────────────────────────────────────────────────────────────────────────
 
-export const apiTrading = apiAccount // 别名，向后兼容
+export const apiTrading = apiAccount

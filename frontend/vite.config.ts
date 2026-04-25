@@ -9,6 +9,7 @@ export default defineConfig({
   ],
   build: {
     rollupOptions: {
+      input: './index.html',
       output: {
         manualChunks(id) {
           if (!id.includes('node_modules')) {
@@ -36,7 +37,8 @@ export default defineConfig({
   },
   server: {
     port: 5173,
-    host: '0.0.0.0',
+    host: true,
+    strictPort: true,
     proxy: {
       '/api': {
         target: 'http://localhost:8080',

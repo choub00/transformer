@@ -17,6 +17,7 @@
     "vue-tsc": "^3.2.6"
   },
   "dependencies": {
+    "vue": "^3.5.16",
     "@element-plus/icons-vue": "^2.3.2",
     "@rolldown/binding-win32-x64-msvc": "^1.0.0-rc.12",
     "@vueuse/core": "^14.2.1",

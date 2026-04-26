@@ -1,0 +1,16 @@
+{
+  "name": "transformer",
+  "private": true,
+  "scripts": {
+    "dev": "cd frontend && pnpm dev",
+    "build": "cd frontend && pnpm build",
+    "preview": "cd frontend && pnpm preview",
+    "install:frontend": "cd frontend && pnpm install"
+  },
+  "dependencies": {
+    "echarts": "^6.0.0",
+    "element-plus": "^2.13.7",
+    "pinia": "^3.0.4",
+    "vue": "^3.5.33"
+  }
+}

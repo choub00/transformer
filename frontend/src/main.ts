@@ -1,5 +1,6 @@
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
+import './style.css'
 import ElConfigProvider from 'element-plus/es/components/config-provider/index'
 import ElInput from 'element-plus/es/components/input/index'
 import ElSelect, { ElOption } from 'element-plus/es/components/select/index'
